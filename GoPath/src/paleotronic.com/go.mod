@@ -5,6 +5,7 @@ go 1.24
 require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/chzyer/readline v1.5.1
+	github.com/ebitengine/oto/v3 v3.3.3
 	github.com/go-gl/gl v0.0.0-20231021071112-07e5d0ea2e71
 	github.com/go-gl/glfw v0.0.0-20250301202403-da16c1255728
 	github.com/go-gl/mathgl v1.2.0
@@ -41,7 +42,6 @@ require (
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2 // indirect
 	github.com/creack/goselect v0.1.2 // indirect
-	github.com/ebitengine/oto/v3 v3.3.3 // indirect
 	github.com/ebitengine/purego v0.8.4 // indirect
 	github.com/friendsofgo/errors v0.9.2 // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
