@@ -10,6 +10,7 @@ then
 fi
 
 #export GO111MODULE=off
+export GOFLAGS="${GOFLAGS:--mod=mod}"
 
 echo $GOPATH
 
@@ -103,4 +104,3 @@ case $1 in
 		build
 		;;
 esac
-
