@@ -76,6 +76,11 @@ type ReadMemoryParams struct {
 	Address int `json:"address" jsonschema:"description:Memory address,minimum:0,maximum:65535"`
 }
 
+type ReadMemoryRangeParams struct {
+	Address int `json:"address" jsonschema:"description:Starting memory address,minimum:0,maximum:65535"`
+	Count   int `json:"count" jsonschema:"description:Number of bytes to read,minimum:1,maximum:65536"`
+}
+
 type WriteMemoryParams struct {
 	Address int `json:"address" jsonschema:"description:Memory address,minimum:0,maximum:65535"`
 	Value   int `json:"value" jsonschema:"description:Value to write,minimum:0,maximum:255"`
@@ -499,6 +504,53 @@ func handleReadMemory(ctx context.Context, cc *mcp.ServerSession, params *mcp.Ca
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Memory at $%04X: $%02X (%d)", args.Address, value, value),
 		}},
+	}, nil
+}
+
+func handleReadMemoryRange(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ReadMemoryRangeParams]) (*mcp.CallToolResultFor[any], error) {
+	args := params.Arguments
+	
+	if args.Address < 0 || args.Address > 65535 {
+		return nil, fmt.Errorf("invalid address: must be 0-65535")
+	}
+	
+	if args.Count < 1 || args.Count > 65536 {
+		return nil, fmt.Errorf("invalid count: must be 1-65536")
+	}
+	
+	if args.Address + args.Count > 65536 {
+		return nil, fmt.Errorf("memory range exceeds address space")
+	}
+	
+	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
+	data := make([]byte, args.Count)
+	for i := 0; i < args.Count; i++ {
+		data[i] = byte(int(e.GetMemory(args.Address + i)) & 0xff)
+	}
+	
+	var result strings.Builder
+	result.WriteString(fmt.Sprintf("Memory at $%04X:\n", args.Address))
+	for i := 0; i < len(data); i += 16 {
+		result.WriteString(fmt.Sprintf("%04X: ", args.Address + i))
+		
+		for j := 0; j < 16 && i+j < len(data); j++ {
+			result.WriteString(fmt.Sprintf("%02X ", data[i+j]))
+		}
+		
+		result.WriteString(" |")
+		for j := 0; j < 16 && i+j < len(data); j++ {
+			b := data[i+j]
+			if b >= 32 && b < 127 {
+				result.WriteByte(b)
+			} else {
+				result.WriteByte('.')
+			}
+		}
+		result.WriteString("|\n")
+	}
+	
+	return &mcp.CallToolResultFor[any]{
+		Content: []mcp.Content{&mcp.TextContent{Text: result.String()}},
 	}, nil
 }
 
@@ -2948,6 +3000,11 @@ func createMCPServer() *mcp.Server {
 		Name:        "read_memory",
 		Description: "Read a byte from memory",
 	}, handleReadMemory)
+	
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "read_memory_range",
+		Description: "Read multiple bytes from memory without starting the debugger",
+	}, handleReadMemoryRange)
 	
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "write_memory",
