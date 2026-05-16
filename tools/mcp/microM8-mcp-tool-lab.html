@@ -1,0 +1,1652 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>microM8 MCP Tool Lab</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101115;
+      --panel: #191c22;
+      --panel-2: #20242c;
+      --panel-3: #14171d;
+      --field: #0c0f13;
+      --line: #343b48;
+      --line-soft: #252b35;
+      --text: #f5f3ea;
+      --muted: #abb4c0;
+      --quiet: #788391;
+      --accent: #63d69a;
+      --accent-2: #f7c948;
+      --blue: #73a7ff;
+      --danger: #ff7272;
+      --purple: #b692f6;
+      --shadow: 0 16px 50px rgba(0, 0, 0, .3);
+      --radius: 8px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(99, 214, 154, .06), transparent 280px),
+        radial-gradient(circle at top right, rgba(247, 201, 72, .08), transparent 360px),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #242932;
+      color: var(--text);
+      border-radius: 7px;
+      padding: 8px 10px;
+      min-height: 36px;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .08s ease;
+    }
+
+    button:hover { background: #2b313d; border-color: #4b5565; }
+    button:active { transform: translateY(1px); }
+    button:disabled { cursor: not-allowed; opacity: .52; transform: none; }
+    button.primary { background: #245c3f; border-color: #439868; }
+    button.primary:hover { background: #2e714f; }
+    button.warn { background: #554426; border-color: #9a7934; }
+    button.danger { background: #5f2830; border-color: #a44855; }
+    button.ghost { background: transparent; }
+    button.compact { min-height: 30px; padding: 5px 8px; font-size: 12px; }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--field);
+      color: var(--text);
+      border-radius: 7px;
+      padding: 8px 10px;
+      min-height: 36px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.42;
+      tab-size: 2;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(99, 214, 154, .18);
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    code,
+    pre,
+    .mono {
+      font-family: var(--mono);
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.42;
+    }
+
+    .app {
+      width: min(1760px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 18px 0 28px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      display: grid;
+      grid-template-columns: auto minmax(300px, 1fr) auto auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(25, 28, 34, .94);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 220px;
+    }
+
+    .brand > div:last-child {
+      min-width: 0;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      border: 1px solid #566070;
+      background: #0c0f13;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.1;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+      overflow-wrap: anywhere;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 138px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--quiet);
+      box-shadow: 0 0 0 4px rgba(120, 131, 145, .12);
+    }
+
+    .dot.ok { background: var(--accent); box-shadow: 0 0 0 4px rgba(99, 214, 154, .16); }
+    .dot.bad { background: var(--danger); box-shadow: 0 0 0 4px rgba(255, 114, 114, .14); }
+    .dot.warn { background: var(--accent-2); box-shadow: 0 0 0 4px rgba(247, 201, 72, .14); }
+
+    .session {
+      min-width: 100px;
+      color: var(--quiet);
+      font-size: 12px;
+      font-family: var(--mono);
+      text-align: right;
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: minmax(290px, .68fr) minmax(420px, 1fr) minmax(390px, .95fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .stack { display: grid; gap: 14px; }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line-soft);
+      background: var(--panel-3);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    .panel-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .panel-body {
+      padding: 12px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .row.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tool-list {
+      display: grid;
+      gap: 7px;
+      grid-auto-rows: max-content;
+      max-height: calc(100vh - 265px);
+      min-height: 330px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .tool-row {
+      display: grid;
+      gap: 5px;
+      align-content: start;
+      width: 100%;
+      min-height: 68px;
+      height: auto;
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      padding: 10px;
+      background: #151920;
+      text-align: left;
+      cursor: pointer;
+      overflow: visible;
+      white-space: normal;
+    }
+
+    .tool-row:hover {
+      border-color: #4b5565;
+      background: #1a1f28;
+    }
+
+    .tool-row.active {
+      border-color: rgba(99, 214, 154, .72);
+      box-shadow: inset 3px 0 0 var(--accent);
+      background: #18221d;
+    }
+
+    .tool-name-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .tool-name {
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+      min-width: 0;
+    }
+
+    .tool-desc {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      white-space: normal;
+      overflow: visible;
+      overflow-wrap: anywhere;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 20px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 7px;
+      color: var(--muted);
+      background: #101319;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.mutates {
+      color: #ffd7d7;
+      border-color: rgba(255, 114, 114, .38);
+      background: rgba(255, 114, 114, .1);
+    }
+
+    .badge.readonly {
+      color: #c6f7db;
+      border-color: rgba(99, 214, 154, .34);
+      background: rgba(99, 214, 154, .08);
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .selected-name {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 18px;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .selected-desc {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field-card {
+      display: grid;
+      gap: 8px;
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      padding: 10px;
+      background: #151920;
+    }
+
+    .field-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .field-name {
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .field-type {
+      color: var(--quiet);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .field-desc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 36px;
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .check-row input {
+      width: 18px;
+      min-height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .split-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+
+    .tab {
+      min-height: 34px;
+      border-color: var(--line-soft);
+      background: #161a21;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .tab.active {
+      color: var(--text);
+      border-color: rgba(99, 214, 154, .7);
+      background: #203327;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .codebox {
+      min-height: 210px;
+      padding: 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      background: #070a0d;
+      color: #dce6f1;
+    }
+
+    .schema-box {
+      min-height: 180px;
+      max-height: 320px;
+    }
+
+    .result-box {
+      min-height: 260px;
+      max-height: 440px;
+    }
+
+    .images {
+      display: grid;
+      gap: 10px;
+    }
+
+    .result-image {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #05070a;
+      image-rendering: pixelated;
+    }
+
+    .empty {
+      display: grid;
+      place-items: center;
+      min-height: 140px;
+      border: 1px dashed var(--line);
+      border-radius: 7px;
+      color: var(--quiet);
+      text-align: center;
+      padding: 22px;
+    }
+
+    .kv {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .kv-row {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .kv-row:last-child { border-bottom: 0; }
+
+    .kv dt {
+      color: var(--quiet);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .kv dd {
+      margin: 0;
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    .activity {
+      min-height: 150px;
+      max-height: 210px;
+      padding: 10px;
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      background: #070a0d;
+      color: #d5dde8;
+    }
+
+    .error-text {
+      color: #ffc6c6;
+    }
+
+    .ok-text {
+      color: #bff4d4;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 60;
+      display: grid;
+      gap: 8px;
+      width: min(420px, calc(100vw - 36px));
+      pointer-events: none;
+    }
+
+    .toast-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(25, 28, 34, .96);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1140px) {
+      .main {
+        grid-template-columns: minmax(280px, .75fr) minmax(460px, 1fr);
+      }
+
+      .right-column {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        width: min(calc(100vw - 18px), 760px);
+        padding-top: 9px;
+      }
+
+      .topbar {
+        position: static;
+        grid-template-columns: 1fr;
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .sub {
+        display: none;
+      }
+
+      .session,
+      .status {
+        text-align: left;
+        min-width: 0;
+      }
+
+      .main,
+      .row,
+      .row.three,
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-list {
+        max-height: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">M8</div>
+        <div>
+          <h1>microM8 MCP Tool Lab</h1>
+          <div class="sub">Discover tools, edit arguments, run calls, inspect responses.</div>
+        </div>
+      </div>
+
+      <label>
+        Endpoint
+        <input id="endpoint" spellcheck="false" value="http://localhost:1983/mcp/stream">
+      </label>
+
+      <div class="status">
+        <span id="statusDot" class="dot"></span>
+        <span id="statusText">Disconnected</span>
+      </div>
+
+      <div id="sessionId" class="session">No session</div>
+
+      <div class="toolbar">
+        <button id="healthBtn">Health</button>
+        <button id="connectBtn" class="primary">Connect</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="stack">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Tools</h2>
+            <div class="panel-actions">
+              <button id="refreshToolsBtn" class="compact">Refresh</button>
+            </div>
+          </div>
+          <div class="panel-body stack">
+            <label>
+              Filter
+              <input id="toolFilter" placeholder="name or description" spellcheck="false">
+            </label>
+            <div class="row">
+              <label>
+                Kind
+                <select id="toolKind">
+                  <option value="all">All tools</option>
+                  <option value="readonly">Read-only</option>
+                  <option value="mutates">Changes state</option>
+                </select>
+              </label>
+              <label>
+                Sort
+                <select id="toolSort">
+                  <option value="name">Name</option>
+                  <option value="kind">Kind</option>
+                </select>
+              </label>
+            </div>
+            <div id="toolCount" class="muted">No tools loaded.</div>
+            <div id="toolList" class="tool-list">
+              <div class="empty">Connect, then refresh the tool list.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Activity</h2>
+            <div class="panel-actions">
+              <button id="clearLogBtn" class="compact">Clear</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <pre id="activity" class="activity"></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="stack">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Command</h2>
+            <div class="panel-actions">
+              <button id="requiredArgsBtn" class="compact">Required Args</button>
+              <button id="allArgsBtn" class="compact">All Args</button>
+              <button id="clearArgsBtn" class="compact">Clear Args</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="meta-grid">
+              <div>
+                <h3 id="selectedName" class="selected-name">No tool selected</h3>
+                <p id="selectedDesc" class="selected-desc">Select a tool to inspect its schema and arguments.</p>
+              </div>
+              <span id="selectedKind" class="badge">idle</span>
+            </div>
+
+            <div class="split-tabs">
+              <button class="tab active" data-editor-view="formView">Form</button>
+              <button class="tab" data-editor-view="jsonView">JSON Args</button>
+            </div>
+
+            <div id="formView" class="view active">
+              <div id="formHost" class="form-grid">
+                <div class="empty">Select a tool to generate a parameter form.</div>
+              </div>
+            </div>
+
+            <div id="jsonView" class="view">
+              <label>
+                Arguments
+                <textarea id="argsJson" spellcheck="false">{}</textarea>
+              </label>
+              <div class="toolbar" style="margin-top: 10px;">
+                <button id="formatArgsBtn">Format JSON</button>
+                <button id="applyJsonBtn">Apply To Form</button>
+              </div>
+            </div>
+
+            <div class="toolbar" style="margin-top: 12px;">
+              <button id="runToolBtn" class="primary">Run Tool</button>
+              <button id="previewRequestBtn">Preview Request</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Input Schema</h2>
+            <div class="panel-actions">
+              <button id="copySchemaBtn" class="compact">Copy</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <pre id="schemaView" class="codebox schema-box">No schema loaded.</pre>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">JSON-RPC Request</h2>
+            <div class="panel-actions">
+              <button id="copyRequestBtn" class="compact">Copy</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <pre id="requestView" class="codebox">No request yet.</pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="stack right-column">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Result</h2>
+            <div class="panel-actions">
+              <button id="copyResultBtn" class="compact">Copy</button>
+              <button id="clearResultBtn" class="compact">Clear</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="split-tabs">
+              <button class="tab active" data-result-view="formattedView">Formatted</button>
+              <button class="tab" data-result-view="rawView">Raw</button>
+            </div>
+            <div id="formattedView" class="view active">
+              <div id="resultSummary" class="muted">No response yet.</div>
+              <div id="imageHost" class="images" style="margin-top: 10px;"></div>
+              <pre id="textResult" class="codebox result-box" style="margin-top: 10px;"></pre>
+            </div>
+            <div id="rawView" class="view">
+              <pre id="rawResult" class="codebox result-box">No response yet.</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Connection</h2>
+          </div>
+          <div class="panel-body">
+            <dl class="kv">
+              <div class="kv-row">
+                <dt>Protocol</dt>
+                <dd id="protocolValue">2025-06-18</dd>
+              </div>
+              <div class="kv-row">
+                <dt>Server</dt>
+                <dd id="serverValue">unknown</dd>
+              </div>
+              <div class="kv-row">
+                <dt>Tools</dt>
+                <dd id="toolsValue">0 loaded</dd>
+              </div>
+              <div class="kv-row">
+                <dt>Last Call</dt>
+                <dd id="lastCallValue">none</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" aria-live="polite"></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const storagePrefix = "microm8.toolLab.";
+
+    const state = {
+      endpoint: localStorage.getItem(storagePrefix + "endpoint") || "http://localhost:1983/mcp/stream",
+      protocolVersion: "2025-06-18",
+      id: 1,
+      sessionId: "",
+      connected: false,
+      tools: [],
+      selectedToolName: localStorage.getItem(storagePrefix + "selectedTool") || "",
+      currentArgs: {},
+      lastRequest: null,
+      lastResponse: null,
+      requestTimeoutMs: 30000
+    };
+
+    const mutatingPrefixes = [
+      "reboot",
+      "pause",
+      "break",
+      "insert",
+      "eject",
+      "enable",
+      "rewind",
+      "start",
+      "stop",
+      "key",
+      "write",
+      "load",
+      "type",
+      "assemble",
+      "joystick",
+      "set",
+      "debug_cpu_control",
+      "debug_breakpoint_add",
+      "debug_breakpoint_remove",
+      "debug_memory_write",
+      "debug_register_set"
+    ];
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      }[ch]));
+    }
+
+    function toast(message) {
+      const item = document.createElement("div");
+      item.className = "toast-item";
+      item.textContent = message;
+      $("toast").appendChild(item);
+      setTimeout(() => item.remove(), 4200);
+    }
+
+    function log(message, kind = "info") {
+      const time = new Date().toLocaleTimeString();
+      $("activity").textContent += `[${time}] ${kind.toUpperCase()} ${message}\n`;
+      $("activity").scrollTop = $("activity").scrollHeight;
+    }
+
+    function setStatus(kind, text) {
+      $("statusDot").className = `dot ${kind || ""}`.trim();
+      $("statusText").textContent = text;
+      state.connected = kind === "ok";
+    }
+
+    function pretty(value) {
+      if (typeof value === "string") return value;
+      return JSON.stringify(value, null, 2);
+    }
+
+    function endpointBase() {
+      return state.endpoint.replace(/\/mcp\/stream\/?$/, "");
+    }
+
+    function normalizeEndpoint(value) {
+      const clean = String(value || "").trim().replace(/\/$/, "");
+      if (clean.endsWith("/mcp/stream")) return clean;
+      if (clean.endsWith("/mcp")) return `${clean}/stream`;
+      return clean;
+    }
+
+    function selectedTool() {
+      return state.tools.find((tool) => tool.name === state.selectedToolName) || null;
+    }
+
+    function getSchema(tool) {
+      return tool?.inputSchema || tool?.input_schema || tool?.schema || { type: "object", properties: {} };
+    }
+
+    function getRequired(schema) {
+      return Array.isArray(schema?.required) ? schema.required : [];
+    }
+
+    function getProperties(schema) {
+      return schema?.properties && typeof schema.properties === "object" ? schema.properties : {};
+    }
+
+    function guessKind(toolName) {
+      const name = String(toolName || "");
+      return mutatingPrefixes.some((prefix) => name === prefix || name.startsWith(prefix + "_")) ? "mutates" : "readonly";
+    }
+
+    function setLastRequest(body) {
+      state.lastRequest = body;
+      $("requestView").textContent = pretty(body);
+    }
+
+    function setLastResponse(value) {
+      state.lastResponse = value;
+      $("rawResult").textContent = pretty(value);
+    }
+
+    function saveEndpoint() {
+      state.endpoint = normalizeEndpoint($("endpoint").value);
+      $("endpoint").value = state.endpoint;
+      localStorage.setItem(storagePrefix + "endpoint", state.endpoint);
+    }
+
+    function nextRequest(method, params = {}, notification = false) {
+      const body = {
+        jsonrpc: "2.0",
+        method,
+        params
+      };
+      if (!notification) body.id = state.id++;
+      return body;
+    }
+
+    async function rpc(method, params = {}, options = {}) {
+      const body = nextRequest(method, params, options.notification);
+      const headers = {
+        "Accept": "application/json, text/event-stream",
+        "Content-Type": "application/json",
+        "Mcp-Protocol-Version": state.protocolVersion
+      };
+      if (state.sessionId) headers["Mcp-Session-Id"] = state.sessionId;
+
+      if (!options.quietRequest) setLastRequest(body);
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), state.requestTimeoutMs);
+      let res;
+
+      try {
+        res = await fetch(state.endpoint, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(body),
+          signal: controller.signal
+        });
+      } catch (err) {
+        if (err?.name === "AbortError") {
+          throw new Error(`Request timed out after ${state.requestTimeoutMs}ms`);
+        }
+        throw err;
+      } finally {
+        clearTimeout(timer);
+      }
+
+      const sid = res.headers.get("Mcp-Session-Id");
+      if (sid) {
+        state.sessionId = sid;
+        $("sessionId").textContent = `Session ${sid.slice(0, 8)}`;
+      }
+
+      if (res.status === 202 || res.status === 204) {
+        if (!options.quietResponse) setLastResponse({ status: res.status, body: null });
+        return { result: null, response: null, request: body };
+      }
+
+      const text = await res.text();
+      if (!res.ok) {
+        const failure = { status: res.status, statusText: res.statusText, body: text };
+        if (!options.quietResponse) setLastResponse(failure);
+        throw new Error(`${res.status} ${text || res.statusText}`);
+      }
+
+      const messages = parseTransportResponse(text, res.headers.get("Content-Type") || "");
+      const response = messages.find((msg) => Object.prototype.hasOwnProperty.call(msg, "id")) || messages[0];
+      if (!options.quietResponse) setLastResponse(messages.length === 1 ? response : messages);
+      if (response?.error) throw new Error(response.error.message || JSON.stringify(response.error));
+      return { result: response?.result ?? null, response, request: body };
+    }
+
+    function parseTransportResponse(text, contentType) {
+      if (!text.trim()) return [];
+      if (contentType.includes("text/event-stream") || text.includes("\ndata:")) {
+        const messages = [];
+        let dataLines = [];
+        for (const line of text.split(/\r?\n/)) {
+          if (line.startsWith("data:")) {
+            dataLines.push(line.slice(5).trimStart());
+          } else if (line.trim() === "" && dataLines.length) {
+            const raw = dataLines.join("\n");
+            dataLines = [];
+            try { messages.push(JSON.parse(raw)); } catch { messages.push({ raw }); }
+          }
+        }
+        if (dataLines.length) {
+          const raw = dataLines.join("\n");
+          try { messages.push(JSON.parse(raw)); } catch { messages.push({ raw }); }
+        }
+        return messages;
+      }
+      return [JSON.parse(text)];
+    }
+
+    async function health() {
+      saveEndpoint();
+      const url = `${endpointBase()}/mcp/health`;
+      try {
+        const res = await fetch(url, { headers: { "Accept": "application/json" } });
+        const text = await res.text();
+        if (!res.ok) throw new Error(`${res.status} ${text}`);
+        setStatus(state.connected ? "ok" : "warn", state.connected ? "Connected" : "MCP healthy");
+        log(`Health OK: ${text}`);
+        toast("microM8 MCP health check succeeded.");
+        return text;
+      } catch (err) {
+        setStatus("bad", "Health failed");
+        log(`Health failed: ${err.message}`, "error");
+        toast(`Health failed: ${err.message}`);
+        throw err;
+      }
+    }
+
+    async function connect() {
+      saveEndpoint();
+      state.sessionId = "";
+      $("sessionId").textContent = "No session";
+      setStatus("warn", "Connecting");
+      log(`Connecting to ${state.endpoint}`);
+      try {
+        const { result } = await rpc("initialize", {
+          protocolVersion: "2025-06-18",
+          capabilities: {},
+          clientInfo: { name: "microM8 MCP Tool Lab", version: "1.0.0" }
+        });
+        state.protocolVersion = result?.protocolVersion || state.protocolVersion;
+        $("protocolValue").textContent = state.protocolVersion;
+        $("serverValue").textContent = result?.serverInfo
+          ? `${result.serverInfo.name || "server"} ${result.serverInfo.version || ""}`.trim()
+          : "microM8";
+        await rpc("notifications/initialized", {}, { notification: true, quietResponse: true });
+        setStatus("ok", "Connected");
+        log(`Initialized MCP ${state.protocolVersion}`);
+        await listTools();
+      } catch (err) {
+        state.sessionId = "";
+        $("sessionId").textContent = "No session";
+        setStatus("bad", "Connect failed");
+        log(`Connect failed: ${err.message}`, "error");
+        toast(`Connect failed: ${err.message}`);
+      }
+    }
+
+    async function ensureConnected() {
+      if (state.connected) return true;
+      await connect();
+      return state.connected;
+    }
+
+    async function listTools() {
+      if (!state.connected) {
+        await connect();
+        return;
+      }
+      log("tools/list");
+      try {
+        const { result } = await rpc("tools/list", {}, { quietRequest: false, quietResponse: false });
+        state.tools = Array.isArray(result?.tools) ? result.tools : [];
+        $("toolsValue").textContent = `${state.tools.length} loaded`;
+        if (!state.selectedToolName || !state.tools.some((tool) => tool.name === state.selectedToolName)) {
+          state.selectedToolName = state.tools[0]?.name || "";
+        }
+        if (state.selectedToolName) localStorage.setItem(storagePrefix + "selectedTool", state.selectedToolName);
+        renderTools();
+        renderSelectedTool();
+        log(`Loaded ${state.tools.length} tool${state.tools.length === 1 ? "" : "s"}`);
+      } catch (err) {
+        log(`tools/list failed: ${err.message}`, "error");
+        toast(err.message);
+      }
+    }
+
+    function renderTools() {
+      const host = $("toolList");
+      const filter = $("toolFilter").value.trim().toLowerCase();
+      const kindFilter = $("toolKind").value;
+      const sortMode = $("toolSort").value;
+
+      let tools = [...state.tools].filter((tool) => {
+        const kind = guessKind(tool.name);
+        if (kindFilter !== "all" && kindFilter !== kind) return false;
+        if (!filter) return true;
+        return `${tool.name} ${tool.description || ""}`.toLowerCase().includes(filter);
+      });
+
+      tools.sort((a, b) => {
+        if (sortMode === "kind") {
+          const byKind = guessKind(a.name).localeCompare(guessKind(b.name));
+          if (byKind) return byKind;
+        }
+        return a.name.localeCompare(b.name);
+      });
+
+      $("toolCount").textContent = state.tools.length
+        ? `${tools.length} of ${state.tools.length} tools shown.`
+        : "No tools loaded.";
+
+      host.innerHTML = "";
+      if (!tools.length) {
+        host.innerHTML = `<div class="empty">${state.tools.length ? "No tools match the filter." : "Connect, then refresh the tool list."}</div>`;
+        return;
+      }
+
+      for (const tool of tools) {
+        const kind = guessKind(tool.name);
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = `tool-row ${tool.name === state.selectedToolName ? "active" : ""}`;
+        row.innerHTML = `
+          <div class="tool-name-line">
+            <span class="tool-name">${escapeHtml(tool.name)}</span>
+            <span class="badge ${kind}">${kind === "mutates" ? "state" : "read"}</span>
+          </div>
+          <span class="tool-desc">${escapeHtml(tool.description || "No description.")}</span>
+        `;
+        row.addEventListener("click", () => selectTool(tool.name));
+        host.appendChild(row);
+      }
+    }
+
+    function selectTool(name) {
+      state.selectedToolName = name;
+      localStorage.setItem(storagePrefix + "selectedTool", name);
+      const saved = loadArgs(name);
+      state.currentArgs = saved ?? buildArgsForTool(selectedTool(), false);
+      renderTools();
+      renderSelectedTool();
+      updateArgsTextarea();
+      updateRequestPreview();
+    }
+
+    function renderSelectedTool() {
+      const tool = selectedTool();
+      if (!tool) {
+        $("selectedName").textContent = "No tool selected";
+        $("selectedDesc").textContent = "Select a tool to inspect its schema and arguments.";
+        $("selectedKind").textContent = "idle";
+        $("selectedKind").className = "badge";
+        $("schemaView").textContent = "No schema loaded.";
+        $("formHost").innerHTML = `<div class="empty">Select a tool to generate a parameter form.</div>`;
+        return;
+      }
+
+      const schema = getSchema(tool);
+      const kind = guessKind(tool.name);
+      $("selectedName").textContent = tool.name;
+      $("selectedDesc").textContent = tool.description || "No description.";
+      $("selectedKind").textContent = kind === "mutates" ? "changes state" : "read-only";
+      $("selectedKind").className = `badge ${kind}`;
+      $("schemaView").textContent = pretty(schema);
+      renderForm(tool, state.currentArgs);
+      updateArgsTextarea();
+      updateRequestPreview();
+    }
+
+    function renderForm(tool, args = {}) {
+      const schema = getSchema(tool);
+      const props = getProperties(schema);
+      const required = new Set(getRequired(schema));
+      const host = $("formHost");
+      host.innerHTML = "";
+
+      const names = Object.keys(props);
+      if (!names.length) {
+        host.innerHTML = `<div class="empty">This tool has no declared parameters.</div>`;
+        return;
+      }
+
+      for (const name of names) {
+        const prop = props[name] || {};
+        const card = document.createElement("div");
+        card.className = "field-card";
+        const value = Object.prototype.hasOwnProperty.call(args, name) ? args[name] : "";
+        card.innerHTML = `
+          <div class="field-head">
+            <span class="field-name">${escapeHtml(name)}${required.has(name) ? " *" : ""}</span>
+            <span class="field-type">${escapeHtml(displayType(prop))}</span>
+          </div>
+          ${prop.description ? `<div class="field-desc">${escapeHtml(prop.description)}</div>` : ""}
+        `;
+
+        const input = makeInput(name, prop, value);
+        card.appendChild(input);
+        host.appendChild(card);
+      }
+    }
+
+    function displayType(prop) {
+      if (Array.isArray(prop.type)) return prop.type.join(" | ");
+      if (prop.enum) return "enum";
+      if (prop.type) return prop.type;
+      if (prop.properties) return "object";
+      if (prop.items) return "array";
+      return "value";
+    }
+
+    function makeInput(name, prop, value) {
+      let input;
+      const type = Array.isArray(prop.type) ? prop.type.find((item) => item !== "null") : prop.type;
+
+      if (prop.enum && Array.isArray(prop.enum)) {
+        input = document.createElement("select");
+        input.innerHTML = `<option value="">-- unset --</option>` + prop.enum.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join("");
+        input.value = value ?? "";
+      } else if (type === "boolean") {
+        const wrapper = document.createElement("label");
+        wrapper.className = "check-row";
+        wrapper.style.textTransform = "none";
+        wrapper.style.letterSpacing = "0";
+        wrapper.style.fontSize = "13px";
+        input = document.createElement("input");
+        input.type = "checkbox";
+        input.dataset.fieldName = name;
+        input.dataset.fieldType = type || "";
+        input.checked = Boolean(value);
+        wrapper.appendChild(input);
+        wrapper.appendChild(document.createTextNode("true"));
+        input.addEventListener("change", syncFormToArgs);
+        return wrapper;
+      } else if (type === "array" || type === "object") {
+        input = document.createElement("textarea");
+        input.rows = 3;
+        input.value = value === "" || value === undefined ? (type === "array" ? "[]" : "{}") : pretty(value);
+      } else if (type === "number" || type === "integer") {
+        input = document.createElement("input");
+        input.type = "text";
+        input.inputMode = "numeric";
+        input.value = value === undefined || value === null ? "" : String(value);
+        if (prop.minimum !== undefined || prop.maximum !== undefined) {
+          input.placeholder = [prop.minimum !== undefined ? `min ${prop.minimum}` : "", prop.maximum !== undefined ? `max ${prop.maximum}` : ""].filter(Boolean).join(", ");
+        }
+      } else {
+        const longText = /code|text|source|program|condition/i.test(name);
+        input = document.createElement(longText ? "textarea" : "input");
+        if (longText) input.rows = 4;
+        input.value = value === undefined || value === null ? "" : String(value);
+      }
+
+      input.dataset.fieldName = name;
+      input.dataset.fieldType = type || "";
+      input.addEventListener("input", syncFormToArgs);
+      input.addEventListener("change", syncFormToArgs);
+      return input;
+    }
+
+    function readFormArgs() {
+      const tool = selectedTool();
+      if (!tool) return {};
+      const schema = getSchema(tool);
+      const props = getProperties(schema);
+      const args = {};
+
+      for (const [name, prop] of Object.entries(props)) {
+        let input = $("formHost").querySelector(`[data-field-name="${cssEscape(name)}"]`);
+        if (!input) continue;
+
+        const type = Array.isArray(prop.type) ? prop.type.find((item) => item !== "null") : prop.type;
+        let value;
+
+        if (type === "boolean") {
+          value = input.checked;
+        } else if (type === "number" || type === "integer") {
+          if (String(input.value).trim() === "") continue;
+          value = parseNumber(input.value);
+          if (!Number.isFinite(value)) continue;
+        } else if (type === "array" || type === "object") {
+          const raw = String(input.value).trim();
+          if (!raw) continue;
+          value = JSON.parse(raw);
+        } else {
+          value = input.value;
+          if (value === "" && !getRequired(schema).includes(name)) continue;
+        }
+
+        args[name] = value;
+      }
+
+      return args;
+    }
+
+    function cssEscape(value) {
+      if (window.CSS?.escape) return CSS.escape(value);
+      return String(value).replace(/["\\]/g, "\\$&");
+    }
+
+    function syncFormToArgs() {
+      try {
+        state.currentArgs = readFormArgs();
+        updateArgsTextarea();
+        saveArgs();
+        updateRequestPreview();
+      } catch (err) {
+        $("argsJson").value = `Invalid form JSON: ${err.message}`;
+      }
+    }
+
+    function updateArgsTextarea() {
+      $("argsJson").value = pretty(state.currentArgs || {});
+    }
+
+    function parseArgsTextarea() {
+      const raw = $("argsJson").value.trim();
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        throw new Error("Arguments must be a JSON object.");
+      }
+      return parsed;
+    }
+
+    function applyJsonToForm() {
+      const args = parseArgsTextarea();
+      state.currentArgs = args;
+      saveArgs();
+      renderForm(selectedTool(), args);
+      updateRequestPreview();
+      log("Applied JSON arguments to form");
+    }
+
+    function parseNumber(value) {
+      const raw = String(value).trim();
+      if (!raw) return 0;
+      if (raw.startsWith("$")) return parseInt(raw.slice(1), 16);
+      if (/^0x/i.test(raw)) return parseInt(raw, 16);
+      if (/^[0-9a-f]+$/i.test(raw) && /[a-f]/i.test(raw)) return parseInt(raw, 16);
+      return Number(raw);
+    }
+
+    function buildArgsForTool(tool, includeOptional) {
+      const schema = getSchema(tool);
+      const props = getProperties(schema);
+      const required = new Set(getRequired(schema));
+      const args = {};
+
+      for (const [name, prop] of Object.entries(props)) {
+        if (!includeOptional && !required.has(name)) continue;
+        args[name] = defaultValue(prop);
+      }
+
+      return args;
+    }
+
+    function defaultValue(prop) {
+      if (prop.default !== undefined) return prop.default;
+      if (prop.enum?.length) return prop.enum[0];
+      const type = Array.isArray(prop.type) ? prop.type.find((item) => item !== "null") : prop.type;
+      if (type === "boolean") return false;
+      if (type === "number" || type === "integer") return prop.minimum !== undefined ? prop.minimum : 0;
+      if (type === "array") return [];
+      if (type === "object") return {};
+      return "";
+    }
+
+    function loadArgs(toolName) {
+      const raw = localStorage.getItem(storagePrefix + "args." + toolName);
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch { return null; }
+    }
+
+    function saveArgs() {
+      const tool = selectedTool();
+      if (!tool) return;
+      localStorage.setItem(storagePrefix + "args." + tool.name, JSON.stringify(state.currentArgs || {}));
+    }
+
+    function setArgs(args) {
+      state.currentArgs = args || {};
+      saveArgs();
+      updateArgsTextarea();
+      renderForm(selectedTool(), state.currentArgs);
+      updateRequestPreview();
+    }
+
+    function updateRequestPreview() {
+      const tool = selectedTool();
+      if (!tool) return;
+      const preview = {
+        jsonrpc: "2.0",
+        id: state.id,
+        method: "tools/call",
+        params: {
+          name: tool.name,
+          arguments: state.currentArgs || {}
+        }
+      };
+      $("requestView").textContent = pretty(preview);
+    }
+
+    async function runSelectedTool() {
+      const tool = selectedTool();
+      if (!tool) {
+        toast("Select a tool first.");
+        return;
+      }
+
+      try {
+        state.currentArgs = parseArgsTextarea();
+        saveArgs();
+        renderForm(tool, state.currentArgs);
+      } catch (err) {
+        showError(err);
+        return;
+      }
+
+      if (!(await ensureConnected())) return;
+
+      $("runToolBtn").disabled = true;
+      $("runToolBtn").textContent = "Running...";
+      $("lastCallValue").textContent = tool.name;
+      clearFormattedResult();
+      setLastResponse({
+        pending: true,
+        tool: tool.name,
+        startedAt: new Date().toISOString()
+      });
+
+      try {
+        log(`tools/call ${tool.name} ${JSON.stringify(state.currentArgs)}`);
+        const { result } = await rpc("tools/call", {
+          name: tool.name,
+          arguments: state.currentArgs || {}
+        });
+        renderToolResult(result);
+        log(`Completed ${tool.name}`, "ok");
+      } catch (err) {
+        showError(err);
+      } finally {
+        $("runToolBtn").disabled = false;
+        $("runToolBtn").textContent = "Run Tool";
+      }
+    }
+
+    function renderToolResult(result) {
+      const formatted = formatToolResult(result);
+      $("resultSummary").innerHTML = `<span class="ok-text">${escapeHtml(formatted.summary)}</span>`;
+      $("textResult").textContent = formatted.text || formatted.jsonText || pretty(result || {});
+      $("imageHost").innerHTML = "";
+
+      for (const image of formatted.images) {
+        const img = document.createElement("img");
+        img.className = "result-image";
+        img.alt = "MCP image result";
+        img.src = `data:${image.mimeType};base64,${image.data}`;
+        $("imageHost").appendChild(img);
+      }
+    }
+
+    function clearFormattedResult() {
+      $("resultSummary").textContent = "Waiting for response...";
+      $("textResult").textContent = "";
+      $("imageHost").innerHTML = "";
+    }
+
+    function formatToolResult(result) {
+      const out = { text: "", images: [], jsonText: "", summary: "Tool returned a result." };
+      const content = result?.content || result?.Content || [];
+
+      for (const part of content) {
+        const type = part.type || part.Type || "";
+        if (type === "text" || part.text || part.Text) {
+          out.text += (out.text ? "\n" : "") + (part.text || part.Text || "");
+        } else if (type === "image" || part.data || part.Data) {
+          out.images.push({
+            data: part.data || part.Data,
+            mimeType: part.mimeType || part.MIMEType || part.mime_type || "image/png"
+          });
+        }
+      }
+
+      if (!out.text) out.jsonText = pretty(result || {});
+      if (out.text) out.summary = `${out.text.length} text character${out.text.length === 1 ? "" : "s"}`;
+      if (out.images.length) out.summary += `, ${out.images.length} image${out.images.length === 1 ? "" : "s"}`;
+      return out;
+    }
+
+    function clearResults() {
+      $("resultSummary").textContent = "No response yet.";
+      $("textResult").textContent = "";
+      $("rawResult").textContent = "No response yet.";
+      $("imageHost").innerHTML = "";
+      state.lastResponse = null;
+    }
+
+    async function copyText(text, label) {
+      if (!text || /^No .* yet\.$/.test(text)) {
+        toast(`Nothing to copy for ${label}.`);
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        toast(`${label} copied.`);
+      } catch {
+        toast(`Clipboard is unavailable from this page.`);
+      }
+    }
+
+    function showError(err) {
+      const message = err?.message || String(err);
+      $("resultSummary").innerHTML = `<span class="error-text">${escapeHtml(message)}</span>`;
+      $("textResult").textContent = `Error: ${message}`;
+      log(message, "error");
+      toast(message);
+    }
+
+    function bindTabs() {
+      document.querySelectorAll("[data-editor-view]").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll("[data-editor-view]").forEach((item) => item.classList.toggle("active", item === button));
+          document.querySelectorAll("#formView, #jsonView").forEach((view) => view.classList.toggle("active", view.id === button.dataset.editorView));
+        });
+      });
+
+      document.querySelectorAll("[data-result-view]").forEach((button) => {
+        button.addEventListener("click", () => {
+          document.querySelectorAll("[data-result-view]").forEach((item) => item.classList.toggle("active", item === button));
+          document.querySelectorAll("#formattedView, #rawView").forEach((view) => view.classList.toggle("active", view.id === button.dataset.resultView));
+        });
+      });
+    }
+
+    function bind() {
+      $("endpoint").value = state.endpoint;
+      $("protocolValue").textContent = state.protocolVersion;
+      bindTabs();
+
+      $("healthBtn").addEventListener("click", () => health().catch(() => {}));
+      $("connectBtn").addEventListener("click", connect);
+      $("refreshToolsBtn").addEventListener("click", listTools);
+      $("runToolBtn").addEventListener("click", runSelectedTool);
+      $("previewRequestBtn").addEventListener("click", updateRequestPreview);
+
+      $("toolFilter").addEventListener("input", renderTools);
+      $("toolKind").addEventListener("change", renderTools);
+      $("toolSort").addEventListener("change", renderTools);
+
+      $("formatArgsBtn").addEventListener("click", () => {
+        try {
+          state.currentArgs = parseArgsTextarea();
+          updateArgsTextarea();
+          saveArgs();
+          updateRequestPreview();
+        } catch (err) {
+          showError(err);
+        }
+      });
+      $("applyJsonBtn").addEventListener("click", () => {
+        try { applyJsonToForm(); } catch (err) { showError(err); }
+      });
+      $("argsJson").addEventListener("input", () => {
+        try {
+          state.currentArgs = parseArgsTextarea();
+          saveArgs();
+          updateRequestPreview();
+        } catch {
+          // Keep free editing quiet until the user formats, applies, or runs.
+        }
+      });
+
+      $("requiredArgsBtn").addEventListener("click", () => setArgs(buildArgsForTool(selectedTool(), false)));
+      $("allArgsBtn").addEventListener("click", () => setArgs(buildArgsForTool(selectedTool(), true)));
+      $("clearArgsBtn").addEventListener("click", () => setArgs({}));
+
+      $("copySchemaBtn").addEventListener("click", () => copyText($("schemaView").textContent, "Schema"));
+      $("copyRequestBtn").addEventListener("click", () => copyText($("requestView").textContent, "Request"));
+      $("copyResultBtn").addEventListener("click", () => copyText($("rawResult").textContent, "Result"));
+      $("clearResultBtn").addEventListener("click", clearResults);
+      $("clearLogBtn").addEventListener("click", () => $("activity").textContent = "");
+
+      renderTools();
+      renderSelectedTool();
+      updateArgsTextarea();
+    }
+
+    bind();
+  </script>
+</body>
+</html>
