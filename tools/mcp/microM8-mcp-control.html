@@ -1,0 +1,1301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>microM8 MCP Control Console</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111319;
+      --panel: #191d26;
+      --panel-2: #202632;
+      --panel-3: #151922;
+      --line: #343c4c;
+      --line-soft: #252c38;
+      --text: #f3f4ef;
+      --muted: #aeb7c5;
+      --quiet: #798394;
+      --accent: #60d394;
+      --accent-2: #f7c948;
+      --danger: #ff6b6b;
+      --blue: #6ea8fe;
+      --shadow: 0 16px 50px rgba(0, 0, 0, .32);
+      --radius: 8px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(96, 211, 148, .07), transparent 280px),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: #242b38;
+      color: var(--text);
+      border-radius: 7px;
+      padding: 8px 10px;
+      min-height: 36px;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, transform .08s ease;
+    }
+
+    button:hover { background: #2b3444; border-color: #4a5467; }
+    button:active { transform: translateY(1px); }
+    button:disabled { cursor: not-allowed; opacity: .52; transform: none; }
+    button.primary { background: #245b3d; border-color: #3f9566; }
+    button.primary:hover { background: #2e704c; }
+    button.danger { background: #5d2730; border-color: #a34852; }
+    button.warn { background: #554326; border-color: #9a7934; }
+    button.ghost { background: transparent; }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #10141c;
+      color: var(--text);
+      border-radius: 7px;
+      padding: 8px 10px;
+      min-height: 36px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      font-family: var(--mono);
+      line-height: 1.38;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(96, 211, 148, .18);
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    code, pre, .mono {
+      font-family: var(--mono);
+    }
+
+    .app {
+      width: min(1720px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 18px 0 28px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: auto minmax(320px, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(25, 29, 38, .94);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 210px;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      background: #0d1118;
+      border: 1px solid #516078;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 140px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--quiet);
+      box-shadow: 0 0 0 4px rgba(121, 131, 148, .12);
+    }
+
+    .dot.ok { background: var(--accent); box-shadow: 0 0 0 4px rgba(96, 211, 148, .16); }
+    .dot.bad { background: var(--danger); box-shadow: 0 0 0 4px rgba(255, 107, 107, .14); }
+    .dot.warn { background: var(--accent-2); box-shadow: 0 0 0 4px rgba(247, 201, 72, .14); }
+
+    .main {
+      display: grid;
+      grid-template-columns: minmax(430px, .95fr) minmax(520px, 1.1fr) minmax(350px, .8fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .stack { display: grid; gap: 14px; }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line-soft);
+      background: var(--panel-3);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 750;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    .panel-body { padding: 12px; }
+
+    .screen-wrap {
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 360px;
+      background: #070a0f;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .screen {
+      image-rendering: pixelated;
+      width: 100%;
+      max-width: 720px;
+      max-height: 540px;
+      object-fit: contain;
+      background: #020305;
+    }
+
+    .placeholder {
+      display: grid;
+      gap: 8px;
+      place-items: center;
+      color: var(--quiet);
+      padding: 40px;
+      text-align: center;
+    }
+
+    .terminal {
+      min-height: 250px;
+      white-space: pre-wrap;
+      overflow: auto;
+      padding: 12px;
+      border: 1px solid #10141c;
+      border-radius: 7px;
+      background: #060a0f;
+      color: #b9ffd5;
+      font-family: var(--mono);
+      line-height: 1.35;
+    }
+
+    .log {
+      height: 260px;
+      overflow: auto;
+      padding: 10px;
+      border: 1px solid #10141c;
+      border-radius: 7px;
+      background: #060a0f;
+      color: #ccd6e2;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.42;
+      white-space: pre-wrap;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .grid-auto { display: flex; flex-wrap: wrap; gap: 8px; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    .row > * { min-width: 0; }
+    .row .grow { flex: 1; }
+    .tight { gap: 6px; }
+    .controller-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #111720;
+    }
+
+    .tab {
+      min-height: 32px;
+      padding: 6px 9px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tab.active {
+      background: #2b3444;
+      color: var(--text);
+    }
+
+    .view { display: none; }
+    .view.active { display: grid; gap: 10px; }
+
+    .meters {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .meter {
+      padding: 10px;
+      border-radius: 7px;
+      background: var(--panel-2);
+      border: 1px solid var(--line-soft);
+      min-height: 66px;
+    }
+
+    .meter .k {
+      color: var(--quiet);
+      font-size: 11px;
+      font-weight: 750;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .meter .v {
+      margin-top: 6px;
+      font-size: 18px;
+      font-family: var(--mono);
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .disks {
+      display: grid;
+      gap: 8px;
+    }
+
+    .disk-row {
+      display: grid;
+      grid-template-columns: 64px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 9px;
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      background: var(--panel-2);
+    }
+
+    .drive {
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-weight: 800;
+    }
+
+    .path {
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .kbd {
+      display: grid;
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+      gap: 5px;
+    }
+
+    .kbd button {
+      padding: 6px 3px;
+      min-height: 32px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .joy {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      grid-template-rows: repeat(3, 42px);
+      gap: 6px;
+      width: 156px;
+    }
+
+    .joy button:nth-child(1) { grid-column: 2; grid-row: 1; }
+    .joy button:nth-child(2) { grid-column: 1; grid-row: 2; }
+    .joy button:nth-child(3) { grid-column: 2; grid-row: 2; }
+    .joy button:nth-child(4) { grid-column: 3; grid-row: 2; }
+    .joy button:nth-child(5) { grid-column: 2; grid-row: 3; }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 70px;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .result {
+      margin-top: 10px;
+      height: 250px;
+      min-height: 250px;
+      max-height: 250px;
+      overflow: auto;
+      border: 1px solid #10141c;
+      border-radius: 7px;
+      background: #080c12;
+      color: #dce6ef;
+      padding: 10px;
+      white-space: pre-wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.38;
+    }
+
+    .hint {
+      color: var(--quiet);
+      font-size: 12px;
+      margin: 8px 0 0;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: #111720;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 50;
+      display: grid;
+      gap: 8px;
+      width: min(420px, calc(100vw - 32px));
+    }
+
+    .toast-item {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #10141c;
+      box-shadow: var(--shadow);
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 1380px) {
+      .main { grid-template-columns: 1fr 1fr; }
+      .main > .stack:first-child { grid-column: 1 / -1; }
+      .screen-wrap { min-height: 300px; }
+    }
+
+    @media (max-width: 840px) {
+      .app { width: min(100vw - 16px, 740px); padding-top: 8px; }
+      .topbar { position: static; grid-template-columns: 1fr; }
+      .main { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .meters { grid-template-columns: 1fr; }
+      .disk-row { grid-template-columns: 1fr; }
+      .kbd { grid-template-columns: repeat(5, 1fr); }
+      .controller-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">M8</div>
+        <div>
+          <h1>microM8 MCP Control</h1>
+          <div class="sub">Streamable HTTP console</div>
+        </div>
+      </div>
+      <label>
+        MCP endpoint
+        <input id="endpoint" value="http://localhost:1983/mcp/stream" spellcheck="false">
+      </label>
+      <div class="status"><span id="statusDot" class="dot"></span><span id="statusText">Disconnected</span></div>
+      <div class="row tight">
+        <button id="healthBtn" class="ghost">Health</button>
+        <button id="connectBtn" class="primary">Connect</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="stack">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Video</h2>
+            <div class="row tight">
+              <button id="refreshScreenBtn">Refresh</button>
+              <button id="autoScreenBtn" class="ghost">Auto Off</button>
+            </div>
+          </div>
+          <div class="screen-wrap" id="screenWrap">
+            <div class="placeholder" id="screenPlaceholder">
+              <strong>No frame loaded</strong>
+              <span>Connect, then press Refresh.</span>
+            </div>
+            <img id="screen" class="screen" alt="microM8 graphics screen" hidden>
+          </div>
+          <div class="panel-body">
+            <div class="meters">
+              <div class="meter"><div class="k">Machine</div><div id="mMachine" class="v">-</div></div>
+              <div class="meter"><div class="k">CPU</div><div id="mCpu" class="v">-</div></div>
+              <div class="meter"><div class="k">PC</div><div id="mPc" class="v">-</div></div>
+              <div class="meter"><div class="k">Video</div><div id="mVideo" class="v">-</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Text Screen</h2>
+            <div class="row tight">
+              <button id="refreshTextBtn">Refresh</button>
+              <button id="autoStateBtn" class="ghost">Poll Off</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="textScreen" class="terminal">No text screen loaded.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stack">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Core Controls</h2>
+            <span id="sessionId" class="pill">No session</span>
+          </div>
+          <div class="panel-body stack">
+            <div class="grid-auto">
+              <button data-tool="reboot" class="danger">Reboot</button>
+              <button data-tool="pause" class="warn">Pause / Resume</button>
+              <button data-tool="break">Break</button>
+              <button data-cpu="pause">CPU Pause</button>
+              <button data-cpu="step">Step</button>
+              <button data-cpu="step-over">Step Over</button>
+              <button data-cpu="continue" class="primary">Continue</button>
+            </div>
+            <div class="range-row">
+              <label>
+                CPU speed multiplier
+                <input id="speedRange" type="range" min="0.25" max="4" step="0.25" value="1">
+              </label>
+              <button id="speedBtn">1x</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Keyboard & Controller</h2>
+            <span class="pill">ASCII key events</span>
+          </div>
+          <div class="panel-body stack">
+            <label>
+              Paste/type text
+              <textarea id="typeText" placeholder="10 HOME&#10;20 PRINT &quot;HELLO FROM MCP&quot;&#10;RUN"></textarea>
+            </label>
+            <div class="row">
+              <label class="grow">
+                Delay ms
+                <input id="typeDelay" type="number" min="10" max="1000" value="50">
+              </label>
+              <button id="typeBtn" class="primary">Type Text</button>
+            </div>
+            <div class="kbd" id="quickKeys"></div>
+            <div class="controller-row">
+              <div class="joy">
+                <button data-joy="0,-127">Up</button>
+                <button data-joy="-127,0">Left</button>
+                <button data-joy="0,0">Center</button>
+                <button data-joy="127,0">Right</button>
+                <button data-joy="0,127">Down</button>
+              </div>
+              <div class="stack grow">
+                <div class="grid-2">
+                  <button id="joyFireBtn">Button 0</button>
+                  <button id="joyReleaseBtn">Release Buttons</button>
+                </div>
+                <p class="hint">Joystick events use controller 0 and the MCP <code>joystick_event</code> tool.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Disks</h2>
+            <button id="diskRefreshBtn">Refresh</button>
+          </div>
+          <div class="panel-body stack">
+            <div id="diskList" class="disks"><div class="path">Disk info not loaded.</div></div>
+            <div class="grid-3">
+              <label>
+                Drive
+                <select id="diskDrive"><option>0</option><option>1</option><option>2</option></select>
+              </label>
+              <label style="grid-column: span 2;">
+                Host disk path
+                <input id="diskPath" placeholder="/absolute/path/to/disk.dsk" spellcheck="false">
+              </label>
+            </div>
+            <div class="grid-auto">
+              <button id="insertHostDiskBtn" class="primary">Insert Host Path</button>
+              <button id="insertVfsDiskBtn">Insert VFS Path</button>
+              <button id="ejectDiskBtn" class="danger">Eject</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Record & Rewind</h2>
+          </div>
+          <div class="panel-body stack">
+            <div class="grid-auto">
+              <button data-tool="enable_live_rewind">Enable Live Rewind</button>
+              <button id="rewindBtn">Rewind</button>
+              <button id="recordBtn">Start File Recording</button>
+              <button data-tool="stop_recording" class="danger">Stop Recording</button>
+            </div>
+            <label>
+              Rewind milliseconds
+              <input id="rewindMs" type="number" min="100" max="60000" value="5000">
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="stack">
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Tools</h2>
+            <div class="tabs" id="tabs">
+              <button class="tab active" data-view="debug">Debug</button>
+              <button class="tab" data-view="program">Code</button>
+              <button class="tab" data-view="files">Files</button>
+              <button class="tab" data-view="raw">Raw</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="debug" class="view active">
+              <div class="grid-auto">
+                <button id="regsBtn">Registers</button>
+                <button id="traceBtn">Trace</button>
+                <button id="bpListBtn">Breakpoints</button>
+              </div>
+              <div class="grid-2">
+                <label>
+                  Address
+                  <input id="addr" value="$0300" spellcheck="false">
+                </label>
+                <label>
+                  Count / value
+                  <input id="count" value="16" spellcheck="false">
+                </label>
+              </div>
+              <div class="grid-auto">
+                <button id="memReadBtn">Read Memory</button>
+                <button id="memWriteBtn">Write Byte</button>
+                <button id="disasmBtn">Disassemble</button>
+                <button id="bpAddBtn">Add BP</button>
+              </div>
+              <label>
+                Byte list for debug_memory_write / write_memory_range
+                <input id="bytes" placeholder="A9 00 60" spellcheck="false">
+              </label>
+              <div class="grid-auto">
+                <button id="rangeWriteBtn">Write Range</button>
+                <button id="bpRemoveBtn" class="danger">Remove BP Index</button>
+              </div>
+            </div>
+
+            <div id="program" class="view">
+              <div class="grid-auto">
+                <button id="applesoftReadBtn">Read Applesoft</button>
+                <button id="applesoftWriteBtn" class="primary">Write Applesoft</button>
+                <button id="interpReadBtn">Read Interpreter</button>
+                <button id="interpWriteBtn">Write Interpreter</button>
+                <button id="loadBasicBtn">Load BASIC File</button>
+              </div>
+              <div class="grid-2">
+                <label>
+                  Dialect
+                  <select id="dialect"><option value="fp">Applesoft / microBASIC</option><option value="int">Integer BASIC</option><option value="logo">Logo</option></select>
+                </label>
+                <label>
+                  VFS program path
+                  <input id="programPath" placeholder="/appleii/program.bas" spellcheck="false">
+                </label>
+              </div>
+              <label>
+                Program source
+                <textarea id="programSource" placeholder="10 HOME&#10;20 PRINT &quot;HELLO FROM MCP&quot;&#10;30 GOTO 30"></textarea>
+              </label>
+              <label class="row" style="display:flex; align-items:center; text-transform:none; letter-spacing:0; font-size:13px;">
+                <input id="autoRun" type="checkbox" checked style="width:auto; min-height:auto;">
+                Auto-run loaded program
+              </label>
+            </div>
+
+            <div id="files" class="view">
+              <label>
+                VFS path
+                <input id="filePath" value="/" spellcheck="false">
+              </label>
+              <div class="grid-auto">
+                <button id="listFilesBtn">List Files</button>
+                <button id="readFileBtn">Read File</button>
+              </div>
+            </div>
+
+            <div id="raw" class="view">
+              <div class="grid-2">
+                <label>
+                  Tool name
+                  <input id="rawTool" value="emulator_state" spellcheck="false">
+                </label>
+                <label>
+                  JSON arguments
+                  <input id="rawArgs" value="{}" spellcheck="false">
+                </label>
+              </div>
+              <button id="rawCallBtn" class="primary">Call Tool</button>
+            </div>
+
+            <pre id="result" class="result">Results will appear here.</pre>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2 class="panel-title">Activity</h2>
+            <button id="clearLogBtn" class="ghost">Clear</button>
+          </div>
+          <div class="panel-body">
+            <div id="log" class="log"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const state = {
+      endpoint: localStorage.getItem("microm8.endpoint") || "http://localhost:1983/mcp/stream",
+      sessionId: localStorage.getItem("microm8.session") || "",
+      protocolVersion: "2025-06-18",
+      connected: false,
+      id: 1,
+      autoState: null,
+      autoScreen: null,
+      lastJoy: { x: 0, y: 0, button0: false }
+    };
+
+    const noArgTools = [
+      "reboot", "pause", "break", "enable_live_rewind", "stop_recording"
+    ];
+
+    const quickKeys = [
+      ["Return", 13], ["Esc", 27], ["Space", 32], ["Tab", 9], ["Ctrl-C", 3],
+      ["Left", 37], ["Right", 39], ["Up", 38], ["Down", 40], ["Del", 127],
+      ["0", 48], ["1", 49], ["2", 50], ["3", 51], ["4", 52],
+      ["5", 53], ["6", 54], ["7", 55], ["8", 56], ["9", 57],
+      ["A", 65], ["B", 66], ["C", 67], ["D", 68], ["E", 69],
+      ["F", 70], ["G", 71], ["H", 72], ["I", 73], ["J", 74],
+      ["K", 75], ["L", 76], ["M", 77], ["N", 78], ["O", 79],
+      ["P", 80], ["Q", 81], ["R", 82], ["S", 83], ["T", 84],
+      ["U", 85], ["V", 86], ["W", 87], ["X", 88], ["Y", 89], ["Z", 90]
+    ];
+
+    function log(message, kind = "info") {
+      const time = new Date().toLocaleTimeString();
+      $("log").textContent += `[${time}] ${kind.toUpperCase()} ${message}\n`;
+      $("log").scrollTop = $("log").scrollHeight;
+    }
+
+    function toast(message) {
+      const item = document.createElement("div");
+      item.className = "toast-item";
+      item.textContent = message;
+      $("toast").appendChild(item);
+      setTimeout(() => item.remove(), 4200);
+    }
+
+    function setStatus(kind, text) {
+      $("statusDot").className = `dot ${kind || ""}`.trim();
+      $("statusText").textContent = text;
+      state.connected = kind === "ok";
+      document.body.dataset.connected = state.connected ? "true" : "false";
+    }
+
+    function setResult(value) {
+      $("result").textContent = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+    }
+
+    function endpointBase() {
+      return state.endpoint.replace(/\/mcp\/stream\/?$/, "");
+    }
+
+    function normalizeEndpoint(value) {
+      const clean = value.trim().replace(/\/$/, "");
+      if (clean.endsWith("/mcp/stream")) return clean;
+      if (clean.endsWith("/mcp")) return `${clean}/stream`;
+      return clean;
+    }
+
+    async function health() {
+      state.endpoint = normalizeEndpoint($("endpoint").value);
+      $("endpoint").value = state.endpoint;
+      localStorage.setItem("microm8.endpoint", state.endpoint);
+      const url = `${endpointBase()}/mcp/health`;
+      try {
+        const res = await fetch(url, { headers: { "Accept": "application/json" } });
+        const text = await res.text();
+        if (!res.ok) throw new Error(`${res.status} ${text}`);
+        setStatus(state.connected ? "ok" : "warn", state.connected ? "Connected" : "MCP healthy");
+        log(`Health OK: ${text}`);
+        toast("microM8 MCP health check succeeded.");
+        return text;
+      } catch (err) {
+        setStatus("bad", "Health failed");
+        log(`Health failed: ${err.message}`, "error");
+        toast(`Health check failed: ${err.message}`);
+        throw err;
+      }
+    }
+
+    async function rpc(method, params = {}, notification = false) {
+      const body = {
+        jsonrpc: "2.0",
+        method,
+        params
+      };
+      if (!notification) body.id = state.id++;
+
+      const headers = {
+        "Accept": "application/json, text/event-stream",
+        "Content-Type": "application/json",
+        "Mcp-Protocol-Version": state.protocolVersion
+      };
+      if (state.sessionId) headers["Mcp-Session-Id"] = state.sessionId;
+
+      const res = await fetch(state.endpoint, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body)
+      });
+
+      const sid = res.headers.get("Mcp-Session-Id");
+      if (sid) {
+        state.sessionId = sid;
+        localStorage.setItem("microm8.session", sid);
+        $("sessionId").textContent = `Session ${sid.slice(0, 8)}`;
+      }
+
+      if (res.status === 202 || res.status === 204) return null;
+
+      const text = await res.text();
+      if (!res.ok) {
+        throw new Error(`${res.status} ${text || res.statusText}`);
+      }
+
+      const messages = parseTransportResponse(text, res.headers.get("Content-Type") || "");
+      const response = messages.find((msg) => Object.prototype.hasOwnProperty.call(msg, "id")) || messages[0];
+      if (!response) return null;
+      if (response.error) throw new Error(response.error.message || JSON.stringify(response.error));
+      return response.result;
+    }
+
+    function parseTransportResponse(text, contentType) {
+      if (!text.trim()) return [];
+      if (contentType.includes("text/event-stream") || text.includes("\ndata:")) {
+        const messages = [];
+        let dataLines = [];
+        for (const line of text.split(/\r?\n/)) {
+          if (line.startsWith("data:")) {
+            dataLines.push(line.slice(5).trimStart());
+          } else if (line.trim() === "" && dataLines.length) {
+            const raw = dataLines.join("\n");
+            dataLines = [];
+            try { messages.push(JSON.parse(raw)); } catch { messages.push({ raw }); }
+          }
+        }
+        if (dataLines.length) {
+          const raw = dataLines.join("\n");
+          try { messages.push(JSON.parse(raw)); } catch { messages.push({ raw }); }
+        }
+        return messages;
+      }
+      return [JSON.parse(text)];
+    }
+
+    async function connect() {
+      state.endpoint = normalizeEndpoint($("endpoint").value);
+      $("endpoint").value = state.endpoint;
+      localStorage.setItem("microm8.endpoint", state.endpoint);
+      state.sessionId = "";
+      localStorage.removeItem("microm8.session");
+      $("sessionId").textContent = "No session";
+      setStatus("warn", "Connecting");
+      log(`Connecting to ${state.endpoint}`);
+      try {
+        const result = await rpc("initialize", {
+          protocolVersion: "2025-06-18",
+          capabilities: {},
+          clientInfo: { name: "microM8 MCP Control Console", version: "1.0.0" }
+        });
+        state.protocolVersion = result?.protocolVersion || state.protocolVersion;
+        await rpc("notifications/initialized", {}, true);
+        setStatus("ok", "Connected");
+        log(`Initialized MCP ${state.protocolVersion}`);
+        await Promise.allSettled([refreshState(false), refreshScreen(false), refreshDisks(false)]);
+      } catch (err) {
+        state.sessionId = "";
+        localStorage.removeItem("microm8.session");
+        $("sessionId").textContent = "No session";
+        setStatus("bad", "Connect failed");
+        log(`Connect failed: ${err.message}`, "error");
+        toast(`Connect failed: ${err.message}`);
+      }
+    }
+
+    async function callTool(name, args = {}, options = {}) {
+      if (!state.connected && !options.allowDisconnected) {
+        await connect();
+        if (!state.connected) throw new Error("Not connected");
+      }
+      log(`tools/call ${name} ${JSON.stringify(args)}`);
+      const result = await rpc("tools/call", { name, arguments: args });
+      const formatted = formatToolResult(result);
+      if (!options.quiet) setResult(formatted.text || formatted.summary || result);
+      if (formatted.text) log(`${name}: ${firstLine(formatted.text)}`);
+      return { raw: result, ...formatted };
+    }
+
+    function formatToolResult(result) {
+      const out = { text: "", images: [], json: null, summary: "" };
+      const content = result?.content || result?.Content || [];
+      for (const part of content) {
+        const type = part.type || part.Type || "";
+        if (type === "text" || part.text || part.Text) {
+          out.text += (part.text || part.Text || "") + (out.text ? "\n" : "");
+        } else if (type === "image" || part.data || part.Data) {
+          out.images.push({
+            data: part.data || part.Data,
+            mimeType: part.mimeType || part.MIMEType || part.mime_type || "image/png"
+          });
+        }
+      }
+      if (out.text) out.json = extractJsonTail(out.text);
+      out.summary = out.text || (out.images.length ? `${out.images.length} image(s)` : JSON.stringify(result, null, 2));
+      return out;
+    }
+
+    function extractJsonTail(text) {
+      const marker = "JSON representation:";
+      const idx = text.indexOf(marker);
+      if (idx === -1) return null;
+      const raw = text.slice(idx + marker.length).trim();
+      try { return JSON.parse(raw); } catch { return null; }
+    }
+
+    function firstLine(text) {
+      return String(text).trim().split(/\r?\n/)[0].slice(0, 160);
+    }
+
+    function parseNumber(value) {
+      const raw = String(value).trim();
+      if (!raw) return 0;
+      if (raw.startsWith("$")) return parseInt(raw.slice(1), 16);
+      if (/^0x/i.test(raw)) return parseInt(raw, 16);
+      if (/^[0-9a-f]+$/i.test(raw) && /[a-f]/i.test(raw)) return parseInt(raw, 16);
+      return parseInt(raw, 10);
+    }
+
+    function parseBytes(value) {
+      return String(value)
+        .split(/[\s,]+/)
+        .filter(Boolean)
+        .map(parseNumber)
+        .filter((n) => Number.isFinite(n))
+        .map((n) => Math.max(0, Math.min(255, n)));
+    }
+
+    function setScreenPlaceholder(visible, message = "No frame loaded", detail = "Connect, then press Refresh.") {
+      $("screenPlaceholder").hidden = !visible;
+      $("screenPlaceholder").style.display = visible ? "grid" : "none";
+      $("screenPlaceholder").innerHTML = `<strong>${escapeHtml(message)}</strong><span>${escapeHtml(detail)}</span>`;
+    }
+
+    async function refreshState(showResult = false) {
+      const res = await callTool("emulator_state", {}, { quiet: true });
+      const info = res.json || {};
+      $("mMachine").textContent = info.machine || "-";
+      $("mCpu").textContent = info.cpu?.architecture ? `${info.cpu.architecture} ${info.cpu.state || ""}` : "-";
+      $("mPc").textContent = info.cpu?.program_counter || "-";
+      $("mVideo").textContent = info.video?.mode || "-";
+      if (info.text_screen) $("textScreen").textContent = info.text_screen;
+      if (showResult) setResult(res.text || info);
+      return info;
+    }
+
+    async function refreshText(showResult = false) {
+      const res = await callTool("get_text_screen", {}, { quiet: true });
+      $("textScreen").textContent = res.text || "No text returned.";
+      if (showResult) setResult(res.text || "No text returned.");
+    }
+
+    async function refreshScreen(showResult = false) {
+      const res = await callTool("get_graphics_screen", {}, { quiet: true });
+      const image = res.images[0];
+      if (!image?.data) {
+        if (!$("screen").src) setScreenPlaceholder(true, "No frame available", res.text || "The MCP server did not return an image.");
+        if (showResult) setResult(res.text || "No image returned.");
+        return;
+      }
+      $("screen").src = `data:${image.mimeType};base64,${image.data}`;
+      $("screen").hidden = false;
+      setScreenPlaceholder(false);
+      if (showResult) setResult("Graphics screen refreshed.");
+    }
+
+    async function refreshDisks(showResult = false) {
+      const res = await callTool("get_mounted_disks", {}, { quiet: true });
+      const disks = res.json || [];
+      const list = $("diskList");
+      list.innerHTML = "";
+      if (!Array.isArray(disks) || disks.length === 0) {
+        list.innerHTML = "<div class=\"path\">No disks mounted.</div>";
+      } else {
+        for (const disk of disks) {
+          const row = document.createElement("div");
+          row.className = "disk-row";
+          row.innerHTML = `<div class="drive">D${disk.drive}</div><div class="path" title="${escapeAttr(disk.path || "")}">${escapeHtml(disk.path || "")}</div><div class="pill">${disk.write_protect ? "write protected" : "writable"}</div>`;
+          list.appendChild(row);
+        }
+      }
+      if (showResult) setResult(res.text || disks);
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[ch]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, "&#96;");
+    }
+
+    async function sendKey(key) {
+      await callTool("key_event", { key, action: 1 }, { quiet: true });
+      await new Promise((resolve) => setTimeout(resolve, 35));
+      await callTool("key_event", { key, action: 0 }, { quiet: true });
+      setResult(`Sent key ${key}.`);
+    }
+
+    async function sendJoystick(x, y, button0 = state.lastJoy.button0) {
+      state.lastJoy = { x, y, button0 };
+      await callTool("joystick_event", {
+        controller: 0,
+        type: "joystick",
+        x,
+        y,
+        button0
+      });
+    }
+
+    function normalizeTypedText(value) {
+      let text = String(value || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+      text = text.replace(/\n/g, "\r");
+      if (text && !text.endsWith("\r")) text += "\r";
+      return text;
+    }
+
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function typeTextIntoEmulator() {
+      const text = normalizeTypedText($("typeText").value);
+      if (!text) {
+        setResult("Nothing to type.");
+        return;
+      }
+
+      const button = $("typeBtn");
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = "Typing...";
+      try {
+        await callTool("type_text", {
+          text,
+          delay: Number($("typeDelay").value || 50)
+        }, { quiet: true });
+        const returns = (text.match(/\r/g) || []).length;
+        setResult(`Queued ${text.length} characters for microM8 paste input (${returns} Return${returns === 1 ? "" : "s"}).`);
+        await wait(Math.min(1800, Math.max(350, text.length * 25)));
+        await Promise.allSettled([refreshState(false), refreshText(false), refreshScreen(false)]);
+      } finally {
+        button.disabled = false;
+        button.textContent = original;
+      }
+    }
+
+    function bind() {
+      $("endpoint").value = state.endpoint;
+      if (state.sessionId) $("sessionId").textContent = `Session ${state.sessionId.slice(0, 8)}`;
+
+      $("connectBtn").addEventListener("click", connect);
+      $("healthBtn").addEventListener("click", health);
+      $("refreshScreenBtn").addEventListener("click", () => refreshScreen(true).catch(showError));
+      $("refreshTextBtn").addEventListener("click", () => refreshText(true).catch(showError));
+      $("diskRefreshBtn").addEventListener("click", () => refreshDisks(true).catch(showError));
+      $("clearLogBtn").addEventListener("click", () => $("log").textContent = "");
+
+      document.querySelectorAll("[data-tool]").forEach((btn) => {
+        btn.addEventListener("click", () => callTool(btn.dataset.tool, {}).catch(showError));
+      });
+
+      document.querySelectorAll("[data-cpu]").forEach((btn) => {
+        btn.addEventListener("click", () => callTool("debug_cpu_control", { action: btn.dataset.cpu }).catch(showError));
+      });
+
+      $("speedRange").addEventListener("input", () => $("speedBtn").textContent = `${$("speedRange").value}x`);
+      $("speedBtn").addEventListener("click", () => callTool("set_cpu_speed", { speed: Number($("speedRange").value) }).catch(showError));
+
+      $("typeBtn").addEventListener("click", () => typeTextIntoEmulator().catch(showError));
+
+      const keyHost = $("quickKeys");
+      for (const [label, key] of quickKeys) {
+        const btn = document.createElement("button");
+        btn.textContent = label;
+        btn.title = `Send key code ${key}`;
+        btn.addEventListener("click", () => sendKey(key).catch(showError));
+        keyHost.appendChild(btn);
+      }
+
+      document.querySelectorAll("[data-joy]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const [x, y] = btn.dataset.joy.split(",").map(Number);
+          sendJoystick(x, y).catch(showError);
+        });
+      });
+      $("joyFireBtn").addEventListener("mousedown", () => sendJoystick(state.lastJoy.x, state.lastJoy.y, true).catch(showError));
+      $("joyFireBtn").addEventListener("mouseup", () => sendJoystick(state.lastJoy.x, state.lastJoy.y, false).catch(showError));
+      $("joyFireBtn").addEventListener("mouseleave", () => sendJoystick(state.lastJoy.x, state.lastJoy.y, false).catch(showError));
+      $("joyReleaseBtn").addEventListener("click", () => sendJoystick(0, 0, false).catch(showError));
+
+      $("insertHostDiskBtn").addEventListener("click", () => callTool("insert_disk", {
+        drive: Number($("diskDrive").value),
+        filename: $("diskPath").value.trim()
+      }).then(refreshDisks).catch(showError));
+      $("insertVfsDiskBtn").addEventListener("click", () => callTool("insert_disk_file", {
+        drive: Number($("diskDrive").value),
+        filepath: $("diskPath").value.trim()
+      }).then(refreshDisks).catch(showError));
+      $("ejectDiskBtn").addEventListener("click", () => callTool("eject_disk", {
+        drive: Number($("diskDrive").value)
+      }).then(refreshDisks).catch(showError));
+
+      $("rewindBtn").addEventListener("click", () => callTool("rewind_back", { milliseconds: Number($("rewindMs").value || 5000) }).catch(showError));
+      $("recordBtn").addEventListener("click", () => callTool("start_file_recording", { full_cpu: false }).catch(showError));
+
+      $("autoStateBtn").addEventListener("click", toggleStatePolling);
+      $("autoScreenBtn").addEventListener("click", toggleScreenPolling);
+
+      $("regsBtn").addEventListener("click", () => callTool("debug_register_get").catch(showError));
+      $("traceBtn").addEventListener("click", () => callTool("debug_instruction_trace", { backlog: 10, lookahead: 10 }).catch(showError));
+      $("bpListBtn").addEventListener("click", () => callTool("debug_breakpoint_list").catch(showError));
+      $("memReadBtn").addEventListener("click", () => callTool("debug_memory_read", {
+        address: parseNumber($("addr").value),
+        count: parseNumber($("count").value)
+      }).catch(showError));
+      $("memWriteBtn").addEventListener("click", () => callTool("write_memory", {
+        address: parseNumber($("addr").value),
+        value: parseNumber($("count").value)
+      }).catch(showError));
+      $("rangeWriteBtn").addEventListener("click", () => callTool("write_memory_range", {
+        address: parseNumber($("addr").value),
+        values: parseBytes($("bytes").value)
+      }).catch(showError));
+      $("disasmBtn").addEventListener("click", () => callTool("disassemble", {
+        address: parseNumber($("addr").value),
+        count: parseNumber($("count").value) || 20
+      }).catch(showError));
+      $("bpAddBtn").addEventListener("click", () => callTool("debug_breakpoint_add", {
+        address: parseNumber($("addr").value),
+        type: "address"
+      }).catch(showError));
+      $("bpRemoveBtn").addEventListener("click", () => callTool("debug_breakpoint_remove", {
+        index: parseNumber($("count").value)
+      }).catch(showError));
+
+      $("applesoftReadBtn").addEventListener("click", async () => {
+        const res = await callTool("applesoft_read").catch(showError);
+        if (res?.text) $("programSource").value = res.text;
+      });
+      $("applesoftWriteBtn").addEventListener("click", () => callTool("applesoft_write", {
+        code: $("programSource").value
+      }).catch(showError));
+      $("interpReadBtn").addEventListener("click", async () => {
+        const res = await callTool("read_interpreter_code", { dialect: $("dialect").value }).catch(showError);
+        if (res?.text) $("programSource").value = res.text;
+      });
+      $("interpWriteBtn").addEventListener("click", () => callTool("write_interpreter_code", {
+        dialect: $("dialect").value,
+        code: $("programSource").value,
+        replace: true
+      }).catch(showError));
+      $("loadBasicBtn").addEventListener("click", () => callTool("load_basic_program", {
+        path: $("programPath").value.trim(),
+        dialect: $("dialect").value,
+        auto_run: $("autoRun").checked
+      }).catch(showError));
+
+      $("listFilesBtn").addEventListener("click", () => callTool("list_files", { path: $("filePath").value.trim() || "/" }).catch(showError));
+      $("readFileBtn").addEventListener("click", () => callTool("read_file", { path: $("filePath").value.trim() }).catch(showError));
+      $("rawCallBtn").addEventListener("click", () => {
+        let args = {};
+        try { args = JSON.parse($("rawArgs").value || "{}"); } catch (err) { showError(err); return; }
+        callTool($("rawTool").value.trim(), args).catch(showError);
+      });
+
+      $("tabs").addEventListener("click", (event) => {
+        const tab = event.target.closest(".tab");
+        if (!tab) return;
+        document.querySelectorAll(".tab").forEach((el) => el.classList.toggle("active", el === tab));
+        document.querySelectorAll(".view").forEach((el) => el.classList.toggle("active", el.id === tab.dataset.view));
+      });
+    }
+
+    function toggleStatePolling() {
+      if (state.autoState) {
+        clearInterval(state.autoState);
+        state.autoState = null;
+        $("autoStateBtn").textContent = "Poll Off";
+      } else {
+        state.autoState = setInterval(() => refreshState(false).catch((err) => log(`Poll state failed: ${err.message}`, "error")), 2000);
+        $("autoStateBtn").textContent = "Poll On";
+        refreshState(false).catch(showError);
+      }
+    }
+
+    function toggleScreenPolling() {
+      if (state.autoScreen) {
+        clearInterval(state.autoScreen);
+        state.autoScreen = null;
+        $("autoScreenBtn").textContent = "Auto Off";
+      } else {
+        state.autoScreen = setInterval(() => refreshScreen(false).catch((err) => log(`Poll screen failed: ${err.message}`, "error")), 3000);
+        $("autoScreenBtn").textContent = "Auto On";
+        refreshScreen(false).catch(showError);
+      }
+    }
+
+    function showError(err) {
+      const message = err?.message || String(err);
+      setResult(`Error: ${message}`);
+      log(message, "error");
+      toast(message);
+      if (/session not found|404/.test(message)) {
+        state.sessionId = "";
+        localStorage.removeItem("microm8.session");
+        $("sessionId").textContent = "No session";
+        setStatus("bad", "Session stale");
+      }
+    }
+
+    bind();
+    log("Open microM8 with: ./microM8 -mcp -mcp-mode streaming -mcp-port 1983 -offline");
+  </script>
+</body>
+</html>
