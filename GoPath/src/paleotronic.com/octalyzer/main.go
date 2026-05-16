@@ -1036,7 +1036,7 @@ func maininner() {
 	}
 	settings.DefModemInitString = *modemInit
 
-	settings.NoUpdates = *noUpdate
+	settings.NoUpdates = *noUpdate || *mcpMode
 
 	settings.Verbose = *verbose
 
