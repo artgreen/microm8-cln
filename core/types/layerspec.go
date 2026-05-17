@@ -505,11 +505,11 @@ func (lb *LayerBundle) UnmarshalBinary(data []byte) error {
 	}
 
 	if countHUD != numHUD {
-		errors.New(fmt.Sprintf("Expected %d HUD type, got %d\n", numHUD, countHUD))
+		return errors.New(fmt.Sprintf("expected %d HUD type, got %d", numHUD, countHUD))
 	}
 
 	if countGFX != numGFX {
-		errors.New(fmt.Sprintf("Expected %d GFX type, got %d\n", numHUD, countHUD))
+		return errors.New(fmt.Sprintf("expected %d GFX type, got %d", numGFX, countGFX))
 	}
 
 	return nil

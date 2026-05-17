@@ -207,14 +207,14 @@ func saveConfig(filename string) {
 
 	raw, merr := yaml.Marshal(&queues)
 	if merr != nil {
-		log.Fatal("MQ Shutdown failed due to: %v", merr.Error())
+		log.Fatalf("MQ Shutdown failed due to: %v", merr.Error())
 		os.Exit(2)
 	}
 
 	err := os.WriteFile(filename, raw, 0644)
 	//log.Printf("YAML: %v", string(raw))
 	if err != nil {
-		log.Fatal("MQ Shutdown failed due to: %v", err.Error())
+		log.Fatalf("MQ Shutdown failed due to: %v", err.Error())
 		os.Exit(1)
 	}
 
@@ -229,7 +229,7 @@ func loadConfig(filename string) {
 	// does file exist
 	raw, err := os.ReadFile(filename)
 	if err != nil {
-		log.Fatal("MQ Startup failed due to: %v", err.Error())
+		log.Fatalf("MQ Startup failed due to: %v", err.Error())
 		os.Exit(2)
 	}
 

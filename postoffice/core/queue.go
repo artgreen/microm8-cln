@@ -49,7 +49,7 @@ func ReadMQClientConfig(filename string) *MQAddress {
 	// does file exist
 	raw, err := os.ReadFile(filename)
 	if err != nil {
-		log.Fatal("Load client config failed due to: %v", err.Error())
+		log.Fatalf("Load client config failed due to: %v", err.Error())
 		os.Exit(2)
 	}
 
@@ -68,14 +68,14 @@ func WriteMQClientConfig(filename string, config *MQAddress) {
 
 	raw, merr := yaml.Marshal(&config)
 	if merr != nil {
-		log.Fatal("Config save failed: %v", merr.Error())
+		log.Fatalf("Config save failed: %v", merr.Error())
 		os.Exit(2)
 	}
 
 	err := os.WriteFile(filename, raw, 0644)
 	//log.Printf("YAML: %v", string(raw))
 	if err != nil {
-		log.Fatal("Config save failed: %v", err.Error())
+		log.Fatalf("Config save failed: %v", err.Error())
 		os.Exit(1)
 	}
 }

@@ -238,7 +238,7 @@ func processDeclaration(line string, parts []string) {
 		currentFunc = Function{Scope: procMatch[0][1], Constructor: isConst, Name: name, ReturnType: rt_list, ClassName: className, Content: []string(nil), Params: []Field(nil)}
 
 		if currentFunc.Scope == "private" {
-			currentFunc.Name = currentFunc.Name
+			// keep name as-is for private functions
 		} else {
 			currentFunc.Name = strings.Title(currentFunc.Name)
 		}

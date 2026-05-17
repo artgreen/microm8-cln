@@ -158,7 +158,7 @@ func InitZones(e interfaces.Interpretable) {
 func GetZonePaletteValue(e interfaces.Interpretable, z int, c int) (*settings.VideoColor, bool) {
 	zc := GetZoneConfig(e)
 	if zc == nil || z < 0 || z >= len(zc.Zones) || zc.Zones[z] == nil {
-		return &settings.VideoColor{0, 0, 0, 0, 0, 0}, false
+		return &settings.VideoColor{R: 0, G: 0, B: 0, A: 0, Depth: 0, Offset: 0}, false
 	}
 	return zc.Zones[z].Palette.Get(c), (c > 0 && c < zc.Zones[z].Palette.Size())
 }

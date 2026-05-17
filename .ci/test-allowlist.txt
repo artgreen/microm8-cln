@@ -7,6 +7,7 @@
 ./fmt
 ./log
 ./filerecord
+./utils
 ./encoding/base91
 ./encoding/ffpak
 ./encoding/mempak

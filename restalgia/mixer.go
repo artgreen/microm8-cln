@@ -307,7 +307,7 @@ func (this *Mixer) DumpState() {
 		v := this.Slots[this.SlotSelect].Voices[i]
 
 		if v.IsAudible() {
-			fmt.Printf("ON: %s\n", v.label, v.DumpState())
+			fmt.Printf("ON: %s %s\n", v.label, v.DumpState())
 		}
 	}
 

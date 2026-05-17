@@ -15,7 +15,10 @@ func Compress(uncompressed []byte) []uint {
 	dictionary := make(map[string]uint)
 	usedcount := make(map[string]int)
 	for i := 0; i < 256; i++ {
-		dictionary[string(i)] = uint(i)
+		// LZW-style seed: dictionary[<codepoint i>] = i. Explicit rune
+		// conversion silences vet's "string(int) yields a single rune"
+		// warning (it's intentional here — we want each byte's codepoint).
+		dictionary[string(rune(i))] = uint(i)
 	}
 
 	w := ""

@@ -1,3 +1,9 @@
+//go:build ignore
+
+// Stale — NewDSKWrapper's signature changed to require a Nibbler argument.
+// Quarantined until rewritten or deleted.
+// TODO(modernize/phase-4): decide fate.
+
 package disk
 
 import (

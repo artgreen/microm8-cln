@@ -220,7 +220,7 @@ func RGB12ToVideoColor(c int) *types.VideoColor {
 		a = 0x00
 	}
 	return &types.VideoColor{
-		r, g, b, a, 0, 20,
+		Red: r, Green: g, Blue: b, Alpha: a, Depth: 0, Offset: 20,
 	}
 }
 

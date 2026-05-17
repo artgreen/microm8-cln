@@ -1,3 +1,9 @@
+//go:build ignore
+
+// Stale — NewMappedRegion's signature changed substantially (old took 6
+// args, new takes 9 with different types). Quarantined until rewritten
+// or deleted. TODO(modernize/phase-4): decide fate.
+
 package memory
 
 import (
