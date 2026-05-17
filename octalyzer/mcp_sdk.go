@@ -1,3 +1,10 @@
+//go:build !remint
+
+// mcp_sdk.go extends the HTTP API (api.go) with Model Context Protocol
+// endpoints. It depends on api.go's syncWindow/SyncWindowRequest/
+// KeyRequest types and on main.go's SelectedIndex, all of which are
+// !remint, so this file shares that tag.
+
 package main
 
 import (

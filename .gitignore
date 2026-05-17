@@ -1,13 +1,21 @@
-# Build outputs
+# Build outputs (tools/scripts/build.sh drops these at the repo root)
 /microM8
 /microM8.exe
+/microM8-darwin-amd64
+/remint
+/remint.exe
+/noxarchaist
+/noxarchaist.exe
+/asm65xx
+/asm65xx.exe
+# Legacy lmake.sh output locations (kept so older checkouts still ignore them)
 octalyzer/microM8
 octalyzer/microM8.exe
 octalyzer/noxarchaist
+octalyzer/asm65xx.exe
 remint/remint
 dskalyzer/dskalyzer
 dskalyzer/asm65xx.exe
-octalyzer/asm65xx.exe
 
 # Test / coverage artifacts
 *.test

@@ -1,3 +1,10 @@
+//go:build !remint
+
+// apisettings.go provides the GetConfig/SetConfig helpers used by the
+// HTTP API in api.go. Both api.go and its support files (main.go,
+// keymap.go) are tagged !remint, so this file shares that tag — the
+// remint variant ships without the HTTP settings surface.
+
 package main
 
 import (
