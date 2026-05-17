@@ -1,4 +1,4 @@
-// +build: !remint
+//go:build !remint
 
 package main
 
@@ -652,15 +652,15 @@ func HandleLaunchRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	settings.VMLaunch[SelectedIndex] = &settings.VMLauncherConfig{
-		req.WorkingDir,
-		req.Disks,
-		req.Pakfile,
-		req.SmartPort,
-		req.RunFile,
-		req.RunCommand,
-		req.Dialect,
-		"",
-		false,
+		WorkingDir:  req.WorkingDir,
+		Disks:       req.Disks,
+		Pakfile:     req.Pakfile,
+		SmartPort:   req.SmartPort,
+		RunFile:     req.RunFile,
+		RunCommand:  req.RunCommand,
+		Dialect:     req.Dialect,
+		ZXState:     "",
+		ForceSplash: false,
 	}
 	go backend.ProducerMain.RebootVM(SelectedIndex)
 
@@ -892,7 +892,7 @@ func HandleTextScreenRequest(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		// found active text layer...
-		data := l.GetText(types.LayerRect{0, 0, 79, 47})
+		data := l.GetText(types.LayerRect{X0: 0, Y0: 0, X1: 79, Y1: 47})
 		w.Write([]byte(data))
 		return
 	}

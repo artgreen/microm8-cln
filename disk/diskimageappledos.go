@@ -154,7 +154,7 @@ func (fd *FileDescriptor) Name() string {
 	s := ""
 	for _, v := range r {
 		ch := PokeToAscii(uint(v), false)
-		s = s + string(ch)
+		s = s + string(rune(ch))
 	}
 
 	s = strings.ToLower(strings.Trim(s, " "))
@@ -178,7 +178,7 @@ func (fd *FileDescriptor) NameUnadorned() string {
 	s := ""
 	for _, v := range r {
 		ch := PokeToAscii(uint(v), false)
-		s = s + string(ch)
+		s = s + string(rune(ch))
 	}
 
 	s = strings.ToLower(strings.Trim(s, " "))

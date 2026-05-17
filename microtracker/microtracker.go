@@ -1285,7 +1285,7 @@ func (m *MicroTracker) Run(ent interfaces.Interpretable) {
 					case ch == 127 && len(m.Song.Name) > 0:
 						m.Song.Name = m.Song.Name[:len(m.Song.Name)-1]
 					case ch >= 32 && ch <= 126 && len(m.Song.Name) < 40:
-						m.Song.Name += string(ch)
+						m.Song.Name += string(rune(ch))
 					case ch == 13:
 						m.SongParam = spList
 					case ch == 9:

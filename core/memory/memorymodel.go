@@ -827,8 +827,6 @@ func (m *MemoryMap) InterpreterMappableAtAddress(index, localaddress int) (Mappa
 	//}
 	mci := m.IMCache[index][(localaddress%65536)/256]
 	return mci, (mci != nil && mci.IsEnabled())
-
-	return nil, false
 }
 
 func (m *MemoryMap) WriteInterpreterMemory(index int, address int, value uint64) {
@@ -2210,22 +2208,9 @@ func (m *MemoryMap) IsSlotShared(index int) bool {
 func (m *MemoryMap) LogMCBRead(addr int) {
 
 	return
-
-	now := time.Now()
-
-	index := addr / OCTALYZER_INTERPRETER_SIZE
-	if m.Track[index] && m.MemCapMode[index]&MEMCAP_RECORD != 0 {
-		m.DoRecordLog(MemoryChange{Global: addr, Value: []uint64(nil), Index: index, Delta: time.Since(m.LastLog)})
-	} else if m.Track[index] && m.MemCapMode[index]&MEMCAP_REMOTE != 0 {
-		m.DoRemoteLog(MemoryChange{Global: addr, Value: []uint64(nil), Index: index, Delta: time.Since(m.LastLog)})
-	} else if m.Track[index] && m.MemCapMode[index]&MEMCAP_CUSTOM != 0 {
-		m.DoCustomLog(MemoryChange{Global: addr, Value: []uint64(nil), Index: index, Delta: time.Since(m.LastLog)})
-	}
-
-	m.LastLog = now
-
-	return
-
+	// Original logging body removed in Phase 4c (was dead after an early
+	// return). The capture-mode dispatch is preserved in LogMCBWrite below
+	// for the write path.
 }
 
 func (m *MemoryMap) LogMCBWrite(index int, addr int, value, pvalue uint64) {

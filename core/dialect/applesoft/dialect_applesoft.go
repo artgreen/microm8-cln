@@ -2982,32 +2982,9 @@ func (this *DialectApplesoft) GetMemoryRepresentation(a *types.Algorithm) []uint
 	data := make([]uint64, 0)
 	return data
 
-	// iterate through code
-	l := a.GetLowIndex()
-	h := a.GetHighIndex()
-
-	for l <= h && l != -1 {
-		ln, _ := a.Get(l)
-
-		buffer := make([]uint64, 2) // allocate 2 slots
-		buffer[0] = uint64(l)       // line number
-		for i, s := range ln {
-			tl := *s.SubList(0, s.Size())
-			encoded := this.NTokenize(tl)
-			buffer = append(buffer, encoded...)
-			if i < len(ln)-1 {
-				buffer = append(buffer, uint64(':'))
-			}
-		}
-		buffer = append(buffer, 0)
-		buffer[1] = uint64(len(data) + len(buffer))
-		data = append(data, buffer...)
-
-		// increment
-		l = a.NextAfter(l)
-	}
-
-	return data
+	// Original implementation iterated through the algorithm and packed it
+	// into uint64s; preserved as dead code in earlier revisions. Removed in
+	// Phase 4c since the function returns the empty slice unconditionally.
 }
 
 func (this *DialectApplesoft) ParseMemoryRepresentation(data []uint64) *types.Algorithm {

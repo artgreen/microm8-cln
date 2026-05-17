@@ -776,55 +776,11 @@ func (t *ScanRenderer) Between(v, lo, hi uint64) bool {
 	return ((v >= lo) && (v <= hi))
 }
 
+// PokeToAsciiApple delegates to t.IO.PokeToAsciiApple. An older inline
+// implementation lived below the delegation but was already dead code
+// (unreachable after the immediate return); removed during Phase 4c.
 func (t *ScanRenderer) PokeToAsciiApple(v uint64, usealt bool) int {
-
 	return t.IO.PokeToAsciiApple(v, usealt)
-
-	highbit := v & 1024
-
-	v = v & 1023
-
-	if t.Between(v, 0, 31) {
-		return int((64 + (v % 32)) | highbit)
-	}
-
-	if t.Between(v, 32, 63) {
-		return int((32 + (v % 32)) | highbit)
-	}
-
-	if t.Between(v, 64, 95) {
-		if usealt {
-			return int((128 + (v % 32)) | highbit)
-		} else {
-			return int((64 + (v % 32)) | highbit)
-		}
-	}
-
-	if t.Between(v, 96, 127) {
-		if usealt {
-			return int((96 + (v % 32)) | highbit)
-		} else {
-			return int((32 + (v % 32)) | highbit)
-		}
-	}
-
-	if t.Between(v, 128, 159) {
-		return int((64 + (v % 32)) | highbit)
-	}
-
-	if t.Between(v, 160, 191) {
-		return int((32 + (v % 32)) | highbit)
-	}
-
-	if t.Between(v, 192, 223) {
-		return int((64 + (v % 32)) | highbit)
-	}
-
-	if t.Between(v, 224, 255) {
-		return int((96 + (v % 32)) | highbit)
-	}
-
-	return int(v | highbit)
 }
 
 func (t *ScanRenderer) PokeToAttribute(v uint64, usealt bool) types.VideoAttribute {

@@ -252,8 +252,6 @@ func (d *IOCardSmartPort) FirmwareExec(
 		log.Printf("*************************** Return to PC = 0x%.4x", cpu.PC)
 		return p
 	}
-
-	return 0
 }
 
 func (d *IOCardSmartPort) Attach(drive int, s *SmartPortBlockDevice) {
@@ -365,7 +363,6 @@ func (d *IOCardSmartPort) prodosMLI() (MLIReturnType, int64) {
 		} else {
 			return mliNoError, p
 		}
-		break
 	case mliFormat:
 		d.mliFormat()
 	case mliRead:

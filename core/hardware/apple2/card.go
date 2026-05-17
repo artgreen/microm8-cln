@@ -20,10 +20,8 @@ const (
 func (iot IOType) String() string {
 	if iot == IOT_READ {
 		return "READ"
-	} else {
-		return "WRITE"
 	}
-	return "UNKNOWN"
+	return "WRITE"
 }
 
 type IOCard struct {

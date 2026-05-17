@@ -1,16 +1,6 @@
-# Packages that currently pass `go vet` cleanly.
-# Maintained as the "known-good" baseline for local vet runs.
-# Expand as we fix vet failures in later phases; the goal is `./...` after Phase 4.
-# One package path per line; comments and blank lines ignored.
-./buffer
-./runestring
-./encoding/base91
-./encoding/ffpak
-./encoding/mempak
-./log
-./panic
-./spooler
-./fmt
-./decoding
-./filerecord
-./internal/testutil
+# This file is no longer consulted by tools/scripts/check.sh — as of Phase 4c
+# the vet step runs on `./...` directly (with three specific checks disabled;
+# see check.sh for rationale). Kept for historical reference / rollback.
+#
+# Quarantined packages are excluded automatically by Go's `./...` traversal
+# (they live under directories starting with `_`).

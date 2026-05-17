@@ -813,7 +813,6 @@ menu:
 			}
 			goto showForumMessages
 		}
-		goto menu
 	}
 
 	return forumContinue

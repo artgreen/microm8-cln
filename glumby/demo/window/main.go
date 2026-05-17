@@ -75,7 +75,7 @@ func OnCreateWindow(w *glumby.Window) {
 	light2.On()
 
 	// Camera
-	cammy = glumby.NewCamera(glumby.Rect{-2, 2, -1.3, 1.3}, 0.1, 1000, true)
+	cammy = glumby.NewCamera(glumby.Rect{Left: -2, Right: 2, Bottom: -1.3, Top: 1.3}, 0.1, 1000, true)
 
 	// mesh
 	meshy = buildColorMesh(1, 1, 1, 1)

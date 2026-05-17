@@ -168,8 +168,6 @@ func (d *LogoDriver) ExecuteStmt(stmt *types.TokenList) error {
 	default:
 		return errors.New("i don't know what to do with " + tok.Content)
 	}
-
-	return nil
 }
 
 func (d *LogoDriver) PrepareParams(list *types.TokenList) *types.TokenList {
@@ -206,13 +204,10 @@ func (d *LogoDriver) CanExec() bool {
 	return true
 }
 
+// Printf is intentionally a no-op — the original body (commented-out
+// log.Printf with stack-depth indentation) was preserved as dead code
+// after an unconditional return. Removed during Phase 4c.
 func (d *LogoDriver) Printf(format string, args ...interface{}) {
-	return
-	pad := ""
-	for i := 0; i < d.Stack.Size(); i++ {
-		pad += "  "
-	}
-	log.Printf(pad+format, args...)
 }
 
 func (d *LogoDriver) Exec() (moved bool, err error) {

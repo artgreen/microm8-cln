@@ -74,7 +74,7 @@ func (ajc *AJumpCounter) Process(msg *ducktape.DuckTapeBundle) bool {
 
 	//isJump := msg.Payload[8] != 0
 	//from := int(msg.Payload[0])<<24 | int(msg.Payload[1]<<16) | int(msg.Payload[2]<<8) | int(msg.Payload[3])
-	to := int(msg.Payload[4])<<24 | int(msg.Payload[5]<<16) | int(msg.Payload[6]<<8) | int(msg.Payload[7])
+	to := int(msg.Payload[4])<<24 | int(msg.Payload[5])<<16 | int(msg.Payload[6])<<8 | int(msg.Payload[7])
 
 	ajc.Jumps[to] = ajc.Jumps[to] + 1
 

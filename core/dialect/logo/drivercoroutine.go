@@ -145,7 +145,6 @@ func (c *LogoCoroutine) IsRunning() bool {
 	default:
 		return false
 	}
-	return false
 }
 
 func (c *LogoCoroutine) Purge() error {

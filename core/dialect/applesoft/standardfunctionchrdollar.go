@@ -32,7 +32,7 @@ func (this *StandardFunctionCHRDollar) FunctionExecute(params *types.TokenList) 
 
 	value = this.Stack.Pop().AsInteger()
 
-	this.Stack.Push(types.NewToken(types.STRING, string(value)))
+	this.Stack.Push(types.NewToken(types.STRING, string(rune(value))))
 
 	return nil
 }

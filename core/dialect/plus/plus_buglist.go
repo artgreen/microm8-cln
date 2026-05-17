@@ -188,14 +188,14 @@ func (this *PlusBugList) OnEditorMove(edit *editor.CoreEdit) {
 		l := edit.Line - 1
 		if l < len(this.list) {
 			this.bug = &this.list[l]
-			this.edit.Title = fmt.Sprintf(this.Type.String()+" list (%d selected) - Enter: SHOW", this.bug.DefectID)
+			this.edit.Title = fmt.Sprintf("%s list (%d selected) - Enter: SHOW", this.Type.String(), this.bug.DefectID)
 		} else {
 			this.bug = nil
-			this.edit.Title = fmt.Sprintf(this.Type.String() + " list - None selected")
+			this.edit.Title = this.Type.String() + " list - None selected"
 		}
 	} else {
 		this.bug = nil
-		this.edit.Title = fmt.Sprintf(this.Type.String() + " list - None selected")
+		this.edit.Title = this.Type.String() + " list - None selected"
 	}
 }
 

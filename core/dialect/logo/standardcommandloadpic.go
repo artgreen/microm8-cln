@@ -54,11 +54,8 @@ func (this *StandardCommandLOADPIC) Execute(env *interfaces.Producable, caller i
 	err = apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).FromJSON(fr.Content)
 	apple2helpers.VECTOR(caller).Render()
 	caller.SetNeedsPrompt(true)
+	_ = result
 	return 0, err
-
-	/* enforce non void return */
-	return result, nil
-
 }
 
 func (this *StandardCommandLOADPIC) Syntax() string {

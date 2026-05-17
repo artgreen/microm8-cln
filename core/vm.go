@@ -164,7 +164,7 @@ func (vm *VM) CreateInterpreter(slot int, name string, dia interfaces.Dialecter,
 	}
 	result = interpreter.NewInterpreter(name, dia, nil, vm.RAM, slot, spec, nil, vm)
 	result.SetUUID(0)
-	vm.p.MasterLayerPos[slot] = types.LayerPosMod{0, 0}
+	vm.p.MasterLayerPos[slot] = types.LayerPosMod{XPercent: 0, YPercent: 0}
 	vm.p.Context = slot
 	result.SetProducer(vm.p)
 	return result
