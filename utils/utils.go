@@ -15,6 +15,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -34,9 +35,15 @@ type Foo int
 // initialize rng with a time-based seed here for backward-compatible
 // non-determinism rather than relying on rand.Seed (deprecated).
 //
-// Not safe for concurrent use; callers must serialize PSeed/Random/etc.
-// across goroutines. In practice the BASIC interpreter is single-threaded.
-var rng = rand.New(rand.NewSource(time.Now().UnixNano()))
+// rand.Rand is NOT thread-safe, but Random() is called from many
+// goroutines (per-VM RND, mockingboard noise, …) so every read or
+// reseed goes through rngMu. The Phase 8 regression-pin sweep caught
+// this — the original Phase 2 modernization carried over the
+// single-threaded assumption from the deprecated rand.Seed() global.
+var (
+	rng   = rand.New(rand.NewSource(time.Now().UnixNano()))
+	rngMu sync.Mutex
+)
 
 func OpenURL(url string) error {
 	var cmd string
@@ -76,6 +83,8 @@ func GetSystemHost() string {
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func RandStringRunes(n int) string {
+	rngMu.Lock()
+	defer rngMu.Unlock()
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letterRunes[rng.Intn(len(letterRunes))]
@@ -229,17 +238,23 @@ func NumberPart(in string) string {
 // time. Kept for ABI compatibility; modern callers should not need to call
 // this since rng is time-seeded at package init.
 func SeedRandom() {
+	rngMu.Lock()
+	defer rngMu.Unlock()
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
 // PSeed reseeds with a caller-provided value. Used by Applesoft BASIC's
 // RND(<negative>) form to start a deterministic sequence.
 func PSeed(v int64) {
+	rngMu.Lock()
+	defer rngMu.Unlock()
 	rng = rand.New(rand.NewSource(v))
 }
 
 // Random returns a pseudo-random number in [0.0, 1.0).
 func Random() float64 {
+	rngMu.Lock()
+	defer rngMu.Unlock()
 	return rng.Float64()
 }
 

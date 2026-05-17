@@ -36,7 +36,14 @@ func (th *ThingWhatDoes) Run(t *testing.T) {
 
 }
 
+// TestTaskExecution is an unfinished scaffolding test (pre-Phase-1).
+// It currently has a `t.Fail()` at the end without an associated
+// condition, AND a goroutine-vs-test race because thing.Run(t) writes
+// to thing.running while the main test reads it. Skipping until the
+// test is rewritten with proper synchronisation.
 func TestTaskExecution(t *testing.T) {
+	t.Skip("TaskPerformer test needs rewrite: t.Fail() at end + concurrent " +
+		"access to thing.running without synchronisation")
 
 	thing := &ThingWhatDoes{}
 	go thing.Run(t)
@@ -51,7 +58,4 @@ func TestTaskExecution(t *testing.T) {
 	if thing.running {
 		t.Fatal("Expected thing to stop running")
 	}
-
-	t.Fail()
-
 }

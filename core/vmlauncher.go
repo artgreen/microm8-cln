@@ -43,13 +43,22 @@ display ""
 cd ~
 `
 
+// configHasZXState returns true iff config is non-nil and carries a
+// Spectrum Z80 snapshot. Extracted from ApplyLaunchConfig so the nil
+// guard is unit-testable without standing up a full VM/Interpreter
+// stack (Phase 5 SA5011 — the original code dereferenced
+// config.ZXState before checking config == nil).
+func configHasZXState(config *VMLauncherConfig) bool {
+	return config != nil && config.ZXState != nil
+}
+
 func (vm *VM) ApplyLaunchConfig(config *VMLauncherConfig) error {
 
 	// Treat the spectrum hardware as a hint that we should render in the
 	// legacy non-unified path. We can only consult config.ZXState once we
 	// know config is non-nil — the original code dereferenced it before the
 	// nil guard below (caught by staticcheck SA5011).
-	zxState := config != nil && config.ZXState != nil
+	zxState := configHasZXState(config)
 	if zxState || strings.Contains(settings.SpecFile[vm.Index], "spectrum") {
 		settings.UnifiedRender[vm.Index] = false
 	} else {

@@ -19,3 +19,13 @@
 ./update
 ./api
 ./internal/lifecycle
+./core/hardware/apple2
+./core/hardware/apple2/woz
+./core/hardware/apple2/woz2
+./core/hardware/common
+./files
+./core
+./core/interpreter
+./ducktape/server
+./ducktape/client
+./fastserv/client

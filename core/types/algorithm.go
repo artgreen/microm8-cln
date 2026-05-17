@@ -22,6 +22,8 @@ type Algorithm struct {
 }
 
 func (this *Algorithm) Remove(i int) {
+	this.m.Lock()
+	defer this.m.Unlock()
 	delete(this.C, i)
 	this.Changed = true
 }
@@ -45,30 +47,28 @@ func (this *Algorithm) GetHighIndex() int {
 }
 
 func (this *Algorithm) GetSortedKeys() AlgorithmKeys {
-
-	var keys AlgorithmKeys
+	this.m.Lock()
+	defer this.m.Unlock()
 
 	if !this.Changed {
 		return this.keys
 	}
 
-	this.m.Lock()
-	defer this.m.Unlock()
-
-	for k, _ := range this.C {
+	keys := make(AlgorithmKeys, 0, len(this.C))
+	for k := range this.C {
 		keys = append(keys, k)
 	}
 	sort.Ints(keys)
 
 	this.keys = keys
-
-	//fmt.Println("Built sorted keys")
 	this.Changed = false
 
 	return keys
 }
 
 func (this *Algorithm) Size() int {
+	this.m.Lock()
+	defer this.m.Unlock()
 	return len(this.C)
 }
 
