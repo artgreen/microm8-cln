@@ -1,0 +1,9 @@
+# Packages whose tests currently build and pass.
+# Maintained as the "known-good" baseline for CI test.
+# Expand as we fix test failures in later phases.
+# One package path per line; comments and blank lines ignored.
+./buffer
+./runestring
+./encoding/base91
+./encoding/ffpak
+./encoding/mempak

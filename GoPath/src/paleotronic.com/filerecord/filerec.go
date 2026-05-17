@@ -10,7 +10,7 @@ import (
 )
 
 type FileRecord struct {
-	ID            bson.ObjectId `bson:"_id,omitempty";json:"-"`
+	ID            bson.ObjectId `bson:"_id,omitempty" json:"-"`
 	FileName      string		 `json:"filename"`
 	FilePath      string		 `json:"path"`
 	Categories    []string		 `json:"-"`

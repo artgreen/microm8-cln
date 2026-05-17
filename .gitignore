@@ -1,1 +1,22 @@
+# Build outputs
 GoPath/src/paleotronic.com/octalyzer/microM8
+GoPath/src/paleotronic.com/octalyzer/microM8.exe
+GoPath/src/paleotronic.com/octalyzer/noxarchaist
+GoPath/src/paleotronic.com/remint/remint
+GoPath/src/paleotronic.com/dskalyzer/dskalyzer
+GoPath/src/paleotronic.com/dskalyzer/asm65xx.exe
+/microM8
+/microM8.exe
+
+# Test / coverage artifacts
+*.test
+*.prof
+coverage.out
+coverage.html
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store

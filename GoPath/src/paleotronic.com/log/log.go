@@ -43,7 +43,7 @@ func formatStr( format string, v ...interface{} ) string {
 	t := time.Now().String()
 
 	if format == "" {
-		return fmt.Sprintf("%s [%s] %v", t, caller, fmt.Sprint(v)) + "\r\n"
+		return fmt.Sprintf("%s [%s] %v", t, caller, fmt.Sprint(v...)) + "\r\n"
 	}
 
 	return fmt.Sprintf( myfmt, t, caller, v ) + "\r\n"
