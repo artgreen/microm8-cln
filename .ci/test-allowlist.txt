@@ -31,3 +31,4 @@
 ./fastserv/client
 ./disk
 ./core/memory
+./core/hardware/cpu/mos6502
