@@ -1,9 +1,13 @@
 # Packages whose tests currently build and pass.
-# Maintained as the "known-good" baseline for CI test.
-# Expand as we fix test failures in later phases.
+# Maintained as the "known-good" baseline. Expand as we add or fix tests.
 # One package path per line; comments and blank lines ignored.
 ./buffer
 ./runestring
+./panic
+./fmt
+./log
+./filerecord
 ./encoding/base91
 ./encoding/ffpak
 ./encoding/mempak
+./internal/testutil
