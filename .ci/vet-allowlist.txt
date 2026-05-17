@@ -1,5 +1,5 @@
 # Packages that currently pass `go vet` cleanly.
-# Maintained as the "known-good" baseline for CI vet.
+# Maintained as the "known-good" baseline for local vet runs.
 # Expand as we fix vet failures in later phases; the goal is `./...` after Phase 4.
 # One package path per line; comments and blank lines ignored.
 ./buffer
@@ -13,3 +13,4 @@
 ./fmt
 ./decoding
 ./filerecord
+./internal/testutil

@@ -46,6 +46,7 @@ func (this *FileRecord) AddMeta(name, value string) {
 
 	if value == "" {
 		delete(this.MetaData, name)
+		return
 	}
 
 	this.MetaData[name] = value

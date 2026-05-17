@@ -1,39 +1,43 @@
 #!/usr/bin/env bash
-# Run the local pre-flight checks that CI also runs.
-# Mirrors .github/workflows/ci.yml so contributors can reproduce CI locally.
+# Run the canonical pre-commit checks locally.
+# This is the primary safety net for the modernization migration —
+# the repo has no cloud CI, by design.
 #
 # Usage:
-#   tools/scripts/check.sh           # run all checks
-#   tools/scripts/check.sh fmt       # gofmt check only
-#   tools/scripts/check.sh vet       # go vet on allowlist only
-#   tools/scripts/check.sh test      # go test on allowlist only
-#   tools/scripts/check.sh build     # build octalyzer only
+#   tools/scripts/check.sh           # fmt + vet + test + build (race-enabled)
+#   tools/scripts/check.sh fmt       # gofmt -l (non-gating until Phase 2)
+#   tools/scripts/check.sh vet       # go vet on allowlist
+#   tools/scripts/check.sh test      # go test -race on allowlist
+#   tools/scripts/check.sh build     # build octalyzer
+#
+# See also:
+#   tools/scripts/test.sh   for deeper test modes (cover, bench, fuzz, flake)
+#   tools/scripts/watch.sh  for a file-watcher test loop
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 MODULE_DIR="$REPO_ROOT/GoPath/src/paleotronic.com"
 
-# Read allowlist file into space-separated package paths; skip comments and blanks.
 read_allowlist() {
     grep -v '^\s*#' "$1" | grep -v '^\s*$' | tr '\n' ' '
 }
 
 VET_PKGS="$(read_allowlist "$REPO_ROOT/.ci/vet-allowlist.txt")"
-TEST_PKGS="$(read_allowlist "$REPO_ROOT/.ci/test-allowlist.txt")"
 
 run_fmt() {
-    echo "==> gofmt -l (allowed to fail until Phase 2)"
+    echo "==> gofmt -l (non-gating until Phase 2)"
     cd "$MODULE_DIR"
     local unformatted
     unformatted="$(gofmt -l . | grep -v '^vendor/' || true)"
-    if [ -n "$unformatted" ]; then
-        echo "Unformatted files:"
-        echo "$unformatted"
-        echo "(run 'gofmt -w .' to fix; not gating yet)"
-    else
-        echo "All formatted."
+    if [ -z "$unformatted" ]; then
+        echo "All files formatted."
+        return 0
     fi
+    local count
+    count=$(echo "$unformatted" | wc -l | tr -d ' ')
+    echo "WARN: $count files unformatted (gofmt -w . to fix; will gate after Phase 2)"
+    return 0
 }
 
 run_vet() {
@@ -43,13 +47,10 @@ run_vet() {
 }
 
 run_test() {
-    echo "==> go test (allowlist)"
-    cd "$MODULE_DIR"
-    GOFLAGS=-mod=mod go test $TEST_PKGS
+    "$SCRIPT_DIR/test.sh" race
 }
 
 run_build() {
-    echo "==> go build ./octalyzer"
     "$SCRIPT_DIR/build.sh"
 }
 

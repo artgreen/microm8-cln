@@ -1,0 +1,17 @@
+# Per-package minimum statement coverage. Format: <package> <percent>
+# `tools/scripts/test.sh cover` fails if any listed package drops below
+# its threshold. Add a line when you raise coverage on a package; the
+# threshold ratchets one way (up), preventing silent regressions.
+#
+# Starting baselines from the Phase 0.5 commit. Bump these as we add tests.
+./buffer 90.0
+./runestring 90.0
+./panic 100.0
+./encoding/base91 95.0
+./encoding/ffpak 85.0
+./encoding/mempak 70.0
+./filerecord 40.0
+# fmt and log: most code is gated behind compile-time-effective const flags
+# (settings.Verbose, SILENT), so coverage is structurally bounded.
+./fmt 5.0
+./log 15.0
