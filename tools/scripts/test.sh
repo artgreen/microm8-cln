@@ -20,7 +20,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-MODULE_DIR="$REPO_ROOT/GoPath/src/paleotronic.com"
 
 # Read allowlist file into space-separated package paths; skip comments and blanks.
 read_allowlist() {
@@ -30,7 +29,7 @@ read_allowlist() {
 TEST_PKGS="$(read_allowlist "$REPO_ROOT/.ci/test-allowlist.txt")"
 COVER_THRESHOLD="${COVER_THRESHOLD:-$REPO_ROOT/.ci/coverage-thresholds.txt}"
 
-cd "$MODULE_DIR"
+cd "$REPO_ROOT"
 export GOFLAGS="${GOFLAGS:--mod=mod}"
 
 run_unit() {

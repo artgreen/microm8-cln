@@ -16,57 +16,73 @@ microM8 is a comprehensive Apple II emulator with advanced features for both cas
 ## Project Structure
 
 ```
-microm8-clean/
-├── GoPath/src/paleotronic.com/
-│   ├── octalyzer/        # Main emulator client
-│   ├── server/           # Server components
-│   ├── core/             # Core emulation logic
-│   ├── debugger/         # Debugging tools
-│   └── ...
+microm8-cln/
+├── octalyzer/        # Main emulator client (binary entry point)
+├── server/           # Server components
+├── core/             # Core emulation logic
+├── debugger/         # Debugging tools
+├── api/              # Network/RPC API
+├── internal/         # Internal-only support packages
+├── tools/scripts/    # Build/test/watch entry points
+├── .ci/              # Allowlists + coverage thresholds
 └── ...
 ```
+
+The module path is `paleotronic.com`. All Go source lives at the repository root — the historical `GoPath/src/paleotronic.com/` wrapper was removed in Phase 3 of the modernization migration.
 
 ## Building from Source
 
 ### Prerequisites
 
-- Go programming language (1.16 or later)
+- Go 1.24 or later
 - Git
-- Standard build tools (gcc, make, etc.)
+- C toolchain (gcc/clang), `pkg-config`
+- System libraries for CGO deps:
+  - **macOS**: `brew install pkg-config portaudio`
+  - **Linux**: `sudo apt-get install pkg-config portaudio19-dev libgl1-mesa-dev xorg-dev libxi-dev libxcursor-dev libxinerama-dev libxrandr-dev libasound2-dev`
 
-### Build Instructions
+### Build
 
-1. Clone the repository:
+From the repository root:
+
 ```bash
-git clone <repository-url>
-cd microm8-clean
+tools/scripts/build.sh
 ```
 
-2. Navigate to the octalyzer directory:
+Produces a `microM8` binary at the repository root. This is equivalent to:
+
 ```bash
-cd GoPath/src/paleotronic.com/octalyzer
+GOFLAGS=-mod=mod go build -o microM8 ./octalyzer
 ```
 
-3. Build the project using the lmake.sh script:
+### Additional build targets via `lmake.sh`
+
+The `octalyzer/lmake.sh` script supports several build variants:
+
 ```bash
-./lmake.sh build
+cd octalyzer
+./lmake.sh build     # standard build (default)
+./lmake.sh run       # build and run
+./lmake.sh asm       # build the assembler (asm65xx)
+./lmake.sh remint    # build the remote-interface variant
+./lmake.sh nox       # build without X11 (noxarchaist)
+./lmake.sh macos     # cross-build for macOS x86_64 (requires xgo)
+./lmake.sh profile   # build + run with profiling
 ```
 
-This will create the `microM8` executable in the current directory.
+Messages about `xgo` not being found can be safely ignored unless cross-compiling.
 
-### Additional Build Options
+### Running tests
 
-The lmake.sh script supports several build targets:
+```bash
+tools/scripts/check.sh         # full pre-commit (fmt + vet + test + build)
+tools/scripts/test.sh          # race tests on the allowlist
+tools/scripts/test.sh cover    # coverage report with threshold check
+tools/scripts/test.sh fuzz FuzzRoundtrip ./encoding/base91
+tools/scripts/watch.sh         # auto-rerun on save
+```
 
-- `./lmake.sh build` - Standard build (default)
-- `./lmake.sh run` - Build and run the emulator
-- `./lmake.sh asm` - Build the assembler component
-- `./lmake.sh remint` - Build the remote interface version
-- `./lmake.sh nox` - Build without X11 dependencies (noxarchaist)
-- `./lmake.sh macos` - Build for macOS x86_64 (requires xgo)
-- `./lmake.sh profile` - Build and run with profiling
-
-**Note:** Build messages about xgo not being found can be safely ignored unless you're cross-compiling for macOS.
+See [TESTING.md](TESTING.md) for testing conventions and how to extend coverage.
 
 ## Running microM8
 
@@ -93,24 +109,21 @@ To enable MCP server for AI integration:
 
 ## Development
 
-### Building Components Separately
+### Building components separately
 
 **Server:**
 ```bash
-cd GoPath/src/paleotronic.com/server
-go build
+go build ./server
 ```
 
-**Client (Octalyzer):**
+**Client (octalyzer):**
 ```bash
-cd GoPath/src/paleotronic.com/octalyzer
-go build
+go build ./octalyzer
 ```
 
-**Remote Interface:**
+**Remote interface:**
 ```bash
-cd GoPath/src/paleotronic.com/octalyzer
-go build -tags remint
+go build -tags remint ./octalyzer
 ```
 
 ## License
