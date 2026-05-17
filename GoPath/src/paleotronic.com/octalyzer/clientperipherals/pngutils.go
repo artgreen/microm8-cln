@@ -2,6 +2,7 @@ package clientperipherals
 
 import (
 	"bytes"
+
 	"paleotronic.com/gl"
 	"paleotronic.com/glumby"
 	"paleotronic.com/octalyzer/video"

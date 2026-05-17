@@ -1,8 +1,11 @@
 package mempak
 
-import "paleotronic.com/fmt"
-import "errors"
-import "paleotronic.com/utils"
+import (
+	"errors"
+
+	"paleotronic.com/fmt"
+	"paleotronic.com/utils"
+)
 
 type StreamPack struct {
 	Data  []byte

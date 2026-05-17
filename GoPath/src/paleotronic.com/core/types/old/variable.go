@@ -9,11 +9,10 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"paleotronic.com/fmt"
 
+	"paleotronic.com/core/memory"
 	"paleotronic.com/log"
 	"paleotronic.com/utils"
-    "paleotronic.com/core/memory"
 )
 
 type VariableType int
@@ -29,17 +28,17 @@ const (
 const (
 	MAX_EXPRESSION_LENGTH = 256
 	MAX_STRING_LENGTH     = 256
-    MAX_COMPRESSED_STRING = MAX_STRING_LENGTH/4
+	MAX_COMPRESSED_STRING = MAX_STRING_LENGTH / 4
 	MAX_FLOAT_LENGTH      = 1
 	MAX_INTEGER_LENGTH    = 1
-	DEFAULT_NAME_ULEN      = 4
+	DEFAULT_NAME_ULEN     = 4
 	DEFAULT_INDEX         = 1024
 )
 
-type Variable struct { 
+type Variable struct {
 	Content        []*VarValue
 	ContentScalar  *VarValue
-	Length         int 
+	Length         int
 	Dimensions     []int
 	AssumeLowIndex bool
 	Kind           VariableType
@@ -57,15 +56,15 @@ type Variable struct {
 type VarMemoryManager interface {
 	SetMemory(address int, value uint)
 	GetMemory(address int) uint
-    SetVM( vm VarManager )
-    GetVM() VarManager
-    GetMemoryMap() *memory.MemoryMap
-    GetMemIndex() int
+	SetVM(vm VarManager)
+	GetVM() VarManager
+	GetMemoryMap() *memory.MemoryMap
+	GetMemIndex() int
 }
 
 type StrAlloc struct {
-	 Address int
-     Length  int
+	Address int
+	Length  int
 }
 
 type StringMemoryManager map[string]StrAlloc
@@ -77,21 +76,20 @@ type VarMap struct {
 	Preserve  []string
 	Mgr       VarMemoryManager
 	// Memory management
-	VIndexBase int
-	VIndexNext int
-	VTableBase int // base address for vtable in memory
-	VTableNext int // next slot address
+	VIndexBase  int
+	VIndexNext  int
+	VTableBase  int // base address for vtable in memory
+	VTableNext  int // next slot address
 	VStringBase int // base address for vtable in memory
 	VStringNext int // next slot address
-    
-    // String allocation tracker
-    StringMemory StringMemoryManager
-    StringReuse  StringMemoryDealloc
-    
+
+	// String allocation tracker
+	StringMemory StringMemoryManager
+	StringReuse  StringMemoryDealloc
 }
 
-func GetVarKey( name string, index int ) string {
-	 return name + "." + utils.IntToStr(index)
+func GetVarKey(name string, index int) string {
+	return name + "." + utils.IntToStr(index)
 }
 
 func (this VariableType) String() string {
@@ -133,27 +131,27 @@ func (this VariableType) GetNeededAllocation(length int) int {
 func NewVarMap(mvl int, mgr VarMemoryManager) *VarMap {
 	this := &VarMap{Mgr: mgr, Content: make(map[string]*Variable), MaxLength: mvl, Preserve: []string{"color", "hcolor", "scale", "rot"}}
 
-	this.VTableBase = 65536+3072+16384*2
-	this.VTableNext = this.VTableBase+2
+	this.VTableBase = 65536 + 3072 + 16384*2
+	this.VTableNext = this.VTableBase + 2
 	this.VStringBase = 0x19400
 	this.VStringNext = 0x19400
-    this.StringMemory = make( StringMemoryManager )
-    this.StringReuse  = make( StringMemoryDealloc )
+	this.StringMemory = make(StringMemoryManager)
+	this.StringReuse = make(StringMemoryDealloc)
 
 	return this
 }
 
-func (this *VarMap) SetBase( address int, saddress int ) {
+func (this *VarMap) SetBase(address int, saddress int) {
 
 	this.VIndexBase = saddress
 	this.VIndexNext = saddress
 	this.VTableBase = address
 	this.VTableNext = address
 	//this.Clear()
-//	//fmt.Printf( "*** Setting Variable storage base to $%04x\n", this.VIndexBase )
+	//	//fmt.Printf( "*** Setting Variable storage base to $%04x\n", this.VIndexBase )
 	//this.Mgr.SetMemory(this.VIndexBase, 0)
-	this.VStringBase = saddress+DEFAULT_INDEX
-	this.VStringNext = saddress+DEFAULT_INDEX
+	this.VStringBase = saddress + DEFAULT_INDEX
+	this.VStringNext = saddress + DEFAULT_INDEX
 }
 
 // True if map contains variable with that name
@@ -213,9 +211,9 @@ func (this *VarMap) PutQuietly(n string, v *Variable) {
 // Maps a Variable to a particular key
 func (this *VarMap) Put(n string, v *Variable) {
 
-    if v == nil {
-       panic("Variable pointer is nil: "+n)
-    }
+	if v == nil {
+		panic("Variable pointer is nil: " + n)
+	}
 
 	cn := this.CompliantName(n)
 	this.Content[cn] = v
@@ -224,12 +222,12 @@ func (this *VarMap) Put(n string, v *Variable) {
 
 	v.VarSize = alloc
 	if v.Kind == VT_STRING {
-		alloc = v.Length   // strings are just pointer to secondary memory
+		alloc = v.Length // strings are just pointer to secondary memory
 	}
 	v.VarAddress = this.VTableNext
 	this.VTableNext += alloc
 
-//	//fmt.Printf( "*** Variable allocation %s at $%06x\n", cn, v.VarAddress )
+	//	//fmt.Printf( "*** Variable allocation %s at $%06x\n", cn, v.VarAddress )
 
 	v.Map = this
 	if v.Length == 1 {
@@ -253,16 +251,16 @@ func (this *VarMap) Put(n string, v *Variable) {
 		}
 	}
 
-//	//fmt.Printf("*** Var %s metadata at $%04x\n", cn, this.VIndexNext)
+	//	//fmt.Printf("*** Var %s metadata at $%04x\n", cn, this.VIndexNext)
 	for i, vv := range namedata {
-		this.Mgr.SetMemory( this.VIndexNext+i, vv )
+		this.Mgr.SetMemory(this.VIndexNext+i, vv)
 	}
 	this.VIndexNext += len(namedata)
-	this.Mgr.SetMemory( this.VIndexNext, 0 )
+	this.Mgr.SetMemory(this.VIndexNext, 0)
 
 }
 
-func (this *VarMap) Defrost( zis bool ) {
+func (this *VarMap) Defrost(zis bool) {
 	ptr := this.VIndexBase
 	biggest := this.VTableBase
 	sbiggest := this.VStringBase
@@ -270,16 +268,16 @@ func (this *VarMap) Defrost( zis bool ) {
 
 		namedata := make([]uint, DEFAULT_NAME_ULEN+4)
 
-		for i := 0; i<len(namedata); i++ {
-			namedata[i] = this.Mgr.GetMemory(ptr+i)
+		for i := 0; i < len(namedata); i++ {
+			namedata[i] = this.Mgr.GetMemory(ptr + i)
 		}
 
 		// decode
 		vname := UnpackName(namedata[0:DEFAULT_NAME_ULEN])
-		vkind  := VariableType(namedata[DEFAULT_NAME_ULEN+0])
-		vlength  := int(namedata[DEFAULT_NAME_ULEN+1])
-		vaddress  := int(namedata[DEFAULT_NAME_ULEN+2])
-		vsize  := int(namedata[DEFAULT_NAME_ULEN+3])
+		vkind := VariableType(namedata[DEFAULT_NAME_ULEN+0])
+		vlength := int(namedata[DEFAULT_NAME_ULEN+1])
+		vaddress := int(namedata[DEFAULT_NAME_ULEN+2])
+		vsize := int(namedata[DEFAULT_NAME_ULEN+3])
 		dims := make([]int, 1)
 		dims[0] = 1
 
@@ -290,13 +288,13 @@ func (this *VarMap) Defrost( zis bool ) {
 				panic("dimensions seem wrong")
 			}
 			dims = make([]int, ndims)
-			for i:=0; i<ndims; i++ {
+			for i := 0; i < ndims; i++ {
 				namedata = append(namedata, this.Mgr.GetMemory(ptr+DEFAULT_NAME_ULEN+5+i))
 				dims[i] = int(namedata[DEFAULT_NAME_ULEN+5+i])
 			}
 		}
 
-//		//fmt.Printf( "=== Defrost: %s(%d) %s (%d bytes at %d) %v\n", vname, vlength, vkind.String(), vsize, vaddress, dims  )
+		//		//fmt.Printf( "=== Defrost: %s(%d) %s (%d bytes at %d) %v\n", vname, vlength, vkind.String(), vsize, vaddress, dims  )
 
 		// now let's do it
 		if vlength == 1 {
@@ -318,21 +316,20 @@ func (this *VarMap) Defrost( zis bool ) {
 		}
 
 		if vkind == VT_STRING {
-			if vaddress + vsize > sbiggest {
+			if vaddress+vsize > sbiggest {
 				sbiggest = vaddress + vsize
 			}
 		} else {
-			if vaddress + vsize > biggest {
+			if vaddress+vsize > biggest {
 				biggest = vaddress + vsize
 			}
 		}
-
 
 		// move on
 		ptr += len(namedata)
 	}
 	this.VIndexNext = ptr
-	this.VTableNext  = biggest
+	this.VTableNext = biggest
 	this.VStringNext = sbiggest
 }
 
@@ -451,9 +448,9 @@ func (vv Variable) ParseContent(v string) (string, error) {
 	}
 
 	if vv.Kind == VT_STRING {
-        if len(v) > MAX_STRING_LENGTH {
-           return v, errors.New("STRING TOO LONG")
-        }
+		if len(v) > MAX_STRING_LENGTH {
+			return v, errors.New("STRING TOO LONG")
+		}
 		return v, nil
 	}
 
@@ -507,147 +504,146 @@ func (vv *Variable) SyncScalar() {
 	if vv.VarAddress != 0 {
 
 		offset := vv.VarAddress
-		v      := ""
+		v := ""
 		switch vv.Kind {
 		case VT_INTEGER:
-			v = utils.IntToStr( int(vv.Map.Mgr.GetMemory(offset)) )
+			v = utils.IntToStr(int(vv.Map.Mgr.GetMemory(offset)))
 		case VT_FLOAT:
-			v = utils.FloatToStr( float64( Uint2Float(vv.Map.Mgr.GetMemory(offset))) )
+			v = utils.FloatToStr(float64(Uint2Float(vv.Map.Mgr.GetMemory(offset))))
 		case VT_STRING:
-        
-            realaddr := int( vv.Map.Mgr.GetMemory(offset) )
-        
-        	if realaddr == 0 {
-               v = ""
-            } else {
-               count := int(vv.Map.Mgr.GetMemory(realaddr))
-               v = ""
-               for i:=0; i<count; i++ {
-               	   v += string( rune( vv.Map.Mgr.GetMemory(realaddr+1+i) ) )
-               }
-            }
-            
+
+			realaddr := int(vv.Map.Mgr.GetMemory(offset))
+
+			if realaddr == 0 {
+				v = ""
+			} else {
+				count := int(vv.Map.Mgr.GetMemory(realaddr))
+				v = ""
+				for i := 0; i < count; i++ {
+					v += string(rune(vv.Map.Mgr.GetMemory(realaddr + 1 + i)))
+				}
+			}
+
 		case VT_EXPRESSION:
-            realaddr := int( vv.Map.Mgr.GetMemory(offset) )
-        
-        	if realaddr == 0 {
-               v = ""
-            } else {
-               count := int(vv.Map.Mgr.GetMemory(realaddr))
-               v = ""
-               for i:=0; i<count; i++ {
-               	   v += string( rune( vv.Map.Mgr.GetMemory(realaddr+1+i) ) )
-               }
-            }
+			realaddr := int(vv.Map.Mgr.GetMemory(offset))
+
+			if realaddr == 0 {
+				v = ""
+			} else {
+				count := int(vv.Map.Mgr.GetMemory(realaddr))
+				v = ""
+				for i := 0; i < count; i++ {
+					v += string(rune(vv.Map.Mgr.GetMemory(realaddr + 1 + i)))
+				}
+			}
 		}
 
 		vv.SetContentScalar(v)
 
-//		ss, _ := vv.GetContentScalar()
+		//		ss, _ := vv.GetContentScalar()
 
-//		//fmt.Printf( "--> Set value to [%s]\n", ss)
+		//		//fmt.Printf( "--> Set value to [%s]\n", ss)
 
 	}
 }
 
 func (vv *Variable) SyncArray() {
-	for i:=0; i<vv.Length; i++ {
+	for i := 0; i < vv.Length; i++ {
 		vv.SyncIndex(i)
 	}
 }
-
 
 func (vv *Variable) SyncIndex(rindex int) {
 	// into memory
 	if vv.VarAddress != 0 {
 
-       size := vv.Kind.Size()
-       if vv.Kind == VT_STRING {
-       	  size = 1
-       }
-    
+		size := vv.Kind.Size()
+		if vv.Kind == VT_STRING {
+			size = 1
+		}
+
 		offset := vv.VarAddress + size*rindex
-		v      := ""
+		v := ""
 		switch vv.Kind {
 		case VT_INTEGER:
-			v = utils.IntToStr( int(vv.Map.Mgr.GetMemory(offset)) )
+			v = utils.IntToStr(int(vv.Map.Mgr.GetMemory(offset)))
 		case VT_FLOAT:
-			v = utils.FloatToStr( float64( Uint2Float(vv.Map.Mgr.GetMemory(offset))) )
+			v = utils.FloatToStr(float64(Uint2Float(vv.Map.Mgr.GetMemory(offset))))
 		case VT_STRING:
-            realaddr := int( vv.Map.Mgr.GetMemory(offset) )
-        
-        	if realaddr == 0 {
-               v = ""
-            } else {
-               count := int(vv.Map.Mgr.GetMemory(realaddr))
-               v = ""
-               for i:=0; i<count; i++ {
-               	   v += string( rune( vv.Map.Mgr.GetMemory(realaddr+1+i) ) )
-               }
-            }
+			realaddr := int(vv.Map.Mgr.GetMemory(offset))
+
+			if realaddr == 0 {
+				v = ""
+			} else {
+				count := int(vv.Map.Mgr.GetMemory(realaddr))
+				v = ""
+				for i := 0; i < count; i++ {
+					v += string(rune(vv.Map.Mgr.GetMemory(realaddr + 1 + i)))
+				}
+			}
 		case VT_EXPRESSION:
-            realaddr := int( vv.Map.Mgr.GetMemory(offset) )
-        
-        	if realaddr == 0 {
-               v = ""
-            } else {
-               count := int(vv.Map.Mgr.GetMemory(realaddr))
-               v = ""
-               for i:=0; i<count; i++ {
-               	   v += string( rune( vv.Map.Mgr.GetMemory(realaddr+1+i) ) )
-               }
-            }
+			realaddr := int(vv.Map.Mgr.GetMemory(offset))
+
+			if realaddr == 0 {
+				v = ""
+			} else {
+				count := int(vv.Map.Mgr.GetMemory(realaddr))
+				v = ""
+				for i := 0; i < count; i++ {
+					v += string(rune(vv.Map.Mgr.GetMemory(realaddr + 1 + i)))
+				}
+			}
 		}
 
 		vv.SetContent(rindex, v)
 
-//		//fmt.Printf( "--> Set value %d to [%s]\n", rindex, v )
+		//		//fmt.Printf( "--> Set value %d to [%s]\n", rindex, v )
 
 	}
 }
 
 func (vv *Variable) FreshenScalar(v string) {
-			// into memory
-			if vv.VarAddress != 0 {
+	// into memory
+	if vv.VarAddress != 0 {
 
-				offset := vv.VarAddress
-				switch vv.Kind {
-				case VT_INTEGER:
-					vv.Map.Mgr.SetMemory(offset, uint(utils.StrToInt(v)))
-				case VT_FLOAT:
-					vv.Map.Mgr.SetMemory(offset, uint(Float2uint(utils.StrToFloat(v))))
-				case VT_STRING:
-					if len(v) > 255 {
-						v = v[0:255]
-					}
-                    
-                    // Get allocation, changed or not
-                    ptr := vv.Map.RequestStringAllocation(vv.Name, len(v)+1, 0)
-                    vv.Map.Mgr.SetMemory(offset, uint(ptr.Address))
-                    
-                    // do this properly..
-                    vv.Map.Mgr.SetMemory(ptr.Address, uint(len(v)))
-                    for i, ch := range v {
-						vv.Map.Mgr.SetMemory(ptr.Address+1+i, uint(ch))
-					}
-                    
-				case VT_EXPRESSION:
-					if len(v) > 255 {
-						v = v[0:255]
-					}
-                    
-                    // Get allocation, changed or not
-                    ptr := vv.Map.RequestStringAllocation(vv.Name, len(v)+1, 0)
-                    vv.Map.Mgr.SetMemory(offset, uint(ptr.Address))
-                    
-                    // do this properly..
-                    vv.Map.Mgr.SetMemory(ptr.Address, uint(len(v)))
-                    for i, ch := range v {
-						vv.Map.Mgr.SetMemory(ptr.Address+1+i, uint(ch))
-					}
-				}
-
+		offset := vv.VarAddress
+		switch vv.Kind {
+		case VT_INTEGER:
+			vv.Map.Mgr.SetMemory(offset, uint(utils.StrToInt(v)))
+		case VT_FLOAT:
+			vv.Map.Mgr.SetMemory(offset, uint(Float2uint(utils.StrToFloat(v))))
+		case VT_STRING:
+			if len(v) > 255 {
+				v = v[0:255]
 			}
+
+			// Get allocation, changed or not
+			ptr := vv.Map.RequestStringAllocation(vv.Name, len(v)+1, 0)
+			vv.Map.Mgr.SetMemory(offset, uint(ptr.Address))
+
+			// do this properly..
+			vv.Map.Mgr.SetMemory(ptr.Address, uint(len(v)))
+			for i, ch := range v {
+				vv.Map.Mgr.SetMemory(ptr.Address+1+i, uint(ch))
+			}
+
+		case VT_EXPRESSION:
+			if len(v) > 255 {
+				v = v[0:255]
+			}
+
+			// Get allocation, changed or not
+			ptr := vv.Map.RequestStringAllocation(vv.Name, len(v)+1, 0)
+			vv.Map.Mgr.SetMemory(offset, uint(ptr.Address))
+
+			// do this properly..
+			vv.Map.Mgr.SetMemory(ptr.Address, uint(len(v)))
+			for i, ch := range v {
+				vv.Map.Mgr.SetMemory(ptr.Address+1+i, uint(ch))
+			}
+		}
+
+	}
 }
 
 func (vv *Variable) SetContentScalar(v string) error {
@@ -670,56 +666,56 @@ func (vv *Variable) SetContentScalar(v string) error {
 }
 
 func (vv *Variable) FreshenArray() {
-	for i:=0; i<vv.Length; i++ {
+	for i := 0; i < vv.Length; i++ {
 		vv.FreshenIndex(i, vv.Content[i].String())
 	}
 }
 
-func (vv *Variable) FreshenIndex( rindex int, v string ) {
-			if vv.VarAddress != 0 {
+func (vv *Variable) FreshenIndex(rindex int, v string) {
+	if vv.VarAddress != 0 {
 
-                size := vv.Kind.Size()
-                if vv.Kind == VT_STRING {
-                   size = 1
-                }
-            
-				offset := vv.VarAddress + size*rindex
-				switch vv.Kind {
-				case VT_INTEGER:
-					vv.Map.Mgr.SetMemory(offset, uint(utils.StrToInt(v)))
-				case VT_FLOAT:
-					vv.Map.Mgr.SetMemory(offset, uint(Float2uint(utils.StrToFloat(v))))
-				case VT_STRING:
-					if len(v) > 255 {
-						v = v[0:255]
-					}
-                    
-                    // Get allocation, changed or not
-                    ptr := vv.Map.RequestStringAllocation(vv.Name, len(v)+1, 0)
-                    vv.Map.Mgr.SetMemory(offset, uint(ptr.Address))
-                    
-                    // do this properly..
-                    vv.Map.Mgr.SetMemory(ptr.Address, uint(len(v)))
-                    for i, ch := range v {
-						vv.Map.Mgr.SetMemory(ptr.Address+1+i, uint(ch))
-					}
-				case VT_EXPRESSION:
-					if len(v) > 255 {
-						v = v[0:255]
-					}
-                    
-                    // Get allocation, changed or not
-                    ptr := vv.Map.RequestStringAllocation(vv.Name, len(v)+1, 0)
-                    vv.Map.Mgr.SetMemory(offset, uint(ptr.Address))
-                    
-                    // do this properly..
-                    vv.Map.Mgr.SetMemory(ptr.Address, uint(len(v)))
-                    for i, ch := range v {
-						vv.Map.Mgr.SetMemory(ptr.Address+1+i, uint(ch))
-					}
-				}
+		size := vv.Kind.Size()
+		if vv.Kind == VT_STRING {
+			size = 1
+		}
 
+		offset := vv.VarAddress + size*rindex
+		switch vv.Kind {
+		case VT_INTEGER:
+			vv.Map.Mgr.SetMemory(offset, uint(utils.StrToInt(v)))
+		case VT_FLOAT:
+			vv.Map.Mgr.SetMemory(offset, uint(Float2uint(utils.StrToFloat(v))))
+		case VT_STRING:
+			if len(v) > 255 {
+				v = v[0:255]
 			}
+
+			// Get allocation, changed or not
+			ptr := vv.Map.RequestStringAllocation(vv.Name, len(v)+1, 0)
+			vv.Map.Mgr.SetMemory(offset, uint(ptr.Address))
+
+			// do this properly..
+			vv.Map.Mgr.SetMemory(ptr.Address, uint(len(v)))
+			for i, ch := range v {
+				vv.Map.Mgr.SetMemory(ptr.Address+1+i, uint(ch))
+			}
+		case VT_EXPRESSION:
+			if len(v) > 255 {
+				v = v[0:255]
+			}
+
+			// Get allocation, changed or not
+			ptr := vv.Map.RequestStringAllocation(vv.Name, len(v)+1, 0)
+			vv.Map.Mgr.SetMemory(offset, uint(ptr.Address))
+
+			// do this properly..
+			vv.Map.Mgr.SetMemory(ptr.Address, uint(len(v)))
+			for i, ch := range v {
+				vv.Map.Mgr.SetMemory(ptr.Address+1+i, uint(ch))
+			}
+		}
+
+	}
 }
 
 func (vv *Variable) SetContent(rindex int, v string) error {
@@ -764,9 +760,9 @@ func (vv *Variable) SetContentByIndex(def int, max int, index []int, v string) e
 		}
 		for c := 1; c <= vv.Length-1; c++ {
 			e := vv.SetContent(c, vvv)
-            if e != nil {
-               return e
-            }
+			if e != nil {
+				return e
+			}
 		}
 	} else if (len(vv.Dimensions) == 1) && (vv.Dimensions[0] <= index[0]) && (vv.AssumeLowIndex) {
 		newsize := index[0] + def
@@ -826,10 +822,10 @@ func (vv *Variable) GetContentByIndex(def int, max int, index []int) (string, er
 		return "", err
 	}
 
-    var result string
-    if vv.Content[fidx] != nil {
-	  result = vv.Content[fidx].String()
-    }
+	var result string
+	if vv.Content[fidx] != nil {
+		result = vv.Content[fidx].String()
+	}
 	if result == "" {
 		if vv.Kind != VT_STRING {
 			result = "0"
@@ -1058,7 +1054,7 @@ func Uint2Float(u uint) float32 {
 	return f
 }
 
-func PackName( name string, l int) []uint {
+func PackName(name string, l int) []uint {
 	if len(name) > l {
 		name = name[0:l]
 	}
@@ -1080,18 +1076,18 @@ func PackName( name string, l int) []uint {
 	return data
 }
 
-func UnpackName( data []uint ) string {
+func UnpackName(data []uint) string {
 
 	out := make([]byte, 0)
 
 	for _, u := range data {
 		b := uint2Bytes(u)
-        
-        for _, bb := range b {
-        	if bb != 0 {
-        	   out = append(out, bb)
-            }
-        }
+
+		for _, bb := range b {
+			if bb != 0 {
+				out = append(out, bb)
+			}
+		}
 	}
 
 	s := string(out)
@@ -1102,145 +1098,145 @@ func UnpackName( data []uint ) string {
 // Scan through blocks allocated and group contiguous free blocks into a single block
 func (this *VarMap) GroupStringFreeblocks() {
 
-	 newmap := make(map[int]StrAlloc)
-     
-     sorted := make([]int, 0)
-     for i, _ := range this.StringReuse {
-     	 sorted = append( sorted, i )
-     }
-     sort.Ints(sorted)
-     
-     for i := len(sorted)-1; i>=0; i-- {
-     
-     	 address := sorted[i]        
-         oldblock := this.StringReuse[address]    
-         
-         nextblockstart := oldblock.Address + oldblock.Length
-         
-         nextblock, ex := newmap[nextblockstart]
-         
-         if ex {
-         	nextblock.Length += oldblock.Length
-            nextblock.Address = oldblock.Address
-            
-            delete( newmap, nextblockstart )
-            newmap[ nextblock.Address ] = nextblock
-            
-            //fmt.Printf("[STRING] Merged 2 blocks to yield %d bytes at 0x%x\n", nextblock.Length, nextblock.Address )
-         } else {
-           // add block
-           newmap[ address ] = oldblock
-         }
-     
-     }
-     
-     this.StringReuse = newmap
+	newmap := make(map[int]StrAlloc)
+
+	sorted := make([]int, 0)
+	for i, _ := range this.StringReuse {
+		sorted = append(sorted, i)
+	}
+	sort.Ints(sorted)
+
+	for i := len(sorted) - 1; i >= 0; i-- {
+
+		address := sorted[i]
+		oldblock := this.StringReuse[address]
+
+		nextblockstart := oldblock.Address + oldblock.Length
+
+		nextblock, ex := newmap[nextblockstart]
+
+		if ex {
+			nextblock.Length += oldblock.Length
+			nextblock.Address = oldblock.Address
+
+			delete(newmap, nextblockstart)
+			newmap[nextblock.Address] = nextblock
+
+			//fmt.Printf("[STRING] Merged 2 blocks to yield %d bytes at 0x%x\n", nextblock.Length, nextblock.Address )
+		} else {
+			// add block
+			newmap[address] = oldblock
+		}
+
+	}
+
+	this.StringReuse = newmap
 
 }
 
-func (this *VarMap) RequestStringAllocation( name string, length int, index int ) StrAlloc {
+func (this *VarMap) RequestStringAllocation(name string, length int, index int) StrAlloc {
 
-	 keyname := GetVarKey(name, index)
-     
-     if len(this.StringReuse) > 2 {
-     	this.GroupStringFreeblocks()
-     }
-     
-     sa, ok := this.StringMemory[keyname]
-     
-     if !ok {
-     	// try memory reuse
-        for i, asa := range this.StringReuse {
-        	if asa.Length >= length {
-            
-               nsa := asa
-               nsa.Length = length // only take needed amount
-               
-               // adjust asa for free amount
-               asa.Address += length
-               asa.Length  -= length
-            
-               this.StringMemory[keyname] = nsa
-               delete( this.StringReuse, i )
- 
-         	   //fmt.Printf("[STRING] Using freed allocation for %s: Address: 0x%x, Length: %d\n", keyname, nsa.Address, nsa.Length )
-               
-               if asa.Length > 0 {
-               	  this.StringReuse[ asa.Address ] = asa
-                  //fmt.Printf("[STRING] Heaping free partial block from %s: Address: 0x%x, Length: %d\n", keyname, asa.Address, asa.Length )
-               }
-               
-               return nsa
-            }
-        }
-        
-        // get fresh one
-        varAddress := this.VStringNext
+	keyname := GetVarKey(name, index)
+
+	if len(this.StringReuse) > 2 {
+		this.GroupStringFreeblocks()
+	}
+
+	sa, ok := this.StringMemory[keyname]
+
+	if !ok {
+		// try memory reuse
+		for i, asa := range this.StringReuse {
+			if asa.Length >= length {
+
+				nsa := asa
+				nsa.Length = length // only take needed amount
+
+				// adjust asa for free amount
+				asa.Address += length
+				asa.Length -= length
+
+				this.StringMemory[keyname] = nsa
+				delete(this.StringReuse, i)
+
+				//fmt.Printf("[STRING] Using freed allocation for %s: Address: 0x%x, Length: %d\n", keyname, nsa.Address, nsa.Length )
+
+				if asa.Length > 0 {
+					this.StringReuse[asa.Address] = asa
+					//fmt.Printf("[STRING] Heaping free partial block from %s: Address: 0x%x, Length: %d\n", keyname, asa.Address, asa.Length )
+				}
+
+				return nsa
+			}
+		}
+
+		// get fresh one
+		varAddress := this.VStringNext
 		this.VStringNext += length
-        sa.Address = varAddress
-        sa.Length  = length
-        this.StringMemory[keyname] = sa
-        
-        //fmt.Printf("[STRING] Created allocation for %s: Address: 0x%x, Length: %d\n", keyname, sa.Address, sa.Length )
-        
-        return sa
-     } else {
-        // existing allocation
-        if sa.Length >= length {
-          //fmt.Printf("[STRING] Keeping allocation for %s: Address: 0x%x, Length: %d\n", keyname, sa.Address, sa.Length )
-          
-          diff := sa.Length - length
-          if diff > 2 {
-          	 // trim and free
-             nb := StrAlloc{ Address: sa.Address+length, Length: diff }
-             this.StringReuse[ nb.Address ] = nb
-             
-             sa.Length = length
-             this.StringMemory[keyname] = sa // trim block      
-             
-             //fmt.Printf("[STRING] Heaping free partial block from %s: Address: 0x%x, Length: %d\n", keyname, nb.Address, nb.Length )
-          }
-          
-          return sa
-        }
-        
-        // discard current block
-        delete( this.StringMemory, keyname )
-         
-        // search discarded blocks for one of sufficient size
-        this.StringReuse[ sa.Address ] = sa
-        for i, asa := range this.StringReuse {
-        	if asa.Length >= length {
-            
-               nsa := asa
-               nsa.Length = length // only take needed amount
-               
-               // adjust asa for free amount
-               asa.Address += length
-               asa.Length  -= length
-            
-               this.StringMemory[keyname] = nsa
-               delete( this.StringReuse, i )
- 
-         	   //fmt.Printf("[STRING] Using freed allocation for %s: Address: 0x%x, Length: %d\n", keyname, nsa.Address, nsa.Length )
-               
-               if asa.Length > 0 {
-               	  this.StringReuse[ asa.Address ] = asa
-                  //fmt.Printf("[STRING] Heaping free partial block from %s: Address: 0x%x, Length: %d\n", keyname, asa.Address, asa.Length )
-               }
-               
-               return nsa
-            }
-        }
-        
-        // if not found then allocate new block
-        varAddress := this.VStringNext
+		sa.Address = varAddress
+		sa.Length = length
+		this.StringMemory[keyname] = sa
+
+		//fmt.Printf("[STRING] Created allocation for %s: Address: 0x%x, Length: %d\n", keyname, sa.Address, sa.Length )
+
+		return sa
+	} else {
+		// existing allocation
+		if sa.Length >= length {
+			//fmt.Printf("[STRING] Keeping allocation for %s: Address: 0x%x, Length: %d\n", keyname, sa.Address, sa.Length )
+
+			diff := sa.Length - length
+			if diff > 2 {
+				// trim and free
+				nb := StrAlloc{Address: sa.Address + length, Length: diff}
+				this.StringReuse[nb.Address] = nb
+
+				sa.Length = length
+				this.StringMemory[keyname] = sa // trim block
+
+				//fmt.Printf("[STRING] Heaping free partial block from %s: Address: 0x%x, Length: %d\n", keyname, nb.Address, nb.Length )
+			}
+
+			return sa
+		}
+
+		// discard current block
+		delete(this.StringMemory, keyname)
+
+		// search discarded blocks for one of sufficient size
+		this.StringReuse[sa.Address] = sa
+		for i, asa := range this.StringReuse {
+			if asa.Length >= length {
+
+				nsa := asa
+				nsa.Length = length // only take needed amount
+
+				// adjust asa for free amount
+				asa.Address += length
+				asa.Length -= length
+
+				this.StringMemory[keyname] = nsa
+				delete(this.StringReuse, i)
+
+				//fmt.Printf("[STRING] Using freed allocation for %s: Address: 0x%x, Length: %d\n", keyname, nsa.Address, nsa.Length )
+
+				if asa.Length > 0 {
+					this.StringReuse[asa.Address] = asa
+					//fmt.Printf("[STRING] Heaping free partial block from %s: Address: 0x%x, Length: %d\n", keyname, asa.Address, asa.Length )
+				}
+
+				return nsa
+			}
+		}
+
+		// if not found then allocate new block
+		varAddress := this.VStringNext
 		this.VStringNext += length
-        sa.Address = varAddress
-        sa.Length  = length
-        this.StringMemory[keyname] = sa
-     	//fmt.Printf("[STRING] Created allocation for %s: Address: 0x%x, Length: %d\n", keyname, sa.Address, sa.Length )
-        return sa
-     }
+		sa.Address = varAddress
+		sa.Length = length
+		this.StringMemory[keyname] = sa
+		//fmt.Printf("[STRING] Created allocation for %s: Address: 0x%x, Length: %d\n", keyname, sa.Address, sa.Length )
+		return sa
+	}
 
 }

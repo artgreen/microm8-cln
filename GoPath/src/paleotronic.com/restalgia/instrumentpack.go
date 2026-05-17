@@ -1,8 +1,6 @@
 package restalgia
 
-import (
-//	"paleotronic.com/fmt"
-)
+// "paleotronic.com/fmt"
 
 type InstrumentPack struct {
 	Frequency  []float64

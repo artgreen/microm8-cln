@@ -2,6 +2,7 @@ package plus
 
 import (
 	"strings"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 	"paleotronic.com/files"
@@ -13,7 +14,9 @@ type PlusMount struct {
 
 func (this *PlusMount) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 		t := this.ValueMap["path"]
@@ -30,17 +33,17 @@ func (this *PlusMount) FunctionExecute(params *types.TokenList) error {
 		f := strings.ToLower(files.GetFilename(fullpath))
 
 		// test if it exists
-		if files.ExistsViaProvider( p, f ) {
+		if files.ExistsViaProvider(p, f) {
 			if files.GetExt(f) == "dsk" {
-				mount, e := files.MountDSKImage( p, f, drive )
+				mount, e := files.MountDSKImage(p, f, drive)
 				if e == nil {
 					this.Interpreter.SetWorkDir(mount)
-					this.Interpreter.PutStr("Switched to directory "+mount+"\r\n")
+					this.Interpreter.PutStr("Switched to directory " + mount + "\r\n")
 				}
 			}
 		}
 
-	} 
+	}
 
 	return nil
 }
@@ -78,8 +81,8 @@ func NewPlusMount(a int, b int, params types.TokenList) *PlusMount {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "CD"
 
-	this.NamedParams = []string{ "path", "drive" }
-	this.NamedDefaults = []types.Token{ *types.NewToken( types.STRING, "" ), *types.NewToken( types.NUMBER, "0" ) }
+	this.NamedParams = []string{"path", "drive"}
+	this.NamedDefaults = []types.Token{*types.NewToken(types.STRING, ""), *types.NewToken(types.NUMBER, "0")}
 	this.Raw = true
 
 	return this

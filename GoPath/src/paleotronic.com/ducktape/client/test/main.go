@@ -1,9 +1,10 @@
 package main
 
 import (
-	"paleotronic.com/log"
-	"paleotronic.com/ducktape/client"
 	"time"
+
+	"paleotronic.com/ducktape/client"
+	"paleotronic.com/log"
 )
 
 func main() {

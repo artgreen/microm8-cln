@@ -2,8 +2,9 @@ package common
 
 import (
 	"fmt"
-	"go.bug.st/serial"
 	"io"
+
+	"go.bug.st/serial"
 )
 
 const serialStagingBuffer = 4096

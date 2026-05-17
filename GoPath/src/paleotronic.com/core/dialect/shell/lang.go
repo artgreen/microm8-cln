@@ -1,14 +1,15 @@
 package shell
 
 import (
+	"strings"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
-	"paleotronic.com/core/interfaces"
-	"paleotronic.com/core/types"
-	"paleotronic.com/core/memory"
 	"paleotronic.com/core/hardware/apple2helpers"
+	"paleotronic.com/core/interfaces"
+	"paleotronic.com/core/memory"
+	"paleotronic.com/core/types"
 	"paleotronic.com/runestring"
-	"strings"
 )
 
 type StandardCommandDIALECT struct {
@@ -16,9 +17,9 @@ type StandardCommandDIALECT struct {
 }
 
 func NewStandardCommandDIALECT() *StandardCommandDIALECT {
-    this := &StandardCommandDIALECT{}
-    this.ImmediateMode = true
-    return this
+	this := &StandardCommandDIALECT{}
+	this.ImmediateMode = true
+	return this
 }
 
 func (this *StandardCommandDIALECT) Execute(env *interfaces.Producable, caller interfaces.Interpretable, tokens types.TokenList, Scope *types.Algorithm, LPC types.CodeRef) (int, error) {
@@ -41,20 +42,20 @@ func (this *StandardCommandDIALECT) Execute(env *interfaces.Producable, caller i
 
 	s = strings.ToLower(caller.TokenListAsString(tokens))
 
-    apple2helpers.TextSaveScreen(caller)
-    
-	e := caller.NewChild( strings.ToLower(s) )
+	apple2helpers.TextSaveScreen(caller)
+
+	e := caller.NewChild(strings.ToLower(s))
 	caller.SetChild(e)
 	e.SetParent(caller)
-    
+
 	apple2helpers.TEXT40(e)
 	apple2helpers.Attribute(e, types.VA_NORMAL)
 
 	e.Bootstrap(s, false)
 	e.SetBuffer(runestring.NewRuneString())
-    memory.WarmStart = true
-    e.LoadSpec( caller.GetSpec() )
-    memory.WarmStart = false
+	memory.WarmStart = true
+	e.LoadSpec(caller.GetSpec())
+	memory.WarmStart = false
 	//e.GetVDU().PutStr("Entering shell. Type 'exit' to return.")
 
 	//caller.Clear();

@@ -1,12 +1,12 @@
 package errorreport
 
 import (
-	"io/ioutil"
+	"os"
 	"strings"
 )
 
 func GetOSVersion() string {
-	data, err := ioutil.ReadFile("/etc/lsb-release")
+	data, err := os.ReadFile("/etc/lsb-release")
 	if err != nil {
 		return "Unknown"
 	}

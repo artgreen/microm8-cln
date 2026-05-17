@@ -22,8 +22,8 @@ func (this *StandardCommandBOOP) StateInit(env *interfaces.Producable, caller in
 	var result int
 
 	caller.PutStr("init\r\n")
-	caller.SetSubState( types.ESS_EXEC )
-	
+	caller.SetSubState(types.ESS_EXEC)
+
 	/* enforce non void return */
 	return result, nil
 
@@ -35,8 +35,8 @@ func (this *StandardCommandBOOP) StateExec(env *interfaces.Producable, caller in
 	var result int
 
 	caller.PutStr("exec\r\n")
-	caller.SetSubState( types.ESS_DONE )
-	
+	caller.SetSubState(types.ESS_DONE)
+
 	/* enforce non void return */
 	return result, nil
 
@@ -49,7 +49,7 @@ func (this *StandardCommandBOOP) StateDone(env *interfaces.Producable, caller in
 
 	caller.PutStr("done\r\n")
 	panic("testing exceptions")
-	
+
 	/* enforce non void return */
 	return result, nil
 

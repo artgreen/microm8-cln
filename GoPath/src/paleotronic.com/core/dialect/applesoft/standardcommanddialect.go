@@ -1,13 +1,14 @@
 package applesoft
 
 import (
+	"strings"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
+	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/runestring"
-	"strings"
 )
 
 type StandardCommandDIALECT struct {
@@ -15,9 +16,9 @@ type StandardCommandDIALECT struct {
 }
 
 func NewStandardCommandDIALECT() *StandardCommandDIALECT {
-    this := &StandardCommandDIALECT{}
-    this.ImmediateMode = true
-    return this
+	this := &StandardCommandDIALECT{}
+	this.ImmediateMode = true
+	return this
 }
 
 func (this *StandardCommandDIALECT) Execute(env *interfaces.Producable, caller interfaces.Interpretable, tokens types.TokenList, Scope *types.Algorithm, LPC types.CodeRef) (int, error) {

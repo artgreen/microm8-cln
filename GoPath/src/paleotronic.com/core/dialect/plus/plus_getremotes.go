@@ -1,11 +1,11 @@
 package plus
 
 import (
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
+	"paleotronic.com/fmt"
 	"paleotronic.com/utils"
-    "paleotronic.com/api"
-    "paleotronic.com/fmt"
 )
 
 type PlusGetRemotes struct {
@@ -14,7 +14,9 @@ type PlusGetRemotes struct {
 
 func (this *PlusGetRemotes) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 
@@ -26,32 +28,32 @@ func (this *PlusGetRemotes) FunctionExecute(params *types.TokenList) error {
 		//log.Printf("Parameters: %s, %s, %d\n", namevar, msgvar, max)
 
 		remotes, err := s8webclient.CONN.GetRemoteInstances(filter)
-        if len(remotes) > max {
-		   remotes = remotes[0:max]
-        }
+		if len(remotes) > max {
+			remotes = remotes[0:max]
+		}
 
 		if err == nil {
 
-			for i := 0; i<len(remotes); i++ {
+			for i := 0; i < len(remotes); i++ {
 				//log.Printf("*** <%s> %s\n", n[i], m[i])
 				rr := remotes[i]
-                info := fmt.Sprintf("%s:%d:%d", rr.Host, rr.Port, rr.PID )
+				info := fmt.Sprintf("%s:%d:%d", rr.Host, rr.Port, rr.PID)
 
 				tl := types.NewTokenList()
-				tl.Push( types.NewToken(types.VARIABLE, listvar) )
-				tl.Push( types.NewToken(types.OBRACKET, "(") )
-				tl.Push( types.NewToken(types.NUMBER, utils.IntToStr(i+1)))
-				tl.Push( types.NewToken(types.CBRACKET, ")") )
-				tl.Push( types.NewToken(types.ASSIGNMENT, "=") )
-				tl.Push( types.NewToken(types.STRING, info) )
+				tl.Push(types.NewToken(types.VARIABLE, listvar))
+				tl.Push(types.NewToken(types.OBRACKET, "("))
+				tl.Push(types.NewToken(types.NUMBER, utils.IntToStr(i+1)))
+				tl.Push(types.NewToken(types.CBRACKET, ")"))
+				tl.Push(types.NewToken(types.ASSIGNMENT, "="))
+				tl.Push(types.NewToken(types.STRING, info))
 				a := this.Interpreter.GetCode()
 				this.Interpreter.GetDialect().ExecuteDirectCommand(*tl, this.Interpreter, a, this.Interpreter.GetPC())
 				//log.Println(tl.AsString())
 
 				tl = types.NewTokenList()
-				tl.Push( types.NewToken(types.VARIABLE, countvar) )
-				tl.Push( types.NewToken(types.ASSIGNMENT, "=") )
-				tl.Push( types.NewToken(types.NUMBER, utils.IntToStr(i+1)))
+				tl.Push(types.NewToken(types.VARIABLE, countvar))
+				tl.Push(types.NewToken(types.ASSIGNMENT, "="))
+				tl.Push(types.NewToken(types.NUMBER, utils.IntToStr(i+1)))
 				this.Interpreter.GetDialect().ExecuteDirectCommand(*tl, this.Interpreter, a, this.Interpreter.GetPC())
 
 				//log.Println(tl.AsString())
@@ -61,9 +63,9 @@ func (this *PlusGetRemotes) FunctionExecute(params *types.TokenList) error {
 		} else {
 			a := this.Interpreter.GetCode()
 			tl := types.NewTokenList()
-			tl.Push( types.NewToken(types.VARIABLE, countvar) )
-			tl.Push( types.NewToken(types.ASSIGNMENT, "=") )
-			tl.Push( types.NewToken(types.NUMBER, utils.IntToStr(-1)))
+			tl.Push(types.NewToken(types.VARIABLE, countvar))
+			tl.Push(types.NewToken(types.ASSIGNMENT, "="))
+			tl.Push(types.NewToken(types.NUMBER, utils.IntToStr(-1)))
 			this.Interpreter.GetDialect().ExecuteDirectCommand(*tl, this.Interpreter, a, this.Interpreter.GetPC())
 			//log.Println(tl.AsString())
 		}
@@ -106,12 +108,12 @@ func NewPlusGetRemotes(a int, b int, params types.TokenList) *PlusGetRemotes {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "GETREMOTES"
 
-	this.NamedParams = []string{ "filter", "listvar", "countvar", "max" }
+	this.NamedParams = []string{"filter", "listvar", "countvar", "max"}
 	this.NamedDefaults = []types.Token{
-		*types.NewToken( types.STRING, "all" ),
-		*types.NewToken( types.STRING, "RM$" ),
-		*types.NewToken( types.STRING, "COUNT" ),
-		*types.NewToken( types.INTEGER, "20" ),
+		*types.NewToken(types.STRING, "all"),
+		*types.NewToken(types.STRING, "RM$"),
+		*types.NewToken(types.STRING, "COUNT"),
+		*types.NewToken(types.INTEGER, "20"),
 	}
 	this.Raw = true
 

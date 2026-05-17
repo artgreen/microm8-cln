@@ -1,9 +1,10 @@
 package buzzer
 
 import (
-	"paleotronic.com/log"
 	"sync"
 	"time"
+
+	"paleotronic.com/log"
 )
 
 const (

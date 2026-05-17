@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"paleotronic.com/core/hardware/apple2helpers"
-	"paleotronic.com/core/settings"
 	"paleotronic.com/core/interfaces"
+	"paleotronic.com/core/settings"
 
 	"paleotronic.com/files"
 	"paleotronic.com/spooler"

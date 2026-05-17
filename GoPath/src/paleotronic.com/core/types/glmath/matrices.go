@@ -1,8 +1,9 @@
 package glmath
 
 import (
-	"paleotronic.com/fmt"
 	"math"
+
+	"paleotronic.com/fmt"
 )
 
 const M_PI = 3.141592654
@@ -306,15 +307,16 @@ func (m *Matrix4) Identity() *Matrix4 {
 // Use InvertAffine() if the matrix has scale and shear transformation.
 //
 // M = [ R | T ]
-//     [ --+-- ]    (R denotes 3x3 rotation/reflection matrix)
-//     [ 0 | 1 ]    (T denotes 1x3 translation matrix)
+//
+//	[ --+-- ]    (R denotes 3x3 rotation/reflection matrix)
+//	[ 0 | 1 ]    (T denotes 1x3 translation matrix)
 //
 // y = M*x  ->  y = R*x + T  ->  x = R^-1*(y - T)  ->  x = R^T*y - R^T*T
 // (R is orthogonal,  R^-1 = R^T)
 //
-//  [ R | T ]-1    [ R^T | -R^T * T ]    (R denotes 3x3 rotation matrix)
-//  [ --+-- ]   =  [ ----+--------- ]    (T denotes 1x3 translation)
-//  [ 0 | 1 ]      [  0  |     1    ]    (R^T denotes R-transpose)
+//	[ R | T ]-1    [ R^T | -R^T * T ]    (R denotes 3x3 rotation matrix)
+//	[ --+-- ]   =  [ ----+--------- ]    (T denotes 1x3 translation)
+//	[ 0 | 1 ]      [  0  |     1    ]    (R^T denotes R-transpose)
 func (m *Matrix4) InvertEuclidean() *Matrix4 {
 	var tmp float64
 	tmp = m[1]
@@ -348,14 +350,15 @@ func (m *Matrix4) InvertEuclidean() *Matrix4 {
 // Affine transformation includes translation, rotation, reflection, scaling,
 // and shearing. Length and angle are NOT preserved.
 // M = [ R | T ]
-//     [ --+-- ]    (R denotes 3x3 rotation/scale/shear matrix)
-//     [ 0 | 1 ]    (T denotes 1x3 translation matrix)
+//
+//	[ --+-- ]    (R denotes 3x3 rotation/scale/shear matrix)
+//	[ 0 | 1 ]    (T denotes 1x3 translation matrix)
 //
 // y = M*x  ->  y = R*x + T  ->  x = R^-1*(y - T)  ->  x = R^-1*y - R^-1*T
 //
-//  [ R | T ]-1   [ R^-1 | -R^-1 * T ]
-//  [ --+-- ]   = [ -----+---------- ]
-//  [ 0 | 1 ]     [  0   +     1     ]
+//	[ R | T ]-1   [ R^-1 | -R^-1 * T ]
+//	[ --+-- ]   = [ -----+---------- ]
+//	[ 0 | 1 ]     [  0   +     1     ]
 func (m *Matrix4) InvertAffine() *Matrix4 {
 	// R^-1
 	var r = &Matrix3{m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9], m[10]}

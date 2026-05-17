@@ -2,12 +2,13 @@ package vduproto
 
 import (
 	"errors"
+
 	"paleotronic.com/core/types"
 )
 
 // ConnectCommand holds instructions for the restalgia system
 type ConnectCommand struct {
-	Data    []byte // Payload - could be string
+	Data []byte // Payload - could be string
 }
 
 // MarshalBinary encodes ConnectCommand to bytes

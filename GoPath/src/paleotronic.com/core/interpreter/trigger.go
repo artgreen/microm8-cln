@@ -1,8 +1,10 @@
 package interpreter
 
-import "paleotronic.com/core/types"
-import "paleotronic.com/core/interfaces"
-import "paleotronic.com/fmt"
+import (
+	"paleotronic.com/core/interfaces"
+	"paleotronic.com/core/types"
+	"paleotronic.com/fmt"
+)
 
 type Trigger struct {
 	Slot       int

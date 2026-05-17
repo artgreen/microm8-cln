@@ -2,14 +2,15 @@ package logo
 
 import (
 	//	"strings"
-//	"time"
+	//	"time"
 
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-//	"paleotronic.com/core/interfaces"
-//	"paleotronic.com/core/hardware/apple2helpers"
-//	"paleotronic.com/runestring"
-//	"paleotronic.com/utils"
+
+	//	"paleotronic.com/core/interfaces"
+	//	"paleotronic.com/core/hardware/apple2helpers"
+	//	"paleotronic.com/runestring"
+	//	"paleotronic.com/utils"
 	"paleotronic.com/files"
 )
 
@@ -49,7 +50,7 @@ func (this *StandardFunctionREADER) FunctionExecute(params *types.TokenList) err
 		return e
 	}
 
-	this.Stack.Push( types.NewToken( types.WORD, files.GetFilename(files.Reader) ) )
+	this.Stack.Push(types.NewToken(types.WORD, files.GetFilename(files.Reader)))
 
 	return nil
 }

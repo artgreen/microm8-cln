@@ -1,10 +1,10 @@
 package plus
 
 import (
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-//	"paleotronic.com/runestring"
-     "paleotronic.com/api"
+	//	"paleotronic.com/runestring"
 	//"paleotronic.com/log"
 )
 
@@ -14,9 +14,11 @@ type PlusUserDOB struct {
 
 func (this *PlusUserDOB) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
-    fn, _ := s8webclient.CONN.GetUserDOB()
+	fn, _ := s8webclient.CONN.GetUserDOB()
 
 	this.Stack.Push(types.NewToken(types.STRING, fn))
 
@@ -57,8 +59,7 @@ func NewPlusUserDOB(a int, b int, params types.TokenList) *PlusUserDOB {
 	this.Name = "USER.FIRSTNAME"
 
 	this.NamedParams = []string{}
-	this.NamedDefaults = []types.Token{
-	}
+	this.NamedDefaults = []types.Token{}
 	this.Raw = true
 
 	return this

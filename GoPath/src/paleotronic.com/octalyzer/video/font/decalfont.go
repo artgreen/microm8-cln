@@ -1,7 +1,6 @@
 package font
 
 import (
-	"io/ioutil"
 
 	//	"os"
 	"io"
@@ -172,7 +171,7 @@ func (this *DecalFont) SetScale(x float32, y float32) {
 }
 
 func NewDecaleFontFromReader(r io.Reader) (*DecalFont, error) {
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}

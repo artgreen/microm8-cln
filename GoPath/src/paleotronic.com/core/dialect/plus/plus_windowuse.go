@@ -2,10 +2,9 @@ package plus
 
 import (
 	"paleotronic.com/core/dialect"
-	"paleotronic.com/core/types"
 	"paleotronic.com/core/hardware/apple2helpers"
-//	"paleotronic.com/runestring"
-
+	"paleotronic.com/core/types"
+	//	"paleotronic.com/runestring"
 	//"paleotronic.com/log"
 )
 
@@ -15,7 +14,9 @@ type PlusUseWindow struct {
 
 func (this *PlusUseWindow) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 
@@ -63,9 +64,9 @@ func NewPlusUseWindow(a int, b int, params types.TokenList) *PlusUseWindow {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "WINDOW.USE"
 
-	this.NamedParams = []string{ "name" }
+	this.NamedParams = []string{"name"}
 	this.NamedDefaults = []types.Token{
-		*types.NewToken( types.STRING, "DEFAULT" ),
+		*types.NewToken(types.STRING, "DEFAULT"),
 	}
 	this.Raw = true
 

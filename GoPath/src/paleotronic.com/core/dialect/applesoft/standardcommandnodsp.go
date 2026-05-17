@@ -2,9 +2,9 @@ package applesoft
 
 import (
 	"paleotronic.com/core/dialect"
+	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"paleotronic.com/core/hardware/apple2helpers"
 )
 
 type StandardCommandNODSP struct {
@@ -18,7 +18,7 @@ func (this *StandardCommandNODSP) Execute(env *interfaces.Producable, caller int
 
 	result = 0
 	caller.GetDialect().GetWatchVars().Clear()
-	apple2helpers.PutStr(caller,"DSP OFF\r\n")
+	apple2helpers.PutStr(caller, "DSP OFF\r\n")
 
 	/* enforce non void return */
 	return result, nil

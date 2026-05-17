@@ -1,8 +1,9 @@
 package applesoft
 
 import (
-//	"paleotronic.com/fmt"
+	//	"paleotronic.com/fmt"
 	"math"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"

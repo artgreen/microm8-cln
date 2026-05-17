@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"paleotronic.com/api"
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/editor"
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"

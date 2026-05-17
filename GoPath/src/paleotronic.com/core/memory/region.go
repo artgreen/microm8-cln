@@ -10,14 +10,20 @@ const (
 	MR_ACCESS_LOCAL       MRAccessType = 2
 )
 
-/* IntelligentAccessHandler is a ondemand realtime assistant for memory mapping
-   where an immediate processing is required due to for example a softswitch */
+/*
+IntelligentAccessHandler is a ondemand realtime assistant for memory mapping
+
+	where an immediate processing is required due to for example a softswitch
+*/
 type WriteSubscriptionHandler func(mm *MappedRegion, offset int, value uint64)
 type ReadSubscriptionHandler func(mm *MappedRegion, offset int) uint64
 type ExecSubscriptionHandler func(mm *MappedRegion, offset int)
 
-/* MappedRegion represents a block of memory or a device and can include special
-access handlers for softswitches */
+/*
+	MappedRegion represents a block of memory or a device and can include special
+
+access handlers for softswitches
+*/
 type MappedRegion struct {
 	Global             *MemoryMap
 	Label              string // human label for reference (in logging etc)
@@ -34,8 +40,11 @@ type MappedRegion struct {
 	Owner              interface{}
 }
 
-/* NewMapppedRegion returns a new memory-mapped region, which is a window
-on the global address space */
+/*
+	NewMapppedRegion returns a new memory-mapped region, which is a window
+
+on the global address space
+*/
 func NewMappedRegion(m *MemoryMap, index int, globalbase int, base int, size int, label string, r_map [256]ReadSubscriptionHandler, e_map [256]ExecSubscriptionHandler, w_map [256]WriteSubscriptionHandler) *MappedRegion {
 
 	s := NewMemoryControlBlock(m, index, false)

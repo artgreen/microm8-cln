@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"errors"
 	"io"
-	"io/ioutil"
 )
 
 type ZipArchive struct {
@@ -31,7 +30,7 @@ func (a *ZipArchive) Read(fileIndex int) ([]byte, error) {
 
 	defer readCloser.Close()
 
-	return ioutil.ReadAll(readCloser)
+	return io.ReadAll(readCloser)
 }
 
 func ReadZip(r io.ReaderAt, size int64) (*ZipArchive, error) {

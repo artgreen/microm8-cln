@@ -2,6 +2,7 @@ package applesoft
 
 import (
 	"math"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 	"paleotronic.com/utils"
@@ -39,7 +40,9 @@ func (this *StandardFunctionCOS) FunctionExecute(params *types.TokenList) error 
 	/* vars */
 	var value float64
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().AsExtended()
 

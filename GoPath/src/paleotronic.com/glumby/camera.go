@@ -1,8 +1,9 @@
 package glumby
 
 import (
-	"paleotronic.com/gl"
 	"math"
+
+	"paleotronic.com/gl"
 )
 
 type Camera struct {

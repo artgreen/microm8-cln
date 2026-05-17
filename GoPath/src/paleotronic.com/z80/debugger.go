@@ -1,7 +1,7 @@
 package z80
 
 type DebugInstruction struct {
-	Address uint16
+	Address  uint16
 	Mnemonic string
 }
 
@@ -17,12 +17,12 @@ func Disassemble(memory MemoryReader, address uint16, shift int) (string, uint16
 // DisassemleN disassembles n memory instructions starting from address.
 func DisassembleN(memory MemoryReader, address uint16, n int) []DebugInstruction {
 	var (
-		res string
+		res   string
 		shift int
 	)
 	result := make([]DebugInstruction, n)
 	i := 0
- 	for i < n {
+	for i < n {
 		instruction := DebugInstruction{Address: address}
 		res, address, shift = Disassemble(memory, address, shift)
 		instruction.Mnemonic = res
@@ -43,7 +43,7 @@ func PreviousInstruction(memory MemoryReader, address uint16) uint16 {
 		addr := startingPoint
 		for addr < address {
 			_, currAddress, shift = Disassemble(memory, addr, shift)
-			if (currAddress == address) {
+			if currAddress == address {
 				return addr
 			}
 			addr = currAddress

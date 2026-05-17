@@ -12,7 +12,9 @@ type PlusColorSpace struct {
 
 func (this *PlusColorSpace) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 		q := this.ValueMap["mode"]

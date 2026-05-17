@@ -1,11 +1,11 @@
 package main
 
 import (
-	"paleotronic.com/fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"paleotronic.com/fmt"
 )
 
 type SearchResultContext int
@@ -197,10 +197,10 @@ func ExtractFile(diskname string, fd *DiskFile, adorned bool, local bool) error 
 func ExtractDisk(diskname string) error {
 	path := binpath() + "/extract" + diskname
 	os.MkdirAll(path, 0755)
-	data, err := ioutil.ReadFile(diskname)
+	data, err := os.ReadFile(diskname)
 	if err != nil {
 		return err
 	}
 	target := path + "/" + filepath.Base(diskname)
-	return ioutil.WriteFile(target, data, 0755)
+	return os.WriteFile(target, data, 0755)
 }

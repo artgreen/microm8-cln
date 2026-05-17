@@ -1,16 +1,22 @@
 package z80
 
-/* Whether a half carry occurred or not can be determined by looking at
-   the 3rd bit of the two arguments and the result; these are hashed
-   into this table in the form r12, where r is the 3rd bit of the
-   result, 1 is the 3rd bit of the 1st argument and 2 is the
-   third bit of the 2nd argument; the tables differ for add and subtract
-   operations */
+/*
+Whether a half carry occurred or not can be determined by looking at
+
+	the 3rd bit of the two arguments and the result; these are hashed
+	into this table in the form r12, where r is the 3rd bit of the
+	result, 1 is the 3rd bit of the 1st argument and 2 is the
+	third bit of the 2nd argument; the tables differ for add and subtract
+	operations
+*/
 var halfcarryAddTable = []byte{0, FLAG_H, FLAG_H, FLAG_H, 0, 0, 0, FLAG_H}
 var halfcarrySubTable = []byte{0, 0, FLAG_H, 0, FLAG_H, 0, FLAG_H, FLAG_H}
 
-/* Similarly, overflow can be determined by looking at the 7th bits; again
-   the hash into this table is r12 */
+/*
+Similarly, overflow can be determined by looking at the 7th bits; again
+
+	the hash into this table is r12
+*/
 var overflowAddTable = []byte{0, 0, 0, FLAG_V, FLAG_V, 0, 0, 0}
 var overflowSubTable = []byte{0, FLAG_V, 0, 0, 0, 0, FLAG_V, 0}
 

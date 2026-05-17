@@ -3,6 +3,7 @@ package glumby
 import (
 	"encoding/json"
 	"math"
+
 	"paleotronic.com/fmt"
 
 	"paleotronic.com/log"

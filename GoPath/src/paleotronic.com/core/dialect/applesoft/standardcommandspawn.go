@@ -3,9 +3,9 @@ package applesoft
 import (
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
+	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"paleotronic.com/core/hardware/apple2helpers"
 )
 
 type StandardCommandSPAWN struct {
@@ -28,7 +28,7 @@ func (this *StandardCommandSPAWN) Execute(env *interfaces.Producable, caller int
 	filename = tokens.Shift().Content
 
 	e := caller.NewChild(filename)
-	apple2helpers.PutStr(caller,"Started " + e.GetName())
+	apple2helpers.PutStr(caller, "Started "+e.GetName())
 	caller.SetChild(e)
 	e.SetParent(caller)
 

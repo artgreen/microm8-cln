@@ -74,7 +74,7 @@ func (s *StreamPack) Unwind() ([]byte, error) {
 }
 
 // PackSliceUints takes a uint slice and converts it to a stream of runlength encoded bytes
-func PackSliceUints( data []uint ) []byte {
+func PackSliceUints(data []uint) []byte {
 	var encoded StreamPack
 
 	count := len(data)
@@ -93,15 +93,15 @@ func PackSliceUints( data []uint ) []byte {
 
 	final := make([]byte, 0)
 	ll := len(data)
-	final = append(final, byte(ll & 0xff))
-	final = append(final, byte((ll >> 8) & 0xff))
+	final = append(final, byte(ll&0xff))
+	final = append(final, byte((ll>>8)&0xff))
 
 	final = append(final, encoded.Data...)
 
 	return final
-} 
+}
 
-func UnpackSliceUints( data []byte ) ([]uint, error) {
+func UnpackSliceUints(data []byte) ([]uint, error) {
 
 	var out []uint
 	var s StreamPack
@@ -110,7 +110,7 @@ func UnpackSliceUints( data []byte ) ([]uint, error) {
 		return out, errors.New("Not enough data")
 	}
 
-	count := int(data[0]) | ( int(data[1]) << 8 ) 
+	count := int(data[0]) | (int(data[1]) << 8)
 
 	s.Data = data[2:]
 
@@ -120,17 +120,20 @@ func UnpackSliceUints( data []byte ) ([]uint, error) {
 	if len(u) != count*4 {
 		return out, errors.New("Expected byte count does not match")
 	}
-	
+
 	for i, v := range u {
 		z := i % count
 		switch i / count {
-			case 0: out[z] = out[z] | uint(v)
-			case 1: out[z] = out[z] | (uint(v) << 8)
-			case 2: out[z] = out[z] | (uint(v) << 16)
-			case 3: out[z] = out[z] | (uint(v) << 24)
+		case 0:
+			out[z] = out[z] | uint(v)
+		case 1:
+			out[z] = out[z] | (uint(v) << 8)
+		case 2:
+			out[z] = out[z] | (uint(v) << 16)
+		case 3:
+			out[z] = out[z] | (uint(v) << 24)
 		}
 	}
 
 	return out, nil
 }
-

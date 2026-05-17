@@ -1,10 +1,11 @@
 package applesoft
 
 import (
+	"unicode/utf8"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 	"paleotronic.com/utils"
-    "unicode/utf8"
 )
 
 type StandardFunctionASC struct {
@@ -16,7 +17,9 @@ func (this *StandardFunctionASC) FunctionExecute(params *types.TokenList) error 
 	/* vars */
 	var value string
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().Content
 
@@ -24,7 +27,7 @@ func (this *StandardFunctionASC) FunctionExecute(params *types.TokenList) error 
 	//   this.Stack.Push( types.NewToken( types.NUMBER, IntToStr((Ord(value.Get(1)) && 127)+128) ) );
 	//else
 	if len(value) > 0 {
-        r, _ := utf8.DecodeRuneInString(value)
+		r, _ := utf8.DecodeRuneInString(value)
 
 		this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(int(r))))
 	} else {

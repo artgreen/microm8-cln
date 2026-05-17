@@ -1,9 +1,9 @@
 package plus
 
 import (
-	"paleotronic.com/log"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
+	"paleotronic.com/log"
 	"paleotronic.com/utils"
 )
 
@@ -13,7 +13,9 @@ type PlusTest struct {
 
 func (this *PlusTest) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	for k, v := range this.ValueMap {
 		log.Printf("%s == %s\n", k, v.AsString())
@@ -57,7 +59,7 @@ func NewPlusShim(a int, b int, params types.TokenList) *PlusTest {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "TEST"
 
-	this.NamedParams = []string{ "x", "y", "z", "frog" }
+	this.NamedParams = []string{"x", "y", "z", "frog"}
 	this.NamedDefaults = []types.Token{
 		*types.NewToken(types.NUMBER, "1"),
 		*types.NewToken(types.NUMBER, "2"),

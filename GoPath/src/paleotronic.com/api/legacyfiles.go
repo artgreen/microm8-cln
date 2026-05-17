@@ -2,8 +2,9 @@ package s8webclient
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
+
 	//	"strings"
 	//	"paleotronic.com/fmt"
 	"errors"
@@ -23,7 +24,7 @@ func (c *Client) httpGetBytes(url string) ([]byte, error) {
 	if resp.StatusCode/100 != 2 {
 		return nil, errors.New("Bad status")
 	}
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 
 }
 

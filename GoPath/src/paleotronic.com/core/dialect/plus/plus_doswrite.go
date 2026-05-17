@@ -2,9 +2,9 @@ package plus
 
 import (
 	//	"strings"
-	"paleotronic.com/files"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
+	"paleotronic.com/files"
 )
 
 type PlusDOSWRITE struct {

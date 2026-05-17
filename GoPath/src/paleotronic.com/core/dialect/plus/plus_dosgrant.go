@@ -1,10 +1,10 @@
 package plus
 
 import (
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-	"paleotronic.com/api"
-	)
+)
 
 type PlusGrant struct {
 	dialect.CoreFunction
@@ -12,7 +12,9 @@ type PlusGrant struct {
 
 func (this *PlusGrant) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 
@@ -21,18 +23,18 @@ func (this *PlusGrant) FunctionExecute(params *types.TokenList) error {
 		group := this.ValueMap["group"].Content
 
 		if mode == "read" {
-			e := s8webclient.CONN.GrantReadGroup( user, group )
+			e := s8webclient.CONN.GrantReadGroup(user, group)
 			if e != nil {
-				this.Interpreter.PutStr( e.Error() )
+				this.Interpreter.PutStr(e.Error())
 			} else {
-				this.Interpreter.PutStr( "Ok" )
+				this.Interpreter.PutStr("Ok")
 			}
 		} else if mode == "write" {
-			e := s8webclient.CONN.GrantWriteGroup( user, group )
+			e := s8webclient.CONN.GrantWriteGroup(user, group)
 			if e != nil {
-				this.Interpreter.PutStr( e.Error() )
+				this.Interpreter.PutStr(e.Error())
 			} else {
-				this.Interpreter.PutStr( "Ok" )
+				this.Interpreter.PutStr("Ok")
 			}
 		}
 

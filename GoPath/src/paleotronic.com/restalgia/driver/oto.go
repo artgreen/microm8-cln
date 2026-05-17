@@ -1,3 +1,4 @@
+//go:build darwin || linux || windows
 // +build darwin linux windows
 
 package driver
@@ -109,7 +110,7 @@ func get(sampleRate, channels int) (Output, error) {
 	// Set a larger player buffer size for smoother playback
 	// Note: *oto.Player implements BufferSizeSetter directly
 	// Set to ~100ms worth of audio data
-	playerBufferSize := 4096  //sampleRate * channels * 4 * 100 / 1000 // 4 bytes per float32
+	playerBufferSize := 4096 //sampleRate * channels * 4 * 100 / 1000 // 4 bytes per float32
 	o.player.SetBufferSize(playerBufferSize)
 
 	// Update global sample rate

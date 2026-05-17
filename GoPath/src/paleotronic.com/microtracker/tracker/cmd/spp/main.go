@@ -3,8 +3,8 @@ package main
 import (
 	"bytes"
 	"flag"
-	"io/ioutil"
 	"log"
+	"os"
 
 	"paleotronic.com/microtracker/mock"
 	"paleotronic.com/microtracker/tracker"
@@ -24,7 +24,7 @@ func main() {
 	e := &MockInt{}
 	song := tracker.NewSong(120, mock.New(e, 0xc400))
 
-	data, err := ioutil.ReadFile(*filename)
+	data, err := os.ReadFile(*filename)
 	if err != nil {
 		log.Fatalf("error reading file: %v", err)
 	}

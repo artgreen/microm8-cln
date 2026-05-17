@@ -19,7 +19,7 @@ func (this *StandardCommandTAGEND) Execute(env *interfaces.Producable, caller in
 	result = 0
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).SetTag("")
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).SetTag("")
 
 	/* enforce non void return */
 	return result, nil

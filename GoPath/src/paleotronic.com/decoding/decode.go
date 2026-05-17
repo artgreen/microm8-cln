@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"io/ioutil"
 	"time"
 
 	"paleotronic.com/log"
@@ -24,7 +23,7 @@ type AudioDecoder interface {
 
 func NewAudio(r io.Reader) (AudioDecoder, error) {
 
-	raw, err := ioutil.ReadAll(r)
+	raw, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}

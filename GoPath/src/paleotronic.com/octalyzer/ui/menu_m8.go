@@ -7,10 +7,11 @@ import (
 	"log"
 	"math"
 	"os"
-	"paleotronic.com/core/hardware/common"
 	"runtime"
 	"strings"
 	"time"
+
+	"paleotronic.com/core/hardware/common"
 
 	"paleotronic.com/core/hardware"
 	"paleotronic.com/core/hardware/apple2helpers"

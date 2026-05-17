@@ -17,7 +17,7 @@ func NewStandardFunctionRIGHTDollar(a int, b int, params types.TokenList) *Stand
 
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "RIGHT$"
-    
+
 	this.MinParams = 2
 	this.MaxParams = 2
 
@@ -30,7 +30,9 @@ func (this *StandardFunctionRIGHTDollar) FunctionExecute(params *types.TokenList
 	var s string
 	var n int
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	n = this.Stack.Pop().AsInteger()
 	s = this.Stack.Pop().Content

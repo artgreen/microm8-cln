@@ -1,11 +1,12 @@
 package plus
 
 import (
+	"strings"
+
 	"paleotronic.com/core/dialect" //	"strings"
 	"paleotronic.com/core/types"
 	"paleotronic.com/files"
 	"paleotronic.com/runestring"
-	"strings"
 )
 
 type PlusTurtleLoad struct {

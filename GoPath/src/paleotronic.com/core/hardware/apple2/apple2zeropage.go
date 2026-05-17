@@ -54,7 +54,7 @@ func (this *Apple2ZeroPage) Done() {
 }
 
 /*
-	ReadCursorXHandler -- triggered when Cursor X address is peeked
+ReadCursorXHandler -- triggered when Cursor X address is peeked
 */
 func (mr *Apple2ZeroPage) ReadCursorXHandler(mm *memory.MappedRegion, address int) uint64 {
 	// remove mutex
@@ -69,7 +69,7 @@ func (mr *Apple2ZeroPage) ReadCursorXHandler(mm *memory.MappedRegion, address in
 }
 
 /*
-	ReadCursorYHandler -- triggered when Cursor Y address is peeked
+ReadCursorYHandler -- triggered when Cursor Y address is peeked
 */
 func (mr *Apple2ZeroPage) ReadCursorYHandler(mm *memory.MappedRegion, address int) uint64 {
 	// remove mutex

@@ -29,7 +29,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"sort"
 	"strconv"
@@ -259,16 +258,16 @@ func TestDoOpcodes(t *testing.T) {
 
 	// Instantiate a Z80 processor
 	z80 := NewZ80(&memory, &port)
-//	ula := NewULA()
-//	z80.init(ula, nil /*tapeDrive_orNil*/)
-//	ula.init(z80, &memory, &port)
+	//	ula := NewULA()
+	//	z80.init(ula, nil /*tapeDrive_orNil*/)
+	//	ula.init(z80, &memory, &port)
 
 	memory.z80 = z80
 	port.z80 = z80
 
 	// Read the "tests.in" file
 
-	bytes, err := ioutil.ReadFile("testdata/tests.in")
+	bytes, err := os.ReadFile("testdata/tests.in")
 
 	if err != nil {
 		fmt.Println("Error reading tests.in")

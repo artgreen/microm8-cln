@@ -3,6 +3,7 @@ package applesoft
 import (
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
+
 	//"paleotronic.com/core/hires"
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"

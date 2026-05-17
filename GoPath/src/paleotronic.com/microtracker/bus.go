@@ -2,7 +2,7 @@ package microtracker
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 
 	"paleotronic.com/core/hardware/servicebus"
 	"paleotronic.com/files"
@@ -11,7 +11,7 @@ import (
 
 func (d *MicroTracker) LoadSong(filename string) {
 
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return
 	}

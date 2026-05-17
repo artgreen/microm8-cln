@@ -33,7 +33,7 @@ func (this *StandardCommandPOLY) Execute(env *interfaces.Producable, caller inte
 	}
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).Poly(
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).Poly(
 		float32(tt.List.Get(0).AsFloat()),
 		float32(tt.List.Get(1).AsFloat()),
 		this.solid,

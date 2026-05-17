@@ -3,9 +3,9 @@ package plus
 import (
 	"paleotronic.com/log"
 
-	"paleotronic.com/files"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
+	"paleotronic.com/files"
 	//	"paleotronic.com/api"
 )
 
@@ -15,7 +15,9 @@ type PlusMetaMod struct {
 
 func (this *PlusMetaMod) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 

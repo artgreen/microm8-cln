@@ -1,5 +1,5 @@
-// +build !remint
-// +build nox
+//go:build !remint && nox
+// +build !remint,nox
 
 package settings
 

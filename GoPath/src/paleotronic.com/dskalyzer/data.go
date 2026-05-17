@@ -2,8 +2,9 @@ package main
 
 import (
 	"errors"
-	"paleotronic.com/fmt"
 	"time"
+
+	"paleotronic.com/fmt"
 
 	"github.com/happierall/l"
 

@@ -232,7 +232,7 @@ func HGRDither(ent interfaces.Interpretable, pngfile io.Reader, colors []int, ga
 
 	page := GETGFX(ent, cp)
 	if page == nil || (page.HControl == nil && page.Control == nil) {
-		panic("missing control interface "+cp)
+		panic("missing control interface " + cp)
 	}
 
 	//page.HControl.Fill(0) // clear
@@ -280,7 +280,6 @@ func HGRDither(ent interfaces.Interpretable, pngfile io.Reader, colors []int, ga
 
 	sx, sy := 0, 0
 
-
 	var useLo = false
 	var useDblLo = false
 	if strings.HasPrefix(cp, "SHR") {
@@ -294,15 +293,15 @@ func HGRDither(ent interfaces.Interpretable, pngfile io.Reader, colors []int, ga
 	if cp == "LOGR" || cp == "LGR2" {
 		dw = 40
 		xm = 1
-		_,_,_,ymax := page.GetBounds()
-		dh = int(ymax+1)
+		_, _, _, ymax := page.GetBounds()
+		dh = int(ymax + 1)
 		useLo = true
 	}
 	if cp == "DLGR" || cp == "DLG2" {
 		dw = 80
 		xm = 1
-		_,_,_,ymax := page.GetBounds()
-		dh = int(ymax+1)
+		_, _, _, ymax := page.GetBounds()
+		dh = int(ymax + 1)
 		useDblLo = true
 	}
 	if strings.HasPrefix(cp, "HGR") {
@@ -364,11 +363,11 @@ func HGRDither(ent interfaces.Interpretable, pngfile io.Reader, colors []int, ga
 
 			// plot pixel
 			if !trnsp {
-				if useLo {					
-					xx := x*xm+sx*xm
-					yy := y*ym+sy*ym
+				if useLo {
+					xx := x*xm + sx*xm
+					yy := y*ym + sy*ym
 					c := uint64(ccc)
-					
+
 					px := int((xx * 2) % 80)
 					py := int(((yy / 2) * 2) % 48)
 
@@ -384,10 +383,10 @@ func HGRDither(ent interfaces.Interpretable, pngfile io.Reader, colors []int, ga
 					v = (v & 0xffff0000) | (c1 << 4) | c0
 					page.Control.PutValueXY(px, py, v)
 				} else if useDblLo {
-					xx := x*xm+sx*xm
-					yy := y*ym+sy*ym
+					xx := x*xm + sx*xm
+					yy := y*ym + sy*ym
 					c := uint64(ccc)
-					
+
 					px := int(xx % 80)
 					py := int(((yy / 2) * 2) % 48)
 
@@ -405,7 +404,7 @@ func HGRDither(ent interfaces.Interpretable, pngfile io.Reader, colors []int, ga
 						c1 = cv
 					}
 					v = (v & 0xffff0000) | (c1 << 4) | c0
-					page.Control.PutValueXY(px, py, v)				
+					page.Control.PutValueXY(px, py, v)
 				} else {
 					page.HControl.Plot(x*xm+sx*xm, y*ym+sy*ym, ccc)
 				}
@@ -476,17 +475,17 @@ func HGRDitherBayer4x4(ent interfaces.Interpretable, pngfile io.Reader, colors [
 
 	w := int(page.GetWidth())
 	h := int(page.GetHeight())
-	
+
 	var useLo = false
 	var useDblLo = false
 	if cp == "LOGR" || cp == "LGR2" {
-		_,_,_,ymax := page.GetBounds()
-		h = int(ymax+1)
+		_, _, _, ymax := page.GetBounds()
+		h = int(ymax + 1)
 		useLo = true
 	}
 	if cp == "DLGR" || cp == "DLG2" {
-		_,_,_,ymax := page.GetBounds()
-		h = int(ymax+1)
+		_, _, _, ymax := page.GetBounds()
+		h = int(ymax + 1)
 		useDblLo = true
 	}
 
@@ -530,9 +529,9 @@ func HGRDitherBayer4x4(ent interfaces.Interpretable, pngfile io.Reader, colors [
 			)
 
 			// plot pixel
-			if useLo {					
+			if useLo {
 				c := uint64(cmap[rc])
-				
+
 				px := int((x * 2) % 80)
 				py := int(((y / 2) * 2) % 48)
 
@@ -549,7 +548,7 @@ func HGRDitherBayer4x4(ent interfaces.Interpretable, pngfile io.Reader, colors [
 				page.Control.PutValueXY(px, py, v)
 			} else if useDblLo {
 				c := uint64(cmap[rc])
-				
+
 				px := int(x % 80)
 				py := int(((y / 2) * 2) % 48)
 
@@ -567,7 +566,7 @@ func HGRDitherBayer4x4(ent interfaces.Interpretable, pngfile io.Reader, colors [
 					c1 = cv
 				}
 				v = (v & 0xffff0000) | (c1 << 4) | c0
-				page.Control.PutValueXY(px, py, v)				
+				page.Control.PutValueXY(px, py, v)
 			} else {
 				page.HControl.Plot(x, y, cmap[rc])
 			}

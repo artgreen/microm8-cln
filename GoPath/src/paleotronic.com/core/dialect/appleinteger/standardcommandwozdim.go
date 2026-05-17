@@ -1,11 +1,12 @@
 package appleinteger
 
 import (
+	"strings"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"strings"
 )
 
 type StandardCommandWozDIM struct {
@@ -70,10 +71,9 @@ func (this *StandardCommandWozDIM) Execute(env *interfaces.Producable, caller in
 		}
 
 		/* offset by 1 */
-//		for i := 0; i <= len(dln)-1; i++ {
-//			dln[i] = dln[i] + 1
-//		}
-
+		//		for i := 0; i <= len(dln)-1; i++ {
+		//			dln[i] = dln[i] + 1
+		//		}
 
 		s = "" /* default value */
 
@@ -112,15 +112,15 @@ func (this *StandardCommandWozDIM) Execute(env *interfaces.Producable, caller in
 			vv, _ = types.NewVariablePA(caller.GetLocal(), strings.ToLower(v.Content), vt, s, true, dln)
 		} else {
 			//vv, _ = types.NewVariableP(caller.GetLocal(), strings.ToLower(v.Content), vt, s, true)
-            //dln[0] = dln[0] - 1
-            ee := caller.GetLocal().CreateIndexed(
-                strings.ToLower(v.Content), 
-                types.VT_STRING, 
-                dln, 
-                s)
-            if ee != nil {
-               return 0, ee
-            }
+			//dln[0] = dln[0] - 1
+			ee := caller.GetLocal().CreateIndexed(
+				strings.ToLower(v.Content),
+				types.VT_STRING,
+				dln,
+				s)
+			if ee != nil {
+				return 0, ee
+			}
 		}
 
 		//vv.Owner = caller.GetName()

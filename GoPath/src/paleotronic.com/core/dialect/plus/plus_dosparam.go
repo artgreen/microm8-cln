@@ -1,7 +1,7 @@
 package plus
 
 import (
-//	"strings"
+	//	"strings"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 )
@@ -12,17 +12,17 @@ type PlusParam struct {
 
 func (this *PlusParam) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
-
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	t := this.Stack.Shift()
 	i := t.AsInteger()
-	if i<0 || i >= this.Interpreter.GetParams().Size() {
+	if i < 0 || i >= this.Interpreter.GetParams().Size() {
 		this.Stack.Push(types.NewToken(types.STRING, ""))
 	} else {
 		this.Stack.Push(types.NewToken(types.STRING, this.Interpreter.GetParams().Get(i).Content))
 	}
-
 
 	return nil
 }

@@ -1,10 +1,11 @@
 package loggy
 
 import (
-	"paleotronic.com/fmt"
 	"os"
 	"strings"
 	"time"
+
+	"paleotronic.com/fmt"
 )
 
 var logFile *os.File

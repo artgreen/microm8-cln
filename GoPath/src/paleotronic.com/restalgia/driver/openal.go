@@ -1,3 +1,4 @@
+//go:build shit
 // +build shit
 
 package driver
@@ -8,13 +9,13 @@ import (
 	"github.com/vova616/go-openal/openal"
 	//"paleotronic.com/fmt"
 	//"math"
-	"paleotronic.com/restalgia"
 	"paleotronic.com/core/settings"
+	"paleotronic.com/restalgia"
 )
 
 var (
 	//SampleRate int
-	startTime  time.Time
+	startTime time.Time
 )
 
 const (

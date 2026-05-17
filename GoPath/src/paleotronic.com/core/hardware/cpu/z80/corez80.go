@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"paleotronic.com/z80"
 	"paleotronic.com/core/hardware/cpu"
 	"paleotronic.com/core/hardware/servicebus"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/memory"
 	"paleotronic.com/core/settings"
+	"paleotronic.com/z80"
 )
 
 const SCHEDMS = 1
@@ -20,7 +20,7 @@ var count int64
 var tickinterval int64 = 5
 var msdiv int64
 
-//var chunktime int64
+// var chunktime int64
 var ticker *time.Ticker
 
 func init() {

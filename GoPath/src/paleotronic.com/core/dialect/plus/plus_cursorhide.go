@@ -2,10 +2,9 @@ package plus
 
 import (
 	"paleotronic.com/core/dialect"
-	"paleotronic.com/core/types"
 	"paleotronic.com/core/hardware/apple2helpers"
-//	"paleotronic.com/runestring"
-
+	"paleotronic.com/core/types"
+	//	"paleotronic.com/runestring"
 	//"paleotronic.com/log"
 )
 
@@ -15,7 +14,9 @@ type PlusHideCursor struct {
 
 func (this *PlusHideCursor) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 
@@ -62,8 +63,7 @@ func NewPlusHideCursor(a int, b int, params types.TokenList) *PlusHideCursor {
 	this.Name = "WINDOW.USE"
 
 	this.NamedParams = []string{}
-	this.NamedDefaults = []types.Token{
-	}
+	this.NamedDefaults = []types.Token{}
 	this.Raw = true
 
 	return this

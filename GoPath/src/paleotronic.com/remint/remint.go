@@ -8,9 +8,10 @@ import (
 	"strings"
 	"sync"
 	"time" //	"net/http"
+
 	//	_ "net/http/pprof"
 
-	"paleotronic.com/api"
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core"
 	"paleotronic.com/core/dialect/appleinteger"
 	"paleotronic.com/core/dialect/applesoft"

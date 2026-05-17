@@ -1,7 +1,7 @@
 package plus
 
 import (
-	"paleotronic.com/api"
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 	"paleotronic.com/utils"

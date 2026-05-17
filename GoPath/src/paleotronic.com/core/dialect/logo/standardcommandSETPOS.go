@@ -38,13 +38,13 @@ func (this *StandardCommandSETPOS) Execute(env *interfaces.Producable, caller in
 
 	x := list.List.Get(0).AsExtended()
 	y := list.List.Get(1).AsExtended()
-	z := apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).Position[2]
+	z := apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).Position[2]
 	if list.List.Size() > 2 {
 		z = list.List.Get(2).AsExtended()
 	}
 
 	/* enforce non void return */
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).AddCommandV(types.TURTLE_SPOS, &mgl64.Vec3{x, y, z})
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).AddCommandV(types.TURTLE_SPOS, &mgl64.Vec3{x, y, z})
 	apple2helpers.VECTOR(caller).Render()
 
 	return result, nil

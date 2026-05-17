@@ -35,8 +35,8 @@ func (this *StandardCommandTAGSWITCH) Execute(env *interfaces.Producable, caller
 	secondTag := tt.List.Get(1).Content
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).SetHideTag(firstTag, false)
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).SetHideTag(secondTag, true)
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).SetHideTag(firstTag, false)
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).SetHideTag(secondTag, true)
 
 	if apple2helpers.IsVectorLayerEnabled(caller) == false {
 		apple2helpers.HTab(caller, 1)

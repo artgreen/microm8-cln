@@ -50,9 +50,9 @@ func TestEncodeDecode_Roundtrip(t *testing.T) {
 		"hello",
 		"The quick brown fox jumps over the lazy dog.",
 		strings.Repeat("x", 1000),
-		"\x00\x01\x02\x03\xff\xfe",   // binary
-		"\xff\xff\xff\xff\xff",       // high byte run
-		string([]byte{0, 0, 0, 0}),   // null bytes
+		"\x00\x01\x02\x03\xff\xfe", // binary
+		"\xff\xff\xff\xff\xff",     // high byte run
+		string([]byte{0, 0, 0, 0}), // null bytes
 	}
 	for _, in := range cases {
 		in := in

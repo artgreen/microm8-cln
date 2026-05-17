@@ -31,7 +31,7 @@ func (this *StandardCommandSETR) Execute(env *interfaces.Producable, caller inte
 	}
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).SetRoll(float32(tt.AsFloat()))
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).SetRoll(float32(tt.AsFloat()))
 	apple2helpers.VECTOR(caller).Render()
 
 	/* enforce non void return */

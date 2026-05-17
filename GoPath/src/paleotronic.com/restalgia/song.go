@@ -6,9 +6,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"os"
+
 	//	"paleotronic.com/fmt"
 	"io"
-	"io/ioutil"
 	"regexp"
 	"strings"
 	"time"
@@ -500,7 +501,7 @@ func (this *Song) oldPause(audio AudioDevice) {
 
 func (this *Song) Load(filename string) error {
 
-	b, err := ioutil.ReadFile(filename)
+	b, err := os.ReadFile(filename)
 
 	if err != nil {
 		panic(err)

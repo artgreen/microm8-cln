@@ -48,7 +48,9 @@ func (this *StandardFunctionASRND) FunctionExecute(params *types.TokenList) erro
 	/* vars */
 	var value float64
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().AsExtended()
 
@@ -58,7 +60,7 @@ func (this *StandardFunctionASRND) FunctionExecute(params *types.TokenList) erro
 	} else if value == 0 {
 		this.Stack.Push(types.NewToken(types.NUMBER, utils.FloatToStr(this.lastval)))
 	} else {
-		utils.PSeed( int64(value) )
+		utils.PSeed(int64(value))
 		this.lastval = utils.Random()
 		this.Stack.Push(types.NewToken(types.NUMBER, utils.FloatToStr(this.lastval)))
 	}

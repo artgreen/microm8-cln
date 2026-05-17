@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"paleotronic.com/api"
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/filerecord"
 	"paleotronic.com/fmt"
 	"paleotronic.com/log"

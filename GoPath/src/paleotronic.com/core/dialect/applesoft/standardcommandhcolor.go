@@ -1,12 +1,13 @@
 package applesoft
 
 import (
+	"errors"
+
 	"paleotronic.com/core/dialect"
+	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"paleotronic.com/core/hardware/apple2helpers"
-    "errors"
-//    "paleotronic.com/fmt"
+	// "paleotronic.com/fmt"
 )
 
 type StandardCommandHCOLOR struct {
@@ -19,14 +20,14 @@ func (this *StandardCommandHCOLOR) Execute(env *interfaces.Producable, caller in
 	var result int
 
 	if tokens.Size() == 0 {
-       return result, errors.New( "SYNTAX ERROR" )
-    }
-    
-    t := caller.ParseTokensForResult(tokens)
-    
-    apple2helpers.SetHCOLOR( caller, t.AsInteger() )
-    
-    //fmt.Printf("HCOLOR= %d\n", t.AsInteger())
+		return result, errors.New("SYNTAX ERROR")
+	}
+
+	t := caller.ParseTokensForResult(tokens)
+
+	apple2helpers.SetHCOLOR(caller, t.AsInteger())
+
+	//fmt.Printf("HCOLOR= %d\n", t.AsInteger())
 
 	/* enforce non void return */
 	return result, nil

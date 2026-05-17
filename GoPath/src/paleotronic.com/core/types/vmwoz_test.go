@@ -44,7 +44,7 @@ func TestWOZVars(t *testing.T) {
 	if e != nil {
 		t.Error(e)
 	}
-    
+
 	e = vm.CreateIndexed("A$", VT_STRING, []int{3}, "CAT")
 	if e != nil {
 		t.Error(e)

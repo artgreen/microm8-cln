@@ -4,7 +4,7 @@ import (
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-    //"errors"
+	//"errors"
 )
 
 type StandardCommandQNOP struct {

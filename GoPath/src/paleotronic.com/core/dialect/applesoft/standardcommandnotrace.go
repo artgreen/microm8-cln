@@ -2,9 +2,9 @@ package applesoft
 
 import (
 	"paleotronic.com/core/dialect"
+	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"paleotronic.com/core/hardware/apple2helpers"
 )
 
 type StandardCommandNOTRACE struct {
@@ -18,7 +18,7 @@ func (this *StandardCommandNOTRACE) Execute(env *interfaces.Producable, caller i
 
 	result = 0
 	caller.GetDialect().SetTrace(false)
-	apple2helpers.PutStr(caller,"TRACE OFF")
+	apple2helpers.PutStr(caller, "TRACE OFF")
 
 	/* enforce non void return */
 	return result, nil

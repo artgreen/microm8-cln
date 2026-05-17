@@ -1,11 +1,9 @@
 package hires
 
 import (
-	"paleotronic.com/fmt"
 	"image"
 	"image/color"
 	"image/png"
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -52,7 +50,7 @@ func TestScreenPackUnpack(t *testing.T) {
 
 	var hgr HGRScreen
 
-	b, err := ioutil.ReadFile("files/SCREEN")
+	b, err := os.ReadFile("files/SCREEN")
 	if err != nil {
 		t.Error("Failed to read file")
 	}

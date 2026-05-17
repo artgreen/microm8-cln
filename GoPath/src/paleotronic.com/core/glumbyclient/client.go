@@ -1,13 +1,13 @@
 package main
 
 import (
-	"paleotronic.com/fmt"
+	"time"
+
 	"paleotronic.com/core/types"
 	"paleotronic.com/core/vduproto"
 	"paleotronic.com/ducktape"
 	"paleotronic.com/ducktape/client"
 	"paleotronic.com/log"
-	"time"
 	//	"time"
 )
 

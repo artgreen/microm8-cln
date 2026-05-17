@@ -1,12 +1,13 @@
 package applesoft
 
 import (
-	"paleotronic.com/log"
+	"strings"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"strings"
+	"paleotronic.com/log"
 )
 
 type StandardCommandREAD struct {
@@ -105,16 +106,16 @@ func (this *StandardCommandREAD) Execute(env *interfaces.Producable, caller inte
 				{
 					if len(chunk) == 0 {
 						startsqq = true
-                        inqq = (!inqq)
+						inqq = (!inqq)
 					} else if startsqq && (len(chunk) > 0) {
 						endsqq = true
-                        inqq = (!inqq)
+						inqq = (!inqq)
 					}
-					
+
 					if (len(chunk) > 0) && (!startsqq) {
 						chunk = chunk + string(ch)
 					}
-                    
+
 					break
 				}
 			case ",":
@@ -161,14 +162,14 @@ func (this *StandardCommandREAD) Execute(env *interfaces.Producable, caller inte
 		//if ((caller.Dialect.IsInteger(chunk) || caller.Dialect.IsInteger(chunk)))
 		//  clause.Push( types.NewToken(types.NUMBER, chunk) );
 		//else
-        
-        n := clause.LPeek().Content
-        
-        if rune(n[len(n)-1]) == '$' {
-		  clause.Push(types.NewToken(types.STRING, chunk))        
-        } else {
-		  clause.Push(types.NewToken(types.NUMBER, chunk))
-        }
+
+		n := clause.LPeek().Content
+
+		if rune(n[len(n)-1]) == '$' {
+			clause.Push(types.NewToken(types.STRING, chunk))
+		} else {
+			clause.Push(types.NewToken(types.NUMBER, chunk))
+		}
 
 		//    writeln("DEBUG: "+caller.TokenListAsString(clause));
 		log.Println(caller.TokenListAsString(clause))

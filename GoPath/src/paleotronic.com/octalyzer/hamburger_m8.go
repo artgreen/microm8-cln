@@ -1,3 +1,4 @@
+//go:build !nox
 // +build !nox
 
 package main

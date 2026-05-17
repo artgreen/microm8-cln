@@ -3,6 +3,7 @@ package apple2
 import (
 	"bytes"
 	"log"
+
 	// "io/ioutil"
 	"time"
 

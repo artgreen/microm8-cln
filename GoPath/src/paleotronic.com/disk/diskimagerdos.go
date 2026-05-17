@@ -2,9 +2,10 @@ package disk
 
 import (
 	"bytes"
-	"paleotronic.com/fmt"
 	"regexp"
 	"strings"
+
+	"paleotronic.com/fmt"
 )
 
 const RDOS_CATALOG_TRACK = 0x01

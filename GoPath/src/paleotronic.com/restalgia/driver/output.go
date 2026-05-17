@@ -5,8 +5,8 @@ import "paleotronic.com/restalgia"
 type Output interface {
 	// Push puts the sample on the output buffer.
 	//PushAlt(z int, samples []float32)
-	SetPullSource( mix *restalgia.Mixer )
-	SetStarvationFunc( sf func() )
+	SetPullSource(mix *restalgia.Mixer)
+	SetStarvationFunc(sf func())
 	Push(samples []float32)
 	Stop()
 	Start()

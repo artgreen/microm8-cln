@@ -2,6 +2,7 @@ package files
 
 import (
 	"errors"
+
 	"paleotronic.com/fmt"
 
 	"paleotronic.com/filerecord"

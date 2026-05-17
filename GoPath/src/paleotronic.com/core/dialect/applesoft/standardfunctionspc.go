@@ -41,7 +41,9 @@ func (this *StandardFunctionSPC) FunctionExecute(params *types.TokenList) error 
 	var i int
 	var s string
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().AsInteger()
 

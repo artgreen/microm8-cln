@@ -1,17 +1,19 @@
 package plus
 
 import (
-//	"paleotronic.com/log"
+	//	"paleotronic.com/log"
 	//"errors"
 	"strings"
 
-	"paleotronic.com/core/hardware/apple2helpers"
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
+	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/types"
 	"paleotronic.com/utils"
-//	"paleotronic.com/api"
+
+	//	"paleotronic.com/api"
 	//"paleotronic.com/core/interfaces"
-	"paleotronic.com/api"
+
 	"paleotronic.com/fmt"
 )
 
@@ -19,33 +21,33 @@ type PlusDisplayMOTD struct {
 	dialect.CoreFunction
 }
 
-// params: 
+// params:
 // (1) hostname
 // (2) name
 
 func (this *PlusDisplayMOTD) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { 
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
 		fmt.Println(e)
-		return e 
+		return e
 	}
-	
+
 	fmt.Println("In display motd")
 
 	motdtext := s8webclient.CONN.GetMOTD()
-	
+
 	if motdtext != "" {
-	
-		lines := strings.Split( motdtext, "\r\n" )
+
+		lines := strings.Split(motdtext, "\r\n")
 		//rows := apple2helpers.GetRows( this.Interpreter ) - 1
-		cols := apple2helpers.GetColumns( this.Interpreter )
-		
+		cols := apple2helpers.GetColumns(this.Interpreter)
+
 		//lc := 0
-		
+
 		for _, l := range lines {
-			this.Interpreter.PutStr( wrap(l,cols,0) + "\r\n" )
+			this.Interpreter.PutStr(wrap(l, cols, 0) + "\r\n")
 		}
-	
+
 	}
 
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(0)))

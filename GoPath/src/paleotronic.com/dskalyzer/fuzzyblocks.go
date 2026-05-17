@@ -1,10 +1,11 @@
 package main
 
 import (
-	"paleotronic.com/fmt"
 	"os"
 	"os/signal"
 	"sync"
+
+	"paleotronic.com/fmt"
 )
 
 const EMPTYSECTOR = "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1"

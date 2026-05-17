@@ -1,8 +1,9 @@
 package glumby
 
 import (
-	"paleotronic.com/fmt"
 	"unsafe"
+
+	"paleotronic.com/fmt"
 
 	"paleotronic.com/gl"
 	//"paleotronic.com/fmt"

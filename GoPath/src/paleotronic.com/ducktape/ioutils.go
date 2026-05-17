@@ -7,12 +7,13 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log" //"paleotronic.com/fmt"
 	"net"
-	"paleotronic.com/encoding/ffpak" //"log"
 	"strings"
 	"time"
+
+	"paleotronic.com/encoding/ffpak" //"log"
 )
 
 const A85 = false
@@ -38,7 +39,7 @@ func UnGZIPStream(in []byte) ([]byte, error) {
 	b := bytes.NewBuffer(in)
 	r, _ := gzip.NewReader(b)
 	defer r.Close()
-	out, e := ioutil.ReadAll(r)
+	out, e := io.ReadAll(r)
 	return out, e
 }
 

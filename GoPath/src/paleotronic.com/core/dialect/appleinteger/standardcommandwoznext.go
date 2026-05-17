@@ -2,12 +2,13 @@ package appleinteger
 
 import (
 	"math"
+	"strings"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
 	"paleotronic.com/utils"
-	"strings"
 )
 
 type StandardCommandWozNEXT struct {

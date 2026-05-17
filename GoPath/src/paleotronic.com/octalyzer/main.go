@@ -8,7 +8,6 @@ package main
 import (
 	"bytes"
 	"flag"
-	fmt2 "paleotronic.com/fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -20,6 +19,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	fmt2 "paleotronic.com/fmt"
 
 	"paleotronic.com/core/interfaces"
 	pnc "paleotronic.com/panic"
@@ -2491,7 +2492,7 @@ func CheckTintMode() {
 	v := RAM.IntGetVideoTint(SelectedIndex)
 
 	// Tint is disabled for Unified Render
-	if (settings.UnifiedRender[SelectedIndex] || settings.UnifiedRenderGlobal) && ! strings.Contains(settings.SpecFile[SelectedIndex], "spectrum") {
+	if (settings.UnifiedRender[SelectedIndex] || settings.UnifiedRenderGlobal) && !strings.Contains(settings.SpecFile[SelectedIndex], "spectrum") {
 		v = settings.VPT_NONE
 	}
 
@@ -3356,7 +3357,7 @@ func OnRenderWindow(w *glumby.Window) {
 	//overlay.Unbind()
 	//~ gl.Disable(gl.ALPHA_TEST)
 
-	if !settings.UnifiedRender[SelectedIndex] || strings.Contains(settings.SpecFile[SelectedIndex], "spectrum"){
+	if !settings.UnifiedRender[SelectedIndex] || strings.Contains(settings.SpecFile[SelectedIndex], "spectrum") {
 		light.Off()
 		light2.On()
 		// light2.SetAmbientLevel(RAM.IntGetAmbientLevel(SelectedIndex))

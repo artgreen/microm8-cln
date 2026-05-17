@@ -35,19 +35,19 @@ func DumpFloatBits(f float64) string {
 
 func TestFloat5b(t *testing.T) {
 
-//	var ff float64 = 811.9999999
+	//	var ff float64 = 811.9999999
 
 	//fmt.Printf("Binary of %f is %s\n", ff, DumpFloatBits(ff))
 
-//	fb := NewFloat5b(ff)
+	//	fb := NewFloat5b(ff)
 
-//	exp := uint64(fb.GetExponent()+1022) << 52
+	//	exp := uint64(fb.GetExponent()+1022) << 52
 	//fmt.Printf("Exp bits = %s\n", DumpUint64Bits(uint64(exp)))
 
-//	gg := fb.GetValue()
+	//	gg := fb.GetValue()
 	//fmt.Println(gg)
 	//fmt.Printf("Binary of %f is %s\n", gg, DumpFloatBits(gg))
-    //fmt.Println( math.Floor(gg) )
+	//fmt.Println( math.Floor(gg) )
 
 	//t.Fail()
 

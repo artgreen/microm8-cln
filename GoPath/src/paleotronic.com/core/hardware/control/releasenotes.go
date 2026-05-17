@@ -2,7 +2,8 @@ package control
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
+
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/files"
 	"paleotronic.com/update"
@@ -42,7 +43,7 @@ type LastReleaseNotes struct {
 func CheckNewReleaseNotes(ent interfaces.Interpretable, force bool) {
 	var lastDate = "000000000000"
 	var lastVerFile = files.GetUserDirectory(files.BASEDIR) + "/.lastRelease"
-	if data, err := ioutil.ReadFile(lastVerFile); err == nil {
+	if data, err := os.ReadFile(lastVerFile); err == nil {
 		var lrn LastReleaseNotes
 		if err = json.Unmarshal(data, &lrn); err == nil {
 			lastDate = lrn.Version
@@ -53,7 +54,7 @@ func CheckNewReleaseNotes(ent interfaces.Interpretable, force bool) {
 		var lrn LastReleaseNotes
 		lrn.Version = update.GetBuildNumber()
 		if data, err := json.Marshal(&lrn); err == nil {
-			ioutil.WriteFile(lastVerFile, data, 0755)
+			os.WriteFile(lastVerFile, data, 0755)
 		}
 		if len(ReleaseNotes) > 0 {
 			// Display notes

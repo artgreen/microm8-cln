@@ -2,6 +2,7 @@ package applesoft
 
 import (
 	"math"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 	"paleotronic.com/utils"
@@ -28,7 +29,9 @@ func (this *StandardFunctionATAN) FunctionExecute(params *types.TokenList) error
 	var value float64
 	var z float64
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().AsExtended()
 

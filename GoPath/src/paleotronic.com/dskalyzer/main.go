@@ -1,11 +1,12 @@
 package main
 
 import (
-	"paleotronic.com/fmt"
-	"io/ioutil"
+	"io"
 	"path"
 	"path/filepath"
 	"runtime/debug"
+
+	"paleotronic.com/fmt"
 
 	"flag"
 
@@ -145,13 +146,13 @@ func main() {
 		var data []byte
 		var err error
 		if *shellBatch == "stdin" {
-			data, err = ioutil.ReadAll(os.Stdin)
+			data, err = io.ReadAll(os.Stdin)
 			if err != nil {
 				os.Stderr.WriteString("Failed to read commands from stdin. Aborting")
 				os.Exit(1)
 			}
 		} else {
-			data, err = ioutil.ReadFile(*shellBatch)
+			data, err = os.ReadFile(*shellBatch)
 			if err != nil {
 				os.Stderr.WriteString("Failed to read commands from file. Aborting")
 				os.Exit(1)

@@ -21,8 +21,9 @@ import "paleotronic.com/core/hardware/spectrum/snapshot"
 // 	TStatesPerFrame = 69888
 // 	InterruptLength = 32
 
-// 	ScreenWidth  = 256
-// 	ScreenHeight = 192
+//	ScreenWidth  = 256
+//	ScreenHeight = 192
+//
 // )
 var zzz snapshot.Z80
 

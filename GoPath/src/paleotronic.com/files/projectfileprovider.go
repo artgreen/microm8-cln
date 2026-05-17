@@ -8,7 +8,7 @@ type ProjectFileProvider struct {
 	basedir   string
 	priority  int
 	shared    bool
-    projects  []string
+	projects  []string
 }
 
 func (lfp *ProjectFileProvider) IsVisible() bool {
@@ -33,6 +33,3 @@ func (lfp *ProjectFileProvider) SetCurrentPath(p string, create bool) error {
 	return nil
 
 }
-
-
-

@@ -2,15 +2,16 @@ package logo
 
 import (
 	//	"strings"
-//	"time"
+	//	"time"
 
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-//	"paleotronic.com/core/interfaces"
-//	"paleotronic.com/core/hardware/apple2helpers"
-//	"paleotronic.com/runestring"
-	"paleotronic.com/utils"
+
+	//	"paleotronic.com/core/interfaces"
+	//	"paleotronic.com/core/hardware/apple2helpers"
+	//	"paleotronic.com/runestring"
 	"paleotronic.com/files"
+	"paleotronic.com/utils"
 )
 
 type StandardFunctionREADPOS struct {
@@ -49,9 +50,9 @@ func (this *StandardFunctionREADPOS) FunctionExecute(params *types.TokenList) er
 		return e
 	}
 
-	p, e := files.DOSREADPOS( files.GetPath(files.Reader), files.GetFilename(files.Reader) )
+	p, e := files.DOSREADPOS(files.GetPath(files.Reader), files.GetFilename(files.Reader))
 
-	this.Stack.Push( types.NewToken( types.NUMBER, utils.FormatFloat("", float64(p)) ) )
+	this.Stack.Push(types.NewToken(types.NUMBER, utils.FormatFloat("", float64(p))))
 
 	return e
 }

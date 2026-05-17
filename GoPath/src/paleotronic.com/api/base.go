@@ -3,12 +3,14 @@ package s8webclient
 import (
 	"encoding/json"
 	"errors"
-	"paleotronic.com/log"
 	"strings"
 
-	"paleotronic.com/fmt"
+	"paleotronic.com/log"
+
 	"runtime"
 	"time"
+
+	"paleotronic.com/fmt"
 
 	"paleotronic.com/core/settings"
 	"paleotronic.com/ducktape/client"

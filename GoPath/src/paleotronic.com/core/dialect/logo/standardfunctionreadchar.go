@@ -5,6 +5,7 @@ import (
 
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
+
 	//"paleotronic.com/utils"
 
 	"time"
@@ -44,16 +45,15 @@ func (this *StandardFunctionREADCHAR) FunctionExecute(params *types.TokenList) e
 		return e
 	}
 
-	for this.Interpreter.GetMemory( 49152 ) < 128 {
+	for this.Interpreter.GetMemory(49152) < 128 {
 		time.Sleep(5 * time.Millisecond)
 	}
 
 	// now got char
-	
 
-	this.Stack.Push(types.NewToken(types.WORD, string(rune(this.Interpreter.GetMemory( 49152 ) & 0xff7f))))
+	this.Stack.Push(types.NewToken(types.WORD, string(rune(this.Interpreter.GetMemory(49152)&0xff7f))))
 
-	this.Interpreter.SetMemory(49168,0)
+	this.Interpreter.SetMemory(49168, 0)
 
 	return nil
 }

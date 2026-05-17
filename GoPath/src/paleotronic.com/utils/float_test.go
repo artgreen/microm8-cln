@@ -1,16 +1,15 @@
 package utils
 
 import (
-	   "testing"
-       "paleotronic.com/fmt"
+	"testing"
 )
 
-func TestFloatStr( t *testing.T ) {
+func TestFloatStr(t *testing.T) {
 
-	 s := StrToFloatStrApple( "33.199999999" )
-     
-     //fmt.Println(s)
+	s := StrToFloatStrApple("33.199999999")
 
-	 t.Error("done")
+	//fmt.Println(s)
+
+	t.Error("done")
 
 }

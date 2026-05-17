@@ -3,7 +3,7 @@ package common
 import "log"
 
 type SerialPrinterEmu struct {
-	emu Parallel
+	emu        Parallel
 	bufferSize int
 }
 
@@ -15,7 +15,6 @@ func NewSerialPrinterEmu(p Parallel, bufferSize int) *SerialPrinterEmu {
 func (sp *SerialPrinterEmu) CanSend() bool {
 	return sp.emu.BufferCount() < (sp.bufferSize - 8)
 }
-
 
 func (sp *SerialPrinterEmu) IsConnected() bool {
 	return true

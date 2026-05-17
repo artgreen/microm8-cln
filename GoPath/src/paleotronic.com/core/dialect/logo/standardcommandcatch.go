@@ -2,7 +2,7 @@ package logo
 
 import (
 	"errors"
-//	"paleotronic.com/fmt"
+	//	"paleotronic.com/fmt"
 	"strings"
 
 	"paleotronic.com/core/dialect"
@@ -58,8 +58,8 @@ func (this *StandardCommandCATCH) Execute(env *interfaces.Producable, caller int
 	//	}
 
 	a := caller.GetDirectAlgorithm()
-	
-	e = caller.GetDialect().ExecuteDirectCommand( *list, caller, a, caller.GetLPC() )
+
+	e = caller.GetDialect().ExecuteDirectCommand(*list, caller, a, caller.GetLPC())
 	if e != nil && strings.ToLower(e.Error()) == strings.ToLower(errtype) {
 		//fmt.Println("in catch", e.Error())
 		e = nil

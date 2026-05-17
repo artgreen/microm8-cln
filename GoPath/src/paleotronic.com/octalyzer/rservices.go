@@ -1,3 +1,4 @@
+//go:build remint
 // +build remint
 
 package main
@@ -7,15 +8,18 @@ package main
  * ====================
  */
 
-import "paleotronic.com/ducktape/server"
-import "paleotronic.com/ducktape"
-import "paleotronic.com/core/memory"
-import "paleotronic.com/encoding/mempak"
-import "paleotronic.com/utils"
-import "paleotronic.com/octalyzer/backend"
-import "paleotronic.com/fmt"
-import "paleotronic.com/log"
-import "time"
+import (
+	"time"
+
+	"paleotronic.com/core/memory"
+	"paleotronic.com/ducktape"
+	"paleotronic.com/ducktape/server"
+	"paleotronic.com/encoding/mempak"
+	"paleotronic.com/fmt"
+	"paleotronic.com/log"
+	"paleotronic.com/octalyzer/backend"
+	"paleotronic.com/utils"
+)
 
 var s *server.DuckTapeServer
 var VALID_CONTROL map[string]map[int]int

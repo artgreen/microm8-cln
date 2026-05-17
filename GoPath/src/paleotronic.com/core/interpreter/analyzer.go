@@ -1,8 +1,9 @@
 package interpreter
 
 import (
-	"paleotronic.com/fmt"
 	"time"
+
+	"paleotronic.com/fmt"
 
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/memory"

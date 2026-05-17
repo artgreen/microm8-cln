@@ -1,10 +1,10 @@
 package logo
 
 import (
-	"paleotronic.com/files"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
+	"paleotronic.com/files"
 )
 
 type StandardCommandSETREAD struct {

@@ -31,7 +31,7 @@ func (this *StandardCommandPENCOLOR) Execute(env *interfaces.Producable, caller 
 	}
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).SetPenColor(int32(tt.AsInteger()))
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).SetPenColor(int32(tt.AsInteger()))
 	apple2helpers.VECTOR(caller).Render()
 
 	/* enforce non void return */

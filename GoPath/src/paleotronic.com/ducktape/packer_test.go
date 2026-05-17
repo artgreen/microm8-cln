@@ -2,7 +2,6 @@ package ducktape
 
 import (
 	"bytes"
-	"paleotronic.com/fmt"
 	"testing"
 )
 

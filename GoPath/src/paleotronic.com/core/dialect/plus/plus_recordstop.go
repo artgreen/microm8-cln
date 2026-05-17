@@ -12,9 +12,11 @@ type PlusRecordStop struct {
 
 func (this *PlusRecordStop) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
-//	backend.REBOOT_NEEDED = true
+	//	backend.REBOOT_NEEDED = true
 	this.Interpreter.StopRecording()
 
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(1)))

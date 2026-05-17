@@ -2,8 +2,8 @@ package apple2
 
 import (
 	"math"
-	"sync"
 	"strings"
+	"sync"
 
 	"gopkg.in/yaml.v2"
 	"paleotronic.com/core/hardware/apple2helpers"
@@ -11,8 +11,8 @@ import (
 	"paleotronic.com/core/hardware/servicebus"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/memory"
-	"paleotronic.com/log"
 	"paleotronic.com/core/settings"
+	"paleotronic.com/log"
 )
 
 const MouseUpdateTicks = 1020484 / 60
@@ -205,10 +205,10 @@ func (d *IOCardMouse) HandleIO(register int, value *uint64, eventType IOType) {
 
 func (d *IOCardMouse) FirmwareRead(offset int) uint64 {
 	//log.Printf("IOCardMouse firmware read @ %.2x", offset)
-	
-	hasVIDHD := strings.Contains( settings.SpecFile[d.Int.GetMemIndex()], "apple2e" )
+
+	hasVIDHD := strings.Contains(settings.SpecFile[d.Int.GetMemIndex()], "apple2e")
 	//~ hasVIDHD = true
-	
+
 	if hasVIDHD {
 		switch offset {
 		case 0x00:
@@ -226,7 +226,7 @@ func (d *IOCardMouse) FirmwareRead(offset int) uint64 {
 			return 0x58
 		case 0x02:
 			return 0xff
-		}		
+		}
 	}
 
 	switch offset {

@@ -23,17 +23,19 @@ func NewStandardFunctionFRE(a int, b int, params types.TokenList) *StandardFunct
 
 func (this *StandardFunctionFRE) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
-    var v int
+	var v int
 
-    mode := this.Stack.Shift().AsInteger()
+	mode := this.Stack.Shift().AsInteger()
 
-    if mode == 0 {
-	   v = this.Interpreter.GetLocal().CleanStrings()
-    } else {
-       v = this.Interpreter.GetLocal().GetFree()
-    }
+	if mode == 0 {
+		v = this.Interpreter.GetLocal().CleanStrings()
+	} else {
+		v = this.Interpreter.GetLocal().GetFree()
+	}
 
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(v)))
 

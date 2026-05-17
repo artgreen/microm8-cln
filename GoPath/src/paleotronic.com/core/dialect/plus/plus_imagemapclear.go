@@ -15,8 +15,8 @@ func (this *PlusImageMapClear) FunctionExecute(params *types.TokenList) error {
 
 	_ = this.CoreFunction.FunctionExecute(params)
 
-	mm := types.NewInlineImageManager( this.Interpreter.GetMemIndex(), this.Interpreter.GetMemoryMap() )
-	
+	mm := types.NewInlineImageManager(this.Interpreter.GetMemIndex(), this.Interpreter.GetMemoryMap())
+
 	mm.Empty()
 
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(1)))

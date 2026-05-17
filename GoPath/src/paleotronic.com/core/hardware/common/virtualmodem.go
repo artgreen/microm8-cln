@@ -66,7 +66,6 @@ func (d *SerialVirtualModem) InputAvailable() bool {
 	return false
 }
 
-
 func (d *SerialVirtualModem) getOutput() byte {
 	v := <-d.Output
 	return v

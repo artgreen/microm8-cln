@@ -1,7 +1,10 @@
 package settings
 
-import "image/color"
-import "paleotronic.com/log"
+import (
+	"image/color"
+
+	"paleotronic.com/log"
+)
 
 type VideoColor struct {
 	R, G, B, A uint8

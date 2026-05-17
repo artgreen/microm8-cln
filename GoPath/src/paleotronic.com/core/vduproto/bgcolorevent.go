@@ -2,6 +2,7 @@ package vduproto
 
 import (
 	"errors"
+
 	"paleotronic.com/core/types"
 )
 

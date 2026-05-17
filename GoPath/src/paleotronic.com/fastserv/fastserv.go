@@ -1,13 +1,16 @@
 package fastserv
 
-import "paleotronic.com/log"
-import "net"
-import "time"
-import "paleotronic.com/fmt"
-import "strings"
-import "crypto/md5"
-import "bytes"
-import "paleotronic.com/encoding/ffpak"
+import (
+	"bytes"
+	"crypto/md5"
+	"net"
+	"strings"
+	"time"
+
+	"paleotronic.com/encoding/ffpak"
+	"paleotronic.com/fmt"
+	"paleotronic.com/log"
+)
 
 type FSPayloadType byte
 

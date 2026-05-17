@@ -1,14 +1,15 @@
 package appleinteger
 
 import (
-	"paleotronic.com/log"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-//    "paleotronic.com/utils"
-	"strings"
+	"paleotronic.com/log"
+
+	//    "paleotronic.com/utils"
 	"errors"
+	"strings"
 )
 
 type StandardCommandWozFOR struct {
@@ -39,7 +40,7 @@ func (this *StandardCommandWozFOR) Execute(env *interfaces.Producable, caller in
 
 	eq_idx = tokens.IndexOf(types.ASSIGNMENT, "=")
 	to_idx = tokens.IndexOf(types.KEYWORD, "TO")
-	
+
 	if eq_idx < 0 || to_idx < 0 {
 		return result, errors.New("SYNTAX ERROR")
 	}

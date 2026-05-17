@@ -1,7 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"math"
+	"time"
+
 	"github.com/gordonklaus/portaudio"
+	"paleotronic.com/decoding/wav"
 	"paleotronic.com/restalgia"
 )
 
@@ -56,7 +61,7 @@ func (this *SoundPod) StartSong() {
 
 func (this *SoundPod) StartAudio() {
 
-	output, err := portaudio.OpenDefaultStream(0, 1, 44100, )
+	output, err := portaudio.OpenDefaultStream(0, 1, 44100)
 	if err != nil {
 		panic(err)
 	}
@@ -149,7 +154,7 @@ func (this *SoundPod) CheckToneLevel() {
 	if (freq < 2) && (this.tone.GetVolume() > 0) {
 		this.tone.SetVolume(0)
 		//System.err.println("Silence voice");
-	} else if (freq >=2) && (this.tone.GetVolume() == 0) {
+	} else if (freq >= 2) && (this.tone.GetVolume() == 0) {
 		this.tone.SetVolume(1)
 	}
 }

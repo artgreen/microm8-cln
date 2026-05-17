@@ -5,7 +5,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
-	"io/ioutil"
 	log2 "log"
 	"os"
 	"path/filepath"
@@ -49,7 +48,7 @@ func CopyContent(oldpath, newpath string) error {
 		return err
 	}
 
-	files, err := ioutil.ReadDir(oldpath)
+	files, err := os.ReadDir(oldpath)
 	if err != nil {
 		return err
 	}
@@ -61,13 +60,17 @@ func CopyContent(oldpath, newpath string) error {
 				return err
 			}
 		} else {
-			var modtime = file.ModTime()
-			var mode = file.Mode()
-			data, err := ioutil.ReadFile(oldpath + "/" + file.Name())
+			info, err := file.Info()
 			if err != nil {
 				return err
 			}
-			err = ioutil.WriteFile(newpath+"/"+file.Name(), data, mode)
+			modtime := info.ModTime()
+			mode := info.Mode()
+			data, err := os.ReadFile(oldpath + "/" + file.Name())
+			if err != nil {
+				return err
+			}
+			err = os.WriteFile(newpath+"/"+file.Name(), data, mode)
 			if err != nil {
 				return err
 			}
@@ -84,7 +87,7 @@ func MigrateLegacyStructure(oldpath, newpath string) error {
 		return err
 	}
 
-	files, err := ioutil.ReadDir(oldpath)
+	files, err := os.ReadDir(oldpath)
 	if err != nil {
 		return err
 	}
@@ -96,13 +99,17 @@ func MigrateLegacyStructure(oldpath, newpath string) error {
 				return err
 			}
 		} else {
-			var modtime = file.ModTime()
-			var mode = file.Mode()
-			data, err := ioutil.ReadFile(oldpath + "/" + file.Name())
+			info, err := file.Info()
 			if err != nil {
 				return err
 			}
-			err = ioutil.WriteFile(newpath+"/"+file.Name(), data, mode)
+			modtime := info.ModTime()
+			mode := info.Mode()
+			data, err := os.ReadFile(oldpath + "/" + file.Name())
+			if err != nil {
+				return err
+			}
+			err = os.WriteFile(newpath+"/"+file.Name(), data, mode)
 			if err != nil {
 				return err
 			}
@@ -1400,7 +1407,7 @@ func ReadBytes(path string) ([]byte, error) {
 	if !Exists(path) {
 		return []byte(nil), errors.New("FILE NOT FOUND")
 	}
-	return ioutil.ReadFile(path)
+	return os.ReadFile(path)
 }
 
 func WriteString(path, data string, app bool) error {

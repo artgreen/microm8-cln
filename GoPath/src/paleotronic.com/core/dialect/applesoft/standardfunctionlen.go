@@ -50,7 +50,9 @@ func (this *StandardFunctionLEN) FunctionExecute(params *types.TokenList) error 
 	/* vars */
 	var value string
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().Content
 

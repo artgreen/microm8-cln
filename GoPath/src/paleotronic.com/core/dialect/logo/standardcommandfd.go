@@ -33,7 +33,7 @@ func (this *StandardCommandFD) Execute(env *interfaces.Producable, caller interf
 	}
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).Forward(float32(tt.AsFloat()))
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).Forward(float32(tt.AsFloat()))
 
 	if apple2helpers.IsVectorLayerEnabled(caller) == false {
 		apple2helpers.HTab(caller, 1)

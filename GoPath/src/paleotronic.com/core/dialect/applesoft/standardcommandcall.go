@@ -1,12 +1,13 @@
 package applesoft
 
 import (
+	"time"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"time"
 )
 
 type StandardCommandCALL struct {
@@ -44,8 +45,8 @@ func (this *StandardCommandCALL) Execute(env *interfaces.Producable, caller inte
 	}
 
 	apple2helpers.DoCall(addr, caller, true)
-	
-	for time.Now().Before( caller.GetWaitUntil() ) {
+
+	for time.Now().Before(caller.GetWaitUntil()) {
 		// hold the line
 	}
 

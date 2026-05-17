@@ -1,9 +1,10 @@
 package applesoft
 
 import (
-	"paleotronic.com/fmt"
 	"math"
 	"strings"
+
+	"paleotronic.com/fmt"
 
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/hardware/apple2helpers"

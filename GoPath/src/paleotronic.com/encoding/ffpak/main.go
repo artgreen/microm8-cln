@@ -1,6 +1,6 @@
 package ffpak
 
-func FFPack( in []byte ) []byte {
+func FFPack(in []byte) []byte {
 
 	out := make([]byte, 0)
 	for _, b := range in {
@@ -11,11 +11,11 @@ func FFPack( in []byte ) []byte {
 			out = append(out, b)
 		}
 	}
-	
+
 	return out
 }
 
-func FFUnpack( in []byte ) []byte {
+func FFUnpack(in []byte) []byte {
 	out := make([]byte, len(in))
 	i := 0
 	oi := 0
@@ -24,7 +24,7 @@ func FFUnpack( in []byte ) []byte {
 		if b != 0xff {
 			out[oi] = b
 			oi++
-			i++ 
+			i++
 		} else {
 			if i == len(in)-1 {
 				// last byte
@@ -32,14 +32,13 @@ func FFUnpack( in []byte ) []byte {
 				oi++
 				i++
 			} else {
-				i++ 
+				i++
 				out[oi] = in[i] ^ 0x80
 				oi++
 				i++
 			}
 		}
 	}
-	
+
 	return out[:oi]
 }
-

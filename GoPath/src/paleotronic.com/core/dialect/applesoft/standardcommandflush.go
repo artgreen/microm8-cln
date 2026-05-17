@@ -3,8 +3,8 @@ package applesoft
 import (
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/interfaces"
-	"paleotronic.com/core/types"
 	"paleotronic.com/core/memory"
+	"paleotronic.com/core/types"
 )
 
 type StandardCommandFLUSH struct {

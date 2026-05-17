@@ -42,13 +42,12 @@ func GetAppleHiRES() *AppleHiRES {
 }
 
 func (this *AppleHiRES) GetCollisionCount() uint {
-	 return uint( this.CollisionCount )
+	return uint(this.CollisionCount)
 }
 
 func (this *AppleHiRES) SetCollisionCount(v uint) {
-	 this.CollisionCount = int(v)
+	this.CollisionCount = int(v)
 }
-
 
 func (this *AppleHiRES) HgrSpritePlot(x int, y int, col int) {
 	idx := (y * 280) + x

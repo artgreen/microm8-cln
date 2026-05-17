@@ -120,8 +120,8 @@ func (vm VideoMode) VAdvance(tw TextSize) int {
 
 // LinearOffsetXY returns the actual memory reference for a given co-ordinate
 func (vm VideoMode) LinearOffsetXY(x, y int) int {
-	hs := vm.HSkip()   		// 2
-	vs := vm.VSkip()   		// 2
+	hs := vm.HSkip() // 2
+	vs := vm.VSkip() // 2
 	xx := (hs * x) % 80
 	yy := (vs * y) % 48
 	////fmt.Printf( "LinearOffsetXY(%d, %d) = %d, %d\n", x, y, xx, yy )
@@ -235,5 +235,3 @@ func NewVideoMode(w int, h int, r int, c int, ar int, anc int, cp VideoPalette, 
 
 	return this
 }
-
-

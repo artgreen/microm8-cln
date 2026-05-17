@@ -1,7 +1,6 @@
 package freeze
 
 import (
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -193,7 +192,7 @@ func (f *FreezeState) LoadFromBytes(data []byte) error {
 }
 
 func (f *FreezeState) LoadFromFile(filename string) error {
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		return err
 	}

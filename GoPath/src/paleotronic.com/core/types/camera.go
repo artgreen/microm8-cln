@@ -1,8 +1,9 @@
 package types
 
 type CameraCommand int
+
 const (
-	CC_None 		CameraCommand = iota
+	CC_None CameraCommand = iota
 	CC_AbsPos
 	CC_RelPos
 	CC_RotX
@@ -23,18 +24,19 @@ const (
 	CC_GetJSON
 	CC_GetJSONR
 	CC_Shake
-	CC_GetView  // returns string with ex,ey,ez,lx,ly,lz,ux,uy,uz
+	CC_GetView // returns string with ex,ey,ez,lx,ly,lz,ux,uy,uz
 	CC_SetView
 )
 
-type RestalgiaCommand uint 
+type RestalgiaCommand uint
+
 const (
-	  RS_None		  RestalgiaCommand = iota
-      RS_Instrument	  
-      RS_PlayNotes
-      RS_PlaySong    
-      RS_StopSong
-      RS_PauseSong
-      RS_ResumeSong
-      RS_Sound
+	RS_None RestalgiaCommand = iota
+	RS_Instrument
+	RS_PlayNotes
+	RS_PlaySong
+	RS_StopSong
+	RS_PauseSong
+	RS_ResumeSong
+	RS_Sound
 )

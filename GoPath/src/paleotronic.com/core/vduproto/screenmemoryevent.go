@@ -1,11 +1,12 @@
 package vduproto
 
 import (
-	"errors"
-	"paleotronic.com/core/types"
 	"bytes"
 	"compress/gzip"
-	"io/ioutil"
+	"errors"
+	"io"
+
+	"paleotronic.com/core/types"
 )
 
 type ScreenMemoryEvent struct {
@@ -35,7 +36,7 @@ func (this ScreenMemoryEvent) MarshalBinary() ([]byte, error) {
 	}
 
 	var b bytes.Buffer
-	w := gzip.NewWriter( &b )
+	w := gzip.NewWriter(&b)
 	w.Write(tmp)
 	w.Close()
 
@@ -60,12 +61,12 @@ func (this *ScreenMemoryEvent) UnmarshalBinary(data []byte) error {
 	this.X = int(data[4])
 	this.Y = int(data[5])
 
-	r, ee := gzip.NewReader( bytes.NewBuffer(data[6:]) )
+	r, ee := gzip.NewReader(bytes.NewBuffer(data[6:]))
 	if ee != nil {
 		return ee
 	}
 	defer r.Close()
-	rem, ee := ioutil.ReadAll(r)
+	rem, ee := io.ReadAll(r)
 	if ee != nil {
 		return ee
 	}

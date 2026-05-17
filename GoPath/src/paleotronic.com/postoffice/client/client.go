@@ -10,7 +10,8 @@ mqc, err := mqclient.New( "hostname", port )
 import (
 	"errors"
 	"net/rpc"
-	"paleotronic.com/postoffice/core"
+
+	postoffice "paleotronic.com/postoffice/core"
 )
 
 type MQClient struct {

@@ -1,8 +1,11 @@
 package files
 
-import "paleotronic.com/fmt"
-import "paleotronic.com/core/settings"
-import "log"
+import (
+	"log"
+
+	"paleotronic.com/core/settings"
+	"paleotronic.com/fmt"
+)
 
 func GetNextAutosaveFilename(filename string) string {
 	p := GetPath(filename)

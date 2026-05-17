@@ -3,8 +3,11 @@ package hires
 //"paleotronic.com/core/dialect"
 //"paleotronic.com/core/interfaces"
 //"paleotronic.com/core/types"
-import "paleotronic.com/core/memory"
-import "math"
+import (
+	"math"
+
+	"paleotronic.com/core/memory"
+)
 
 const (
 	BitsPerPixel int = 8

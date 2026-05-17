@@ -7,36 +7,33 @@ import (
 )
 
 type StandardCommandOUTER struct {
-    dialect.Command
+	dialect.Command
 }
 
 func (this *StandardCommandOUTER) Execute(env *interfaces.Producable, caller interfaces.Interpretable, tokens types.TokenList, Scope *types.Algorithm, LPC types.CodeRef) int {
 
-        /* vars */
-        var result int
+	/* vars */
+	var result int
 
+	result = 0
 
-      result = 0
+	caller.SetOuterVars(true)
+	caller.GetDialect().ExecuteDirectCommand(tokens, caller, Scope, &LPC)
+	caller.SetOuterVars(false)
 
-      caller.SetOuterVars(true)
-      caller.GetDialect().ExecuteDirectCommand(tokens, caller, Scope, &LPC)
-      caller.SetOuterVars(false)
-
-
-        /* enforce non void return */
-        return result
+	/* enforce non void return */
+	return result
 
 }
 
 func (this *StandardCommandOUTER) Syntax() string {
 
-        /* vars */
-        var result string
+	/* vars */
+	var result string
 
-      result = "OUTER <command>"
+	result = "OUTER <command>"
 
-        /* enforce non void return */
-        return result
+	/* enforce non void return */
+	return result
 
 }
-

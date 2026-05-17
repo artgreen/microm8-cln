@@ -1,9 +1,9 @@
 package logo
 
 import (
-//	"strings"
+	//	"strings"
 	//	"errors"
-//	"paleotronic.com/fmt"
+	//	"paleotronic.com/fmt"
 
 	"paleotronic.com/core/dialect"
 	//"paleotronic.com/core/hires"

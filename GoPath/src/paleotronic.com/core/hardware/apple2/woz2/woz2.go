@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"hash/crc32"
 	"io"
-	"io/ioutil"
 
 	"paleotronic.com/core/memory"
 	"paleotronic.com/log"
@@ -52,7 +51,7 @@ type WOZ2Image struct {
 const trimWoz = false
 
 func NewWOZ2Image(r io.Reader, buffer memory.MemBytes) (*WOZ2Image, error) {
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
@@ -534,7 +533,6 @@ func (w *WOZ2TMAPChunk) SetTrackPointer(i int, p int) {
 }
 
 /*
-
  */
 const TRKHeaderLength = 8
 

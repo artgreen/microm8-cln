@@ -30,7 +30,7 @@ func (this *StandardCommandHIDETURTLE) Execute(env *interfaces.Producable, calle
 	//    }
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).SetHide()
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).SetHide()
 
 	if apple2helpers.IsVectorLayerEnabled(caller) == false {
 		apple2helpers.HTab(caller, 1)

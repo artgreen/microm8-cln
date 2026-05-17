@@ -1,14 +1,15 @@
 package plus
 
 import (
+	"strings"
+
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
-	"paleotronic.com/core/types"
-	"paleotronic.com/utils"
-	"paleotronic.com/files"
 	"paleotronic.com/core/exception"
 	"paleotronic.com/core/hardware/apple2helpers"
-	"paleotronic.com/api"
-	"strings"
+	"paleotronic.com/core/types"
+	"paleotronic.com/files"
+	"paleotronic.com/utils"
 )
 
 type PlusAuthLogin struct {
@@ -17,7 +18,9 @@ type PlusAuthLogin struct {
 
 func (this *PlusAuthLogin) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if params.Size() < 4 {
 		return exception.NewESyntaxError("LOGIN expects USER, PASSWORD, ERROR TRAP, SESSION VAR")
@@ -62,9 +65,9 @@ func (this *PlusAuthLogin) FunctionExecute(params *types.TokenList) error {
 		this.Interpreter.GetDialect().ExecuteDirectCommand(list, this.Interpreter, Scope, LPC)
 
 		files.System = false
-        
-        // Hook here to get dir of projects folder
-        _, _, _ = files.ReadDirViaProvider("/projects", "*.*")
+
+		// Hook here to get dir of projects folder
+		_, _, _ = files.ReadDirViaProvider("/projects", "*.*")
 	}
 
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(1)))

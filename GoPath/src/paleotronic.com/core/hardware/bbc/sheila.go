@@ -7,9 +7,9 @@ import (
 	"paleotronic.com/core/hardware/servicebus"
 
 	"paleotronic.com/core/hardware/apple2helpers"
+	"paleotronic.com/core/hardware/cpu/mos6502"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/memory"
-	"paleotronic.com/core/hardware/cpu/mos6502"
 )
 
 type IOChipAction struct {

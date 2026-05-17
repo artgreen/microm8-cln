@@ -4,6 +4,6 @@ import (
 	"paleotronic.com/core/interfaces"
 )
 
-func GetInterpreterByProducerIndex( p interfaces.Producable ) {
+func GetInterpreterByProducerIndex(p interfaces.Producable) {
 
 }

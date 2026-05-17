@@ -51,7 +51,7 @@ func (this *StandardCommandLOADPIC) Execute(env *interfaces.Producable, caller i
 	}
 	fr.Content = utils.UnXZBytes(fr.Content)
 
-	err = apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).FromJSON(fr.Content)
+	err = apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).FromJSON(fr.Content)
 	apple2helpers.VECTOR(caller).Render()
 	caller.SetNeedsPrompt(true)
 	return 0, err

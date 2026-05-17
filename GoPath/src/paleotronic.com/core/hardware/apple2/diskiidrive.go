@@ -2,8 +2,8 @@ package apple2
 
 import (
 	"bytes"
-	"io/ioutil"
 	"math/rand"
+	"os"
 	"strings"
 	"time"
 
@@ -17,9 +17,10 @@ import (
 	"paleotronic.com/log"
 )
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
+// As of Go 1.20, math/rand's global generator is automatically seeded with a
+// random value, so manual seeding via rand.Seed is unnecessary (and is in
+// fact deprecated). The previous init() that seeded with time.Now().UnixNano()
+// has been removed.
 
 var driveHeadStepDelta [][]int = [][]int{
 	{0, 0, 1, 1, 0, 0, 1, 1, -1, -1, 0, 0, -1, -1, 0, 0}, // phase 0
@@ -799,7 +800,7 @@ func (d *DiskIIDrive) InsertDisk(filename string, wp bool) {
 
 	if strings.HasPrefix(filename, "local:") {
 		lfilename := strings.Replace(filename, "local:", "", -1)
-		fp.Content, e = ioutil.ReadFile(lfilename)
+		fp.Content, e = os.ReadFile(lfilename)
 	} else {
 		fp, e = files.ReadBytesViaProvider(files.GetPath(filename), files.GetFilename(filename))
 	}

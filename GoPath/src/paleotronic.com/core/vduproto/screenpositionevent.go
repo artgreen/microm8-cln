@@ -2,15 +2,16 @@ package vduproto
 
 import (
 	"errors"
-	"paleotronic.com/fmt"
+
 	"paleotronic.com/core/types"
+	"paleotronic.com/fmt"
 )
 
 // ScreenPositionEvent updates the cursor position
 type ScreenPositionEvent struct {
 	LayerID int
-	X int
-	Y int
+	X       int
+	Y       int
 }
 
 func (this ScreenPositionEvent) Identity() byte {

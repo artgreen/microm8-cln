@@ -5,15 +5,18 @@ package memory
  *
  */
 
-import "time"
-import "strings"
-import "sort"
-import "sync"
-import "paleotronic.com/fmt"
-import "paleotronic.com/utils"
-import "paleotronic.com/fastserv"
-import "paleotronic.com/encoding/mempak"
-import "paleotronic.com/log"
+import (
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
+	"paleotronic.com/encoding/mempak"
+	"paleotronic.com/fastserv"
+	"paleotronic.com/fmt"
+	"paleotronic.com/log"
+	"paleotronic.com/utils"
+)
 
 const MAX_SHARES = 12288
 

@@ -2,7 +2,7 @@ package applesoft
 
 import (
 	"errors"
-//	"paleotronic.com/fmt"
+	//	"paleotronic.com/fmt"
 
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/hardware/apple2helpers"
@@ -25,7 +25,7 @@ func (this *StandardCommandCOLOR) Execute(env *interfaces.Producable, caller int
 
 	t := caller.ParseTokensForResult(tokens)
 
-	apple2helpers.SetCOLOR(caller, t.AsInteger() % 16)
+	apple2helpers.SetCOLOR(caller, t.AsInteger()%16)
 
 	//fmt.Printf("COLOR= %d\n", t.AsInteger())
 

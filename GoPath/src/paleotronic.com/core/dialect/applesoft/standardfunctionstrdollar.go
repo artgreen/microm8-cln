@@ -15,11 +15,13 @@ func (this *StandardFunctionSTRDollar) FunctionExecute(params *types.TokenList) 
 	/* vars */
 	var e string
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	e = this.Stack.Pop().Content
 
-	this.Stack.Push(types.NewToken(types.STRING, utils.StrToFloatStrApple(e) ))
+	this.Stack.Push(types.NewToken(types.STRING, utils.StrToFloatStrApple(e)))
 
 	return nil
 }

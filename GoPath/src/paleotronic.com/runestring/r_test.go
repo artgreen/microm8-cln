@@ -20,16 +20,16 @@ func TestNewRuneString_IsEmpty(t *testing.T) {
 func TestCast_PreservesUnicode(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		in        string
-		wantLen   int
-		wantBack  string
+		in       string
+		wantLen  int
+		wantBack string
 	}{
 		{"", 0, ""},
 		{"hello", 5, "hello"},
-		{"héllo", 5, "héllo"},        // accented chars are single runes
-		{"日本語", 3, "日本語"},          // CJK 3-byte UTF-8 chars
-		{"á", 2, "á"},   // combining mark (separate runes)
-		{"🎉", 1, "🎉"},                // surrogate-pair emoji is one rune
+		{"héllo", 5, "héllo"}, // accented chars are single runes
+		{"日本語", 3, "日本語"},     // CJK 3-byte UTF-8 chars
+		{"á", 2, "á"},       // combining mark (separate runes)
+		{"🎉", 1, "🎉"},         // surrogate-pair emoji is one rune
 	}
 	for _, tc := range cases {
 		tc := tc
@@ -95,9 +95,9 @@ func TestSubString(t *testing.T) {
 	t.Parallel()
 	rs := Cast("abcdef")
 	cases := []struct {
-		name    string
-		s, e    int
-		want    string
+		name string
+		s, e int
+		want string
 	}{
 		{"full", 0, 6, "abcdef"},
 		{"prefix", 0, 3, "abc"},
@@ -125,9 +125,9 @@ func TestCopy_OneBasedStart(t *testing.T) {
 	t.Parallel()
 	rs := Cast("abcdef")
 	cases := []struct {
-		name           string
-		start, count   int
-		want           string
+		name         string
+		start, count int
+		want         string
 	}{
 		{"start at 1 (first char)", 1, 3, "abc"},
 		{"start at 3 (middle)", 3, 2, "cd"},
@@ -228,7 +228,7 @@ func TestHasPrefix_IsCaseInsensitive(t *testing.T) {
 		{"hello world", "HELLO", true},
 		{"HELLO world", "hello", true},
 		{"hello", "hellos", false}, // needle longer than haystack
-		{"hello", "", false},        // empty needle returns false (by current contract)
+		{"hello", "", false},       // empty needle returns false (by current contract)
 		{"hello", "world", false},
 	}
 	for _, tc := range cases {

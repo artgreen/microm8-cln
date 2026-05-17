@@ -3,7 +3,7 @@ package restalgia
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"os"
 	"time"
@@ -13,25 +13,25 @@ import (
 	"paleotronic.com/files"
 )
 
-//var msTicks uint64
+// var msTicks uint64
 var ticker *time.Ticker
 var xzMagic = []byte{0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00}
 var startTime = time.Now()
 
-// func init() {
-// 	ticker = time.NewTicker(time.Millisecond)
-// 	go func() {
-// 		for {
-// 			select {
-// 			case _ = <-ticker.C:
-// 				msTicks++
-// 				if msTicks%1000 == 0 {
-// 					fmt.Println(time.Now())
-// 				}
-// 			}
-// 		}
-// 	}()
-// }
+//	func init() {
+//		ticker = time.NewTicker(time.Millisecond)
+//		go func() {
+//			for {
+//				select {
+//				case _ = <-ticker.C:
+//					msTicks++
+//					if msTicks%1000 == 0 {
+//						fmt.Println(time.Now())
+//					}
+//				}
+//			}
+//		}()
+//	}
 func resetClock() {
 	startTime = time.Now()
 }
@@ -220,7 +220,7 @@ func (p *RMachinePlayer) Start(filename string) error {
 	}
 	if isXZ {
 		tmpr, _ := xz.NewReader(bytes.NewBuffer(fr.Content))
-		fr.Content, _ = ioutil.ReadAll(tmpr)
+		fr.Content, _ = io.ReadAll(tmpr)
 	}
 
 	p.buffer = bytes.NewBuffer(fr.Content)

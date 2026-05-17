@@ -3,11 +3,11 @@ package control
 import (
 	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/editor"
+	"paleotronic.com/core/interfaces"
+	"paleotronic.com/core/memory"
+	"paleotronic.com/core/settings"
+	"paleotronic.com/files"
 )
-import "paleotronic.com/core/interfaces"
-import "paleotronic.com/core/settings"
-import "paleotronic.com/core/memory"
-import "paleotronic.com/files"
 
 var filepanel [memory.OCTALYZER_NUM_INTERPRETERS]*editor.FileCatalog
 var lastindex [memory.OCTALYZER_NUM_INTERPRETERS]int

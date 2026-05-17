@@ -4,9 +4,10 @@ import (
 	"errors"
 	"strings" //"paleotronic.com/fmt"
 
+	"fmt"
+
 	"paleotronic.com/disk"
 	"paleotronic.com/filerecord"
-	"fmt"
 )
 
 type DSKFileProvider struct {
@@ -29,19 +30,19 @@ func (pfp *DSKFileProvider) Delete(p string, f string) error {
 	ext := GetExt(f)
 	f = strings.ReplaceAll(f, "."+ext, "")
 	if pfp.pack.Format.ID == disk.DF_DOS_SECTORS_16 {
-		err :=  pfp.pack.AppleDOSDeleteFile(f)
+		err := pfp.pack.AppleDOSDeleteFile(f)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		return WriteBytesViaProvider( GetPath(pfp.pack.Filename), GetFilename(pfp.pack.Filename), pfp.pack.Data )
+		return WriteBytesViaProvider(GetPath(pfp.pack.Filename), GetFilename(pfp.pack.Filename), pfp.pack.Data)
 	} else if pfp.pack.Format.ID == disk.DF_PRODOS {
 		err := pfp.pack.PRODOSDeleteFile(p, f)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		return WriteBytesViaProvider( GetPath(pfp.pack.Filename), GetFilename(pfp.pack.Filename), pfp.pack.Data )
+		return WriteBytesViaProvider(GetPath(pfp.pack.Filename), GetFilename(pfp.pack.Filename), pfp.pack.Data)
 	}
 	return nil
 }
@@ -247,7 +248,7 @@ func (pfp *DSKFileProvider) SetFileContent(p string, f string, data []byte) erro
 		return errors.New("FILE NOT FOUND")
 	}
 	//
-	
+
 	ext := GetExt(f)
 	f = strings.ReplaceAll(f, "."+ext, "")
 
@@ -256,14 +257,14 @@ func (pfp *DSKFileProvider) SetFileContent(p string, f string, data []byte) erro
 		if err != nil {
 			fmt.Println(err)
 		}
-		return WriteBytesViaProvider( GetPath(dsk.Filename), GetFilename(dsk.Filename), dsk.Data )
+		return WriteBytesViaProvider(GetPath(dsk.Filename), GetFilename(dsk.Filename), dsk.Data)
 	} else if dsk.Format.ID == disk.DF_PRODOS {
 
 		err := dsk.PRODOSWriteFile(p, f, disk.ProDOSFileTypeFromExt(ext), data, 0x4000)
 		if err != nil {
 			fmt.Println(err)
 		}
-		return WriteBytesViaProvider( GetPath(dsk.Filename), GetFilename(dsk.Filename), dsk.Data )
+		return WriteBytesViaProvider(GetPath(dsk.Filename), GetFilename(dsk.Filename), dsk.Data)
 	}
 
 	return errors.New(FPAccess)

@@ -10,10 +10,12 @@
 // Package gl implements Go bindings to OpenGL.
 //
 // This package was automatically generated using Glow:
-//  http://github.com/go-gl/glow
+//
+//	http://github.com/go-gl/glow
 //
 // Generated based on the OpenGL XML specification:
-//  SVN revision 31873
+//
+//	SVN revision 31873
 package gl
 
 // #cgo darwin  LDFLAGS: -framework OpenGL

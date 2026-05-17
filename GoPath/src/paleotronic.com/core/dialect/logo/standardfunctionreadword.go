@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"paleotronic.com/core/dialect"
-	"paleotronic.com/core/types"
-	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/hardware/apple2helpers"
+	"paleotronic.com/core/interfaces"
+	"paleotronic.com/core/types"
 	"paleotronic.com/runestring"
 	"paleotronic.com/utils"
 )
@@ -51,7 +51,7 @@ func (this *StandardFunctionREADWORD) FunctionExecute(params *types.TokenList) e
 	thing := types.NewToken(types.WORD, "")
 
 	// request input here
-	line := this.GetCRTLine( this.Interpreter )
+	line := this.GetCRTLine(this.Interpreter)
 	thing.Content = line
 	this.Stack.Push(thing)
 
@@ -70,7 +70,6 @@ func (this *StandardFunctionREADWORD) Syntax() string {
 
 }
 
-
 func (this *StandardFunctionREADWORD) GetCRTLine(caller interfaces.Interpretable) string {
 
 	command := ""
@@ -82,27 +81,27 @@ func (this *StandardFunctionREADWORD) GetCRTLine(caller interfaces.Interpretable
 
 		caller.Post()
 
-        apple2helpers.TextShowCursor(caller)
-        
+		apple2helpers.TextShowCursor(caller)
+
 		for caller.GetMemory(49152) < 128 {
-			time.Sleep(10*time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 		}
-        
-        apple2helpers.TextHideCursor(caller)
+
+		apple2helpers.TextHideCursor(caller)
 
 		//if len(caller.GetBuffer().Runes) > 0 {
 		ch := rune(caller.GetMemory(49152) & 127)
-		caller.SetMemory(49168,0)
-        
-    	if caller.GetDialect().IsUpperOnly() && ch >= 'a' && ch <= 'z' {
-           ch -= 32
-        }
+		caller.SetMemory(49168, 0)
+
+		if caller.GetDialect().IsUpperOnly() && ch >= 'a' && ch <= 'z' {
+			ch -= 32
+		}
 
 		switch ch {
 		case 3:
 			{
 				//display.SetSuppressFormat(true)
-				caller.SetMemory(49168,0)
+				caller.SetMemory(49168, 0)
 				caller.PutStr("\r\n")
 				//display.SetSuppressFormat(false)
 				e := caller.Halt()
@@ -130,7 +129,7 @@ func (this *StandardFunctionREADWORD) GetCRTLine(caller interfaces.Interpretable
 				if len(command) > 0 {
 					command = utils.Copy(command, 1, len(command)-1)
 					caller.Backspace()
-//						display.SetSuppressFormat(true)
+					//						display.SetSuppressFormat(true)
 					caller.PutStr(" ")
 					//display.SetSuppressFormat(false)
 					caller.Backspace()
@@ -140,20 +139,17 @@ func (this *StandardFunctionREADWORD) GetCRTLine(caller interfaces.Interpretable
 		default:
 			{
 
-//             	if !caller.GetDialect().IsUpperOnly() {
-//			      if (ch >= 'a') && (ch <= 'z') {
-//				      ch -= 32
-//			      } else if (ch >= 'A') && (ch <= 'Z') {
-//				      ch += 32
-//			      }
-//                }
+				//             	if !caller.GetDialect().IsUpperOnly() {
+				//			      if (ch >= 'a') && (ch <= 'z') {
+				//				      ch -= 32
+				//			      } else if (ch >= 'A') && (ch <= 'Z') {
+				//				      ch += 32
+				//			      }
+				//                }
 
-                
 				//display.SetSuppressFormat(true)
 				caller.RealPut(rune(ch))
 				//display.SetSuppressFormat(false)
-
-
 
 				command = command + string(ch)
 				break

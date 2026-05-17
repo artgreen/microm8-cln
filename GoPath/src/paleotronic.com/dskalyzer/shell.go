@@ -1,11 +1,11 @@
 package main
 
 import (
-	"paleotronic.com/fmt"
-	"io/ioutil"
 	"runtime/debug"
 	"strings"
 	"time"
+
+	"paleotronic.com/fmt"
 
 	"path/filepath"
 
@@ -450,7 +450,7 @@ func fts() string {
 }
 
 func backupFile(path string) error {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -535,7 +535,7 @@ func shellPut(args []string) int {
 		return 1
 	}
 
-	data, err := ioutil.ReadFile(args[0])
+	data, err := os.ReadFile(args[0])
 	if err != nil {
 		return -1
 	}

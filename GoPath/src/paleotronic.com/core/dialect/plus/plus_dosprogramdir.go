@@ -1,7 +1,7 @@
 package plus
 
 import (
-//	"strings"
+	//	"strings"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 )
@@ -12,7 +12,9 @@ type PlusProgramDir struct {
 
 func (this *PlusProgramDir) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	this.Stack.Push(types.NewToken(types.STRING, this.Interpreter.GetProgramDir()))
 

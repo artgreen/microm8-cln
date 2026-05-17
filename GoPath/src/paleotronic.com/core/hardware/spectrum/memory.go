@@ -1,11 +1,11 @@
 package spectrum
 
 import (
-	"paleotronic.com/z80"
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/memory"
 	"paleotronic.com/octalyzer/bus"
+	"paleotronic.com/z80"
 )
 
 type ZXMemory48K struct {

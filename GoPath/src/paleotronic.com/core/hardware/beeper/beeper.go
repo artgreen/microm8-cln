@@ -1,28 +1,29 @@
 package beeper
 
 import (
-	"github.com/gordonklaus/portaudio"
-	timer "time"
-	"paleotronic.com/restalgia/driver"
-	"paleotronic.com/core/memory"
 	"time"
+	timer "time"
+
+	"github.com/gordonklaus/portaudio"
+	"paleotronic.com/core/memory"
+	"paleotronic.com/restalgia/driver"
 )
 
 type Beeper struct {
-	Stream *portaudio.Stream
-	Output driver.Output
-	SampleRate float64
-	Frequency float64  // Hz
-	NewFrequency float64 // 0 if no change
+	Stream          *portaudio.Stream
+	Output          driver.Output
+	SampleRate      float64
+	Frequency       float64 // Hz
+	NewFrequency    float64 // 0 if no change
 	SamplesPerCycle int
-	SampleCount int
-	Smooth bool
-	Signal float32
-	mm *memory.MemoryMap
-	lastMonitor uint
-	wait time.Duration
-	bias time.Duration
-	Calibrate bool
+	SampleCount     int
+	Smooth          bool
+	Signal          float32
+	mm              *memory.MemoryMap
+	lastMonitor     uint
+	wait            time.Duration
+	bias            time.Duration
+	Calibrate       bool
 }
 
 func NewBeeper(f float64, m *memory.MemoryMap) *Beeper {
@@ -40,13 +41,13 @@ func NewBeeper(f float64, m *memory.MemoryMap) *Beeper {
 
 	this.SampleRate = this.Stream.Info().SampleRate // actual audio rate
 
-//	this.Output, err = driver.Get(44100, 2, nil)
-//	if err != nil {
-//		panic(err)
-//	}
+	//	this.Output, err = driver.Get(44100, 2, nil)
+	//	if err != nil {
+	//		panic(err)
+	//	}
 
-//	this.SampleRate = driver.SampleRate
-	this.Frequency  = f
+	//	this.SampleRate = driver.SampleRate
+	this.Frequency = f
 	this.NewFrequency = -1
 	this.Smooth = true
 	this.Signal = -1
@@ -82,7 +83,7 @@ func (this *Beeper) SetFrequency(f float64) {
 
 //}
 
-func (this *Beeper) FeedStream( out [][]float32 ) {
+func (this *Beeper) FeedStream(out [][]float32) {
 
 	var now = timer.Now()
 	var start = now
@@ -110,20 +111,20 @@ func (this *Beeper) Toggle() {
 	} else {
 		this.Signal = 0
 	}
-//	this.Output.Push([]float32{
-//		1,1,0,0,1,1,0,0,
-//		1,1,0,0,1,1,0,0,
-//	})
+	//	this.Output.Push([]float32{
+	//		1,1,0,0,1,1,0,0,
+	//		1,1,0,0,1,1,0,0,
+	//	})
 }
 
 func (this *Beeper) GetSample() float32 {
 
-//	n := this.mm.Data[memory.OCTALYZER_SPEAKER_TOGGLE]//ReadGlobal(memory.OCTALYZER_SPEAKER_TOGGLE)
-//	if n != this.lastMonitor {
-//		this.Signal = - this.Signal
-//	}
+	//	n := this.mm.Data[memory.OCTALYZER_SPEAKER_TOGGLE]//ReadGlobal(memory.OCTALYZER_SPEAKER_TOGGLE)
+	//	if n != this.lastMonitor {
+	//		this.Signal = - this.Signal
+	//	}
 
-//	this.lastMonitor = n
+	//	this.lastMonitor = n
 
 	return this.Signal
 
@@ -137,10 +138,10 @@ func (this *Beeper) DoSound() {
 	for {
 		//now = timer.Now()
 		v = this.GetSample()
-		this.Output.Push( []float32{ v, v } )
-//		for timer.Since(now) < this.wait/2 {
-//			//
-//		}
+		this.Output.Push([]float32{v, v})
+		//		for timer.Since(now) < this.wait/2 {
+		//			//
+		//		}
 	}
 
 }

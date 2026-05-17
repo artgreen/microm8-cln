@@ -30,7 +30,7 @@ func (this *StandardCommandFENCE) Execute(env *interfaces.Producable, caller int
 
 	result = 0
 
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).SetBoundsMode(types.FENCE)
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).SetBoundsMode(types.FENCE)
 
 	/* enforce non void return */
 	return result, nil
