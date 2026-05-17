@@ -2,7 +2,6 @@ package memory
 
 import (
 	"testing"
-	"paleotronic.com/fmt"
 )
 
 func TestMMCreate(t *testing.T) {
@@ -10,7 +9,7 @@ func TestMMCreate(t *testing.T) {
 	mm := NewMemoryMap()
 
 	if len(mm.Data) != OCTALYZER_MEMORY_SIZE {
-		t.Errorf( "Global memory size wrong, expected %d, got %d", OCTALYZER_MEMORY_SIZE, len(mm.Data) )
+		t.Errorf("Global memory size wrong, expected %d, got %d", OCTALYZER_MEMORY_SIZE, len(mm.Data))
 	}
 
 }
@@ -51,17 +50,17 @@ func TestRelativeReadHandler(t *testing.T) {
 
 	mm.MapInterpreterRegion(0, MemoryRange{Base: mr.Base, Size: mr.Size}, mr)
 
-	mr.SubscribeReadHandler(0x30, speaker)  // realtime function handler offset 0x30 into region
+	mr.SubscribeReadHandler(0x30, speaker) // realtime function handler offset 0x30 into region
 
-	v := mr.RelativeRead( 0x30 )
+	v := mr.RelativeRead(0x30)
 	v2 := mr.Read(49200)
 
 	if v != 255 {
-		t.Error( "Failed to trigger realtime READ response handler via relative address" )
+		t.Error("Failed to trigger realtime READ response handler via relative address")
 	}
 
 	if v2 != 255 {
-		t.Error( "Failed to trigger realtime READ response handler via absolute address" )
+		t.Error("Failed to trigger realtime READ response handler via absolute address")
 	}
 
 }

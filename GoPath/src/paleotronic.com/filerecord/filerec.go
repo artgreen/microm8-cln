@@ -10,33 +10,33 @@ import (
 )
 
 type FileRecord struct {
-	ID            bson.ObjectId `bson:"_id,omitempty" json:"-"`
-	FileName      string		 `json:"filename"`
-	FilePath      string		 `json:"path"`
-	Categories    []string		 `json:"-"`
-	Owner         string		 `json:"-"`
-	UserCanWrite  bool		 `json:"-"`
-	Content       []byte		`json:"content"`
-	ContentSize   int			`json:"size"`
-	Address       int		 `json:"address"`
-	Version       int // increment this when we update a file, copy old record into file_versions
-	Checksum      [16]byte		 `json:"-"`
-	Created       time.Time		 `json:"-"`
-	Modified      time.Time		 `json:"-"`
-	Creator       string		 `json:"-"`
-	Modifier      string		 `json:"-"`
-	Description   string		`json:"description"`
-	Locked        bool		 `json:"-"`
-	LockUser      string		 `json:"-"`
-	LockedTime    time.Time		 `json:"-"`
-	LocalPath     string		 `json:"-"`
-	Directory     bool			`json:"dir"`
-	DirIsFile     bool		 `json:"-"`
-	Deleted       bool			`json:"deleted"`
-	MetaData      map[string]string		 `json:"-"`
-	PositionRead  int		 `json:"-"`
-	PositionWrite int		 `json:"-"`
-	RecordSize    int		 `json:"-"`
+	ID            bson.ObjectId     `bson:"_id,omitempty" json:"-"`
+	FileName      string            `json:"filename"`
+	FilePath      string            `json:"path"`
+	Categories    []string          `json:"-"`
+	Owner         string            `json:"-"`
+	UserCanWrite  bool              `json:"-"`
+	Content       []byte            `json:"content"`
+	ContentSize   int               `json:"size"`
+	Address       int               `json:"address"`
+	Version       int               // increment this when we update a file, copy old record into file_versions
+	Checksum      [16]byte          `json:"-"`
+	Created       time.Time         `json:"-"`
+	Modified      time.Time         `json:"-"`
+	Creator       string            `json:"-"`
+	Modifier      string            `json:"-"`
+	Description   string            `json:"description"`
+	Locked        bool              `json:"-"`
+	LockUser      string            `json:"-"`
+	LockedTime    time.Time         `json:"-"`
+	LocalPath     string            `json:"-"`
+	Directory     bool              `json:"dir"`
+	DirIsFile     bool              `json:"-"`
+	Deleted       bool              `json:"deleted"`
+	MetaData      map[string]string `json:"-"`
+	PositionRead  int               `json:"-"`
+	PositionWrite int               `json:"-"`
+	RecordSize    int               `json:"-"`
 }
 
 func (this *FileRecord) AddMeta(name, value string) {

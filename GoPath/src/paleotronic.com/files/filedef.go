@@ -1,6 +1,6 @@
 package files
 
-// FileType represents a filetype 
+// FileType represents a filetype
 type FileType int
 
 const (

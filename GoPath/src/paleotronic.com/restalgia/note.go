@@ -1,9 +1,10 @@
 package restalgia
 
 import (
-	"paleotronic.com/utils"
 	"regexp"
 	"strings"
+
+	"paleotronic.com/utils"
 )
 
 type Note struct {

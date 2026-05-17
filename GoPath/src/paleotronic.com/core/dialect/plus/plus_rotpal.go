@@ -2,8 +2,8 @@ package plus
 
 import (
 	"paleotronic.com/core/dialect"
-	"paleotronic.com/core/types"
 	"paleotronic.com/core/hardware/apple2helpers"
+	"paleotronic.com/core/types"
 	"paleotronic.com/utils"
 )
 
@@ -13,8 +13,10 @@ type PlusRotPal struct {
 
 func (this *PlusRotPal) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
-	
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
+
 	low := params.Shift().AsInteger()
 	high := params.Shift().AsInteger()
 	change := params.Shift().AsInteger()
@@ -22,7 +24,6 @@ func (this *PlusRotPal) FunctionExecute(params *types.TokenList) error {
 	apple2helpers.RotatePalette(this.Interpreter, low, high, change)
 
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(0)))
-
 
 	return nil
 }

@@ -1,12 +1,13 @@
 package plus
 
 import (
-	"paleotronic.com/log"
 	"strings"
 
-	"paleotronic.com/files"
+	"paleotronic.com/log"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
+	"paleotronic.com/files"
 )
 
 type PlusDelete struct {
@@ -15,7 +16,9 @@ type PlusDelete struct {
 
 func (this *PlusDelete) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 		t := this.ValueMap["path"]

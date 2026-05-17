@@ -25,8 +25,8 @@ func (this *StandardCommandPPS) Execute(env *interfaces.Producable, caller inter
 		v := caller.GetData(k)
 		if v.IsPropList {
 			// prop list
-			for i := 0; i<v.List.Size(); i+=2 {
-				caller.PutStr("PPROP \"" + k[1:] + " \"" + v.List.Content[i].Content +" [" + v.List.Content[i+1].List.AsString() + "]\r\n" )
+			for i := 0; i < v.List.Size(); i += 2 {
+				caller.PutStr("PPROP \"" + k[1:] + " \"" + v.List.Content[i].Content + " [" + v.List.Content[i+1].List.AsString() + "]\r\n")
 			}
 		}
 	}

@@ -2,7 +2,9 @@ package apple2
 
 import (
 	"bytes"
+
 	"paleotronic.com/log"
+
 	// "io/ioutil"
 	"time"
 
@@ -123,12 +125,12 @@ func (d *IOCardSSC) configureSerialMode() {
 	} else if settings.SSCCardMode[d.Int.GetMemIndex()] == settings.SSCModeEmulatedESCP {
 		d.Device = common.NewSerialPrinterEmu(
 			common.NewESCPDevice(&common.PDFOutput{}, d.Int),
-						      32000,
+			32000,
 		)
 	} else if settings.SSCCardMode[d.Int.GetMemIndex()] == settings.SSCModeEmulatedImageWriter {
 		d.Device = common.NewSerialPrinterEmu(
 			common.NewImageWriterIIDevice(&common.PDFOutput{}, d.Int),
-						      2048,
+			2048,
 		)
 	} else if settings.SSCCardMode[d.Int.GetMemIndex()] == settings.SSCModeSerialRaw {
 		port, err := common.NewSerialPortDevice(settings.SSCHardwarePort, 9600, "N", 8, "1", false)

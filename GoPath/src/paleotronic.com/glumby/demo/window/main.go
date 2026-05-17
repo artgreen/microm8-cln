@@ -1,13 +1,14 @@
 package main
 
 import (
-	"paleotronic.com/fmt"
-	"github.com/go-gl/gl/v2.1/gl"
 	"image/color"
-	"paleotronic.com/log"
-	"paleotronic.com/glumby"
 	"runtime"
 	"time"
+
+	"github.com/go-gl/gl/v2.1/gl"
+	"paleotronic.com/fmt"
+	"paleotronic.com/glumby"
+	"paleotronic.com/log"
 )
 
 var (

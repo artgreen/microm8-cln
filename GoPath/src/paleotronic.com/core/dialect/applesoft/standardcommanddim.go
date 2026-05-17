@@ -25,7 +25,7 @@ func (this *StandardCommandDIM) Execute(env *interfaces.Producable, caller inter
 	var dln []int
 	var vv *types.Variable
 	var ch rune
-//	var i int
+	//	var i int
 	//var s string
 
 	result = 0
@@ -60,10 +60,9 @@ func (this *StandardCommandDIM) Execute(env *interfaces.Producable, caller inter
 		}
 
 		/* offset by 1 */
-//		for i = 0; i <= len(dln)-1; i++ {
-//			dln[i] = dln[i] + 1
-//		}
-
+		//		for i = 0; i <= len(dln)-1; i++ {
+		//			dln[i] = dln[i] + 1
+		//		}
 
 		//s = "" /* default value */
 
@@ -114,9 +113,9 @@ func (this *StandardCommandDIM) Execute(env *interfaces.Producable, caller inter
 
 		vv, e := types.NewVariablePA(caller.GetLocal(), strings.ToLower(v.Content), vt, ns, true, dln)
 		if e != nil {
-           return 0, e
-        }
-    	//vv.SetContentScalar(s)
+			return 0, e
+		}
+		//vv.SetContentScalar(s)
 		vv.Owner = caller.GetName()
 		//caller.CreateVarLower(strings.ToLower(v.Content), vv)
 

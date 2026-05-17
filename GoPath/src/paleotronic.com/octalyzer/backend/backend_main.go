@@ -4,7 +4,7 @@ import (
 	"runtime"
 	"time"
 
-	"paleotronic.com/api"
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core"
 	"paleotronic.com/core/memory" //"os"
 	"paleotronic.com/core/settings"
@@ -27,59 +27,59 @@ func HandleException(r interface{}) {
 
 	if settings.SystemType != "nox" {
 
-	//panic(r)
+		//panic(r)
 
-	b := make([]byte, 8192)
-	i := runtime.Stack(b, false)
-	// Stack trace
-	stackstr := string(b[0:i])
-	slotid := ProducerMain.GetContext()
+		b := make([]byte, 8192)
+		i := runtime.Stack(b, false)
+		// Stack trace
+		stackstr := string(b[0:i])
+		slotid := ProducerMain.GetContext()
 
-	fmt.Println(stackstr)
+		fmt.Println(stackstr)
 
-	ent := ProducerMain.GetInterpreter(slotid)
-	for ent.GetChild() != nil {
-		ent = ent.GetChild()
-	}
+		ent := ProducerMain.GetInterpreter(slotid)
+		for ent.GetChild() != nil {
+			ent = ent.GetChild()
+		}
 
-	// Construct record
-	bug := filerecord.BugReport{}
-	bug.Summary = "System crashed"
-	bug.Body = `
+		// Construct record
+		bug := filerecord.BugReport{}
+		bug.Summary = "System crashed"
+		bug.Body = `
 System crash  occurred in Slot#` + utils.IntToStr(slotid) + `
 ` + fmt.Sprintf("%v", r) + `
 
 Stack trace:
 ` + stackstr + `
     `
-	// Add compressed stuff
-	att := filerecord.BugAttachment{}
-	att.Name = "Compressed Runstate"
-	att.Created = time.Now()
-	tmp, _ := ent.FreezeBytes()
-	att.Content = utils.GZIPBytes(tmp)
-	bug.Attachments = []filerecord.BugAttachment{att}
-	bug.Comments = []filerecord.BugComment{
-		filerecord.BugComment{
-			User:    "system",
-			Content: "Logged automatically by runtime system.",
-			Created: time.Now(),
-		},
+		// Add compressed stuff
+		att := filerecord.BugAttachment{}
+		att.Name = "Compressed Runstate"
+		att.Created = time.Now()
+		tmp, _ := ent.FreezeBytes()
+		att.Content = utils.GZIPBytes(tmp)
+		bug.Attachments = []filerecord.BugAttachment{att}
+		bug.Comments = []filerecord.BugComment{
+			filerecord.BugComment{
+				User:    "system",
+				Content: "Logged automatically by runtime system.",
+				Created: time.Now(),
+			},
+		}
+		bug.Creator = s8webclient.CONN.Username
+		bug.Filename = ent.GetFileRecord().FileName
+		bug.Filepath = ent.GetFileRecord().FilePath
+		bug.Created = time.Now()
+
+		if bug.Filename != "" {
+			bug.Summary = "Program crash: " + bug.Filepath + "/" + bug.Filename
+		}
+
+		//fmt.Println(bug.Body)
+
+		_ = s8webclient.CONN.CreateUpdateBug(bug)
+
 	}
-	bug.Creator = s8webclient.CONN.Username
-	bug.Filename = ent.GetFileRecord().FileName
-	bug.Filepath = ent.GetFileRecord().FilePath
-	bug.Created = time.Now()
-
-	if bug.Filename != "" {
-		bug.Summary = "Program crash: " + bug.Filepath + "/" + bug.Filename
-	}
-
-	//fmt.Println(bug.Body)
-
-	_ = s8webclient.CONN.CreateUpdateBug(bug)
-
-}
 
 	REBOOT_NEEDED = true
 }

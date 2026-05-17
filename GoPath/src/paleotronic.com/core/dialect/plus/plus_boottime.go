@@ -12,7 +12,9 @@ type PlusBootTime struct {
 
 func (this *PlusBootTime) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	c := int(this.Interpreter.GetStartTime().Unix())
 
@@ -39,7 +41,7 @@ func (this *PlusBootTime) FunctionParams() []types.TokenType {
 	var result []types.TokenType
 
 	result = make([]types.TokenType, 0)
-//	result = append(result, types.NUMBER)
+	//	result = append(result, types.NUMBER)
 
 	/* enforce non void return */
 	return result

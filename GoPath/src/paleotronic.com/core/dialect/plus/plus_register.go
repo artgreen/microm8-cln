@@ -1,14 +1,17 @@
 package plus
 
 import (
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
-	"paleotronic.com/core/types"
-	"paleotronic.com/utils"
-	"paleotronic.com/files"
 	"paleotronic.com/core/exception"
+	"paleotronic.com/core/types"
+	"paleotronic.com/files"
+	"paleotronic.com/utils"
+
 	//"paleotronic.com/core/hardware/apple2helpers"
-	"paleotronic.com/api"
+
 	"strings"
+
 	"paleotronic.com/fmt"
 )
 
@@ -18,7 +21,9 @@ type PlusAuthRegister struct {
 
 func (this *PlusAuthRegister) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if params.Size() < 9 {
 		return exception.NewESyntaxError("REGISTER expects USER, PASSWORD, NAME, GENDER, AGE, CELL, LOCATION, ERROR TRAP, RESPONSE")
@@ -31,18 +36,18 @@ func (this *PlusAuthRegister) FunctionExecute(params *types.TokenList) error {
 	u := strings.ToLower(params.Shift().Content)
 	p := strings.ToLower(params.Shift().Content)
 	f := strings.ToLower(params.Shift().Content)
-    g := strings.ToLower(params.Shift().Content)
-    b := strings.ToLower(params.Shift().Content)
-    c := strings.ToLower(params.Shift().Content)
-    location := strings.ToLower(params.Shift().Content)
-    
+	g := strings.ToLower(params.Shift().Content)
+	b := strings.ToLower(params.Shift().Content)
+	c := strings.ToLower(params.Shift().Content)
+	location := strings.ToLower(params.Shift().Content)
+
 	l := params.Shift().AsInteger()
 	sv := strings.ToLower(params.Shift().Content)
 
 	var err error
 	s := s8webclient.CONN
 	err = s.Register(u, p, f, g, b, c, location)
-	
+
 	fmt.Println("Register error result:", err)
 
 	// Setup sesstion var
@@ -68,9 +73,9 @@ func (this *PlusAuthRegister) FunctionExecute(params *types.TokenList) error {
 			return err
 		}
 	} else {
-		
+
 		fmt.Println("Continuing...")
-		
+
 		// Setup sesstion var
 		list := *types.NewTokenList()
 		list.Add(types.NewToken(types.VARIABLE, sv))

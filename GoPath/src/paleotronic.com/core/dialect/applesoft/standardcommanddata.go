@@ -1,10 +1,11 @@
 package applesoft
 
 import (
+	"strings"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"strings"
 )
 
 type StandardCommandDATA struct {

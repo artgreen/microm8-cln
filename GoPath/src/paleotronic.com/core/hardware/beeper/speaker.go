@@ -1,35 +1,37 @@
 package beeper
 
 import (
-	"runtime"
-	"time"
-	"sync"
 	"math"
+	"runtime"
+	"sync"
+	"time"
+
 	"paleotronic.com/log"
 	"paleotronic.com/restalgia/driver"
-//	"github.com/go-gl/glfw/v3.1/glfw"
+
+	//	"github.com/go-gl/glfw/v3.1/glfw"
 	//"os"
 	clock "time"
 )
 
 type Speaker struct {
-	Stream  driver.Output
-	counter float64
-	level float32
-	idleCycles int
-	BUFFER_SIZE int
-	MIN_PLAYBACK_BUFFER int
-	TICKS_PER_SAMPLE float64
+	Stream                 driver.Output
+	counter                float64
+	level                  float32
+	idleCycles             int
+	BUFFER_SIZE            int
+	MIN_PLAYBACK_BUFFER    int
+	TICKS_PER_SAMPLE       float64
 	TICKS_PER_SAMPLE_FLOOR float64
-	volume float32
-	SampleRate float64
-	speakerBit bool
-	primaryBuffer []float32
-	secondaryBuffer []float32
-	bufferPos int
-	bufferMutex sync.Mutex
-	playbackTimer *time.Ticker
-	running bool
+	volume                 float32
+	SampleRate             float64
+	speakerBit             bool
+	primaryBuffer          []float32
+	secondaryBuffer        []float32
+	bufferPos              int
+	bufferMutex            sync.Mutex
+	playbackTimer          *time.Ticker
+	running                bool
 }
 
 func NewSpeaker() *Speaker {
@@ -43,7 +45,7 @@ func NewSpeaker() *Speaker {
 	}
 
 	this.SampleRate = driver.SampleRate // actual audio rate
-	this.BUFFER_SIZE = int( 0.4 * this.SampleRate )
+	this.BUFFER_SIZE = int(0.4 * this.SampleRate)
 	this.MIN_PLAYBACK_BUFFER = 64
 
 	this.TICKS_PER_SAMPLE = 1000000 / this.SampleRate
@@ -51,7 +53,7 @@ func NewSpeaker() *Speaker {
 
 	this.Reconfigure()
 
-	log.Printf( "*** Created speaker (rate=%f, buffer=%d, ticks=%f)\n", this.SampleRate, this.BUFFER_SIZE, this.TICKS_PER_SAMPLE )
+	log.Printf("*** Created speaker (rate=%f, buffer=%d, ticks=%f)\n", this.SampleRate, this.BUFFER_SIZE, this.TICKS_PER_SAMPLE)
 
 	//os.Exit(0)
 
@@ -74,18 +76,17 @@ func (this *Speaker) Resume() {
 		return
 	}
 	this.running = true
-	this.playbackTimer = time.NewTicker( 208*time.Millisecond )
-
+	this.playbackTimer = time.NewTicker(208 * time.Millisecond)
 
 	go func() {
 		for this.running {
 			select {
-				case <- this.playbackTimer.C:
-					this.PlayCurrentBuffer()
+			case <-this.playbackTimer.C:
+				this.PlayCurrentBuffer()
 			}
-//			if this.bufferPos > 4096 {
-//				this.PlayCurrentBuffer()
-//			}
+			//			if this.bufferPos > 4096 {
+			//				this.PlayCurrentBuffer()
+			//			}
 		}
 	}()
 
@@ -118,7 +119,7 @@ func (this *Speaker) PlayCurrentBuffer() {
 	this.bufferMutex.Unlock()
 
 	this.secondaryBuffer = buffer
-	this.Stream.Push( buffer[0:length] )
+	this.Stream.Push(buffer[0:length])
 
 	log.Printf("---> Wrote %d samples\n", length)
 }
@@ -143,19 +144,18 @@ func (this *Speaker) Tick() {
 		}
 
 		for this.bufferPos >= len(this.primaryBuffer) {
-			time.Sleep(1*time.Microsecond)
+			time.Sleep(1 * time.Microsecond)
 		}
 
 		this.bufferMutex.Lock()
 
-			index := this.bufferPos
-			this.primaryBuffer[index] = sample
-			this.primaryBuffer[index+1] = sample
+		index := this.bufferPos
+		this.primaryBuffer[index] = sample
+		this.primaryBuffer[index+1] = sample
 
-			this.bufferPos += 2
+		this.bufferPos += 2
 
 		this.bufferMutex.Unlock()
-
 
 		this.level = 0
 		this.counter -= this.TICKS_PER_SAMPLE_FLOOR

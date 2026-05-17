@@ -29,7 +29,7 @@ type VarManager interface {
 	GetDriver() VarDriver
 	Clear()
 	CleanStrings() int
-	SetLoBound( address int )
-	SetHiBound( address int )
-    GetFree() int
+	SetLoBound(address int)
+	SetHiBound(address int)
+	GetFree() int
 }

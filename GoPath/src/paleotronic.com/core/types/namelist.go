@@ -12,9 +12,9 @@ func (this NameList) ContainsKey(s string) bool {
 }
 
 func (this NameList) Push(s string) {
-		this[s] = 1
+	this[s] = 1
 }
 
 func (this NameList) Clear() {
-	this = make(NameList);
+	this = make(NameList)
 }

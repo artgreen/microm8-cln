@@ -26,18 +26,19 @@ read_allowlist() {
 VET_PKGS="$(read_allowlist "$REPO_ROOT/.ci/vet-allowlist.txt")"
 
 run_fmt() {
-    echo "==> gofmt -l (non-gating until Phase 2)"
+    echo "==> gofmt -l"
     cd "$MODULE_DIR"
     local unformatted
-    unformatted="$(gofmt -l . | grep -v '^vendor/' || true)"
+    unformatted="$(gofmt -l . || true)"
     if [ -z "$unformatted" ]; then
         echo "All files formatted."
         return 0
     fi
     local count
     count=$(echo "$unformatted" | wc -l | tr -d ' ')
-    echo "WARN: $count files unformatted (gofmt -w . to fix; will gate after Phase 2)"
-    return 0
+    echo "FAIL: $count files unformatted. Run 'gofmt -w .' to fix:" >&2
+    echo "$unformatted" >&2
+    return 1
 }
 
 run_vet() {

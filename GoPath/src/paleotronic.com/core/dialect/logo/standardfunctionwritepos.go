@@ -2,15 +2,16 @@ package logo
 
 import (
 	//	"strings"
-//	"time"
+	//	"time"
 
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-//	"paleotronic.com/core/interfaces"
-//	"paleotronic.com/core/hardware/apple2helpers"
-//	"paleotronic.com/runestring"
-	"paleotronic.com/utils"
+
+	//	"paleotronic.com/core/interfaces"
+	//	"paleotronic.com/core/hardware/apple2helpers"
+	//	"paleotronic.com/runestring"
 	"paleotronic.com/files"
+	"paleotronic.com/utils"
 )
 
 type StandardFunctionWRITEPOS struct {
@@ -49,9 +50,9 @@ func (this *StandardFunctionWRITEPOS) FunctionExecute(params *types.TokenList) e
 		return e
 	}
 
-	p, e := files.DOSWRITEPOS( files.GetPath(files.Writer), files.GetFilename(files.Writer) )
+	p, e := files.DOSWRITEPOS(files.GetPath(files.Writer), files.GetFilename(files.Writer))
 
-	this.Stack.Push( types.NewToken( types.NUMBER, utils.FormatFloat("", float64(p)) ) )
+	this.Stack.Push(types.NewToken(types.NUMBER, utils.FormatFloat("", float64(p))))
 
 	return e
 }

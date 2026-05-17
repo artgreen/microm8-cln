@@ -15,7 +15,9 @@ func (this *StandardFunctionTAB) FunctionExecute(params *types.TokenList) error 
 	/* vars */
 	var value int
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().AsInteger()
 

@@ -1,10 +1,11 @@
 package applesoft
 
 import (
+	"strconv"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 	"paleotronic.com/utils"
-	"strconv"
 )
 
 type StandardFunctionVAL struct {
@@ -18,7 +19,9 @@ func (this *StandardFunctionVAL) FunctionExecute(params *types.TokenList) error 
 	var e float64
 	//var code int
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().Content
 
@@ -31,7 +34,7 @@ func (this *StandardFunctionVAL) FunctionExecute(params *types.TokenList) error 
 	//	e = 0
 	//}
 
-    value = utils.NumberPart(value)
+	value = utils.NumberPart(value)
 
 	e, err := strconv.ParseFloat(value, 32)
 	if err != nil {

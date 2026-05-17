@@ -2,15 +2,15 @@ package vduproto
 
 import (
 	"bytes"
-	"paleotronic.com/fmt"
 	"testing"
 
+	"paleotronic.com/fmt"
 	//"paleotronic.com/core/types"
 )
 
 func TestStreamPackUnpack(t *testing.T) {
 
-	s := []byte{0,0,0,0,0,0,0,0}
+	s := []byte{0, 0, 0, 0, 0, 0, 0, 0}
 
 	var b StreamPack
 	b.AddSlice(s)
@@ -39,7 +39,7 @@ func TestStreamPackUnpackUint(t *testing.T) {
 		0x00000022,
 	}
 
-	data :=PackSliceUints(s)
+	data := PackSliceUints(s)
 
 	fmt.Println(data)
 	fmt.Println(len(data))

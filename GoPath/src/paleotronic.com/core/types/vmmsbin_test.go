@@ -1,4 +1,5 @@
 package types
+
 /*
 import (
 	   "paleotronic.com/fmt"

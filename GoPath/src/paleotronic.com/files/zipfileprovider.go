@@ -4,7 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"errors"
-	"io/ioutil"
+	"io"
 	"regexp"
 	"strings"
 	"time"
@@ -107,7 +107,7 @@ func (z *ZipFileProvider) readFiles() error {
 		if err != nil {
 			return err
 		}
-		data, err := ioutil.ReadAll(rc)
+		data, err := io.ReadAll(rc)
 		if err != nil {
 			return err
 		}

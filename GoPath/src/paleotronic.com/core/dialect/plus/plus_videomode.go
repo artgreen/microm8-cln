@@ -12,7 +12,9 @@ type PlusVideoMode struct {
 
 func (this *PlusVideoMode) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(1)))
 
@@ -52,8 +54,8 @@ func NewPlusVideoMode(a int, b int, params types.TokenList) *PlusVideoMode {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "VIDEOMODE"
 
-	this.NamedParams = []string{ "mode" }
-	this.NamedDefaults = []types.Token{ *types.NewToken(types.INTEGER, "0") }
+	this.NamedParams = []string{"mode"}
+	this.NamedDefaults = []types.Token{*types.NewToken(types.INTEGER, "0")}
 	this.Raw = true
 
 	return this

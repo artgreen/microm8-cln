@@ -1,4 +1,6 @@
+//go:build !windows
 // +build !windows
+
 // go:build !windows
 
 package spooler
@@ -8,7 +10,7 @@ import (
 	"os/exec"
 )
 
-type cupsSpooler struct {}
+type cupsSpooler struct{}
 
 func (cs *cupsSpooler) SpoolPDF(filename string) error {
 	log.Printf("PDFSpooler: attempting to spool output %s", filename)

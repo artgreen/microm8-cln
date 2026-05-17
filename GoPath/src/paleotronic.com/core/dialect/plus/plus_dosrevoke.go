@@ -1,10 +1,10 @@
 package plus
 
 import (
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-	"paleotronic.com/api"
-	)
+)
 
 type PlusRevoke struct {
 	dialect.CoreFunction
@@ -12,7 +12,9 @@ type PlusRevoke struct {
 
 func (this *PlusRevoke) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 
@@ -21,18 +23,18 @@ func (this *PlusRevoke) FunctionExecute(params *types.TokenList) error {
 		group := this.ValueMap["group"].Content
 
 		if mode == "read" {
-			e := s8webclient.CONN.RevokeReadGroup( user, group )
+			e := s8webclient.CONN.RevokeReadGroup(user, group)
 			if e != nil {
-				this.Interpreter.PutStr( e.Error() )
+				this.Interpreter.PutStr(e.Error())
 			} else {
-				this.Interpreter.PutStr( "Ok" )
+				this.Interpreter.PutStr("Ok")
 			}
 		} else if mode == "write" {
-			e := s8webclient.CONN.RevokeWriteGroup( user, group )
+			e := s8webclient.CONN.RevokeWriteGroup(user, group)
 			if e != nil {
-				this.Interpreter.PutStr( e.Error() )
+				this.Interpreter.PutStr(e.Error())
 			} else {
-				this.Interpreter.PutStr( "Ok" )
+				this.Interpreter.PutStr("Ok")
 			}
 		}
 

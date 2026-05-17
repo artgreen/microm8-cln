@@ -12,7 +12,9 @@ type PlusMetaData struct {
 
 func (this *PlusMetaData) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	name := this.Stack.Shift().Content
 	fr := this.Interpreter.GetFileRecord()

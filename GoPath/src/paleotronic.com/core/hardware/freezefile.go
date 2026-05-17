@@ -1,7 +1,6 @@
 package hardware
 
 type FreezeFile struct {
-
 }
 
 type BlockID byte

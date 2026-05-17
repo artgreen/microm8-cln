@@ -1,9 +1,9 @@
 package spectrum
 
 import (
-	"paleotronic.com/z80"
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
+	"paleotronic.com/z80"
 )
 
 type ZXPorts48K struct {

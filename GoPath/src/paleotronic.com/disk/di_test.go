@@ -3,8 +3,9 @@ package disk
 import (
 	//"strings"
 	"testing"
+
+	"paleotronic.com/fmt"
 )
-import "paleotronic.com/fmt"
 
 //import "os"
 

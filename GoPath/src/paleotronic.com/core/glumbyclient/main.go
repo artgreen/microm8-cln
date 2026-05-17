@@ -10,9 +10,9 @@ import (
 	"paleotronic.com/core/types"
 	"paleotronic.com/core/vduconst"
 	"paleotronic.com/core/vduproto"
-	"paleotronic.com/utils"
 	"paleotronic.com/glumby"
 	"paleotronic.com/log"
+	"paleotronic.com/utils"
 )
 
 var (

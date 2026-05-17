@@ -12,7 +12,9 @@ type PlusAudioPause struct {
 
 func (this *PlusAudioPause) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	r := this.Interpreter.GetMemoryMap()
 	SendSongPause(this.Interpreter, r)

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"paleotronic.com/fmt"
 	"os"
 	"sort"
+
+	"paleotronic.com/fmt"
 )
 
 type DuplicateSource struct {

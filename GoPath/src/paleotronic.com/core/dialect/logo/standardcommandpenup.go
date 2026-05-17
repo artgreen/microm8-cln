@@ -30,7 +30,7 @@ func (this *StandardCommandPENUP) Execute(env *interfaces.Producable, caller int
 	//    }
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).SetPenUp()
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).SetPenUp()
 	if apple2helpers.IsVectorLayerEnabled(caller) == false {
 		apple2helpers.HTab(caller, 1)
 		apple2helpers.VTab(caller, 21)

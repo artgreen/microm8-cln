@@ -7,7 +7,7 @@ import (
 
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-//	"paleotronic.com/utils"
+	// "paleotronic.com/utils"
 )
 
 type StandardFunctionCHAR struct {

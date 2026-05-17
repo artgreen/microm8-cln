@@ -58,7 +58,9 @@ func (this *StandardFunctionMIDDollar) FunctionExecute(params *types.TokenList) 
 
 	c = -1
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if this.Stack.Size() == 3 {
 		c = this.Stack.Pop().AsInteger()

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"regexp"
 	"strings"
 
@@ -96,7 +95,7 @@ func (pm *Lexer) LoadString(s string) error {
 
 func (pm *Lexer) Load(r io.Reader) error {
 
-	raw, err := ioutil.ReadAll(r)
+	raw, err := io.ReadAll(r)
 	if err != nil {
 		return err
 	}

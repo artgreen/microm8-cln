@@ -4,12 +4,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	fmt2 "fmt"
-	"io/ioutil"
 	"os"
-	"paleotronic.com/core/types"
 	"strings"
 	"sync"
 	"time"
+
+	"paleotronic.com/core/types"
 
 	"paleotronic.com/core/hardware/cpu"
 	"paleotronic.com/core/hardware/servicebus"
@@ -614,7 +614,7 @@ func (this *Core6502) ExecTillHalted() cpu.FEResponse {
 			ndata, e := json.Marshal(this.HeatMap)
 			////fmt.Println(string(ndata))
 			if e == nil {
-				e = ioutil.WriteFile("romheatmap.json", ndata, 0755)
+				e = os.WriteFile("romheatmap.json", ndata, 0755)
 			}
 		}
 	}()

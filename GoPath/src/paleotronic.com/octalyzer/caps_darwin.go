@@ -1,8 +1,7 @@
+//go:build darwin
 // +build darwin
 
 package main
-
-import ()
 
 func CapsPressed() bool {
 

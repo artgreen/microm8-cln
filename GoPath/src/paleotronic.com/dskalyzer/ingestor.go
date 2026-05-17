@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/hex"
-	"paleotronic.com/fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -10,6 +9,8 @@ import (
 	"runtime/debug"
 	"sync"
 	"time"
+
+	"paleotronic.com/fmt"
 
 	"strings"
 

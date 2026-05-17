@@ -1,8 +1,10 @@
 package files
 
 import (
-	"paleotronic.com/fmt"
 	"testing"
+
+	"paleotronic.com/fmt"
+
 	//    "paleotronic.com/fmt"
 	"os"
 

@@ -1,10 +1,11 @@
 package main
 
 import (
+	"time"
+
 	"paleotronic.com/core/vduproto"
 	"paleotronic.com/log"
-	"paleotronic.com/postoffice/client"
-	"time"
+	mqclient "paleotronic.com/postoffice/client"
 )
 
 type VDUClient struct {

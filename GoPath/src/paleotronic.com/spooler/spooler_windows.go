@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-type winSpooler struct {}
+type winSpooler struct{}
 
 var psPrintCommand = `Start-Process -FilePath "[filename]" -Verb Print -PassThru | %{sleep 10;$_} | kill`
 
@@ -24,23 +24,23 @@ func (ws *winSpooler) SpoolPDF(filename string) error {
 	// 	return err
 	// }
 	// defer os.Remove(tmp.Name()) // clean-up when done
- //
- //
+	//
+	//
 	// f, err := os.OpenFile(tmp.Name(), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	// if err != nil {
 	// 	return err
 	// }
- //
+	//
 	// _, err = f.WriteString(strings.ReplaceAll(psPrintCommand, "[filename]", filename))
 	// if err != nil {
 	// 	return err
 	// }
- //
+	//
 	// err = f.Close()
 	// if err != nil {
 	// log.Fatal(err)
 	// }
- //
+	//
 	// out, err := exec.Command("Powershell", "-file" , tmp.Name()).Output()
 	// if err != nil {
 	// 	return err

@@ -3,10 +3,9 @@ package files
 import (
 	"strings"
 
-	"paleotronic.com/api"
-
 	"os"
 
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/log"
 
 	"errors"

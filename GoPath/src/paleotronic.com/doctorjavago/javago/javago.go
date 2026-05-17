@@ -5,7 +5,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"regexp"
@@ -499,7 +498,7 @@ func loadPatterns() {
 	// A YAML file containing the following structure
 	// Replacement:
 
-	data, err := ioutil.ReadFile(patternFile)
+	data, err := os.ReadFile(patternFile)
 	if err != nil {
 		panic(err)
 	}

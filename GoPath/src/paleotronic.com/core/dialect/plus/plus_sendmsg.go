@@ -11,20 +11,22 @@ type PlusSendMsg struct {
 
 func (this *PlusSendMsg) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	//~ if !this.Query {
-		//~ msg := this.ValueMap["message"].Content
+	//~ msg := this.ValueMap["message"].Content
 
-		//~ if msg != "" {
-			//~ if rune(msg[0]) == '/' {
-				//~ this.Interpreter.SendRemIntMessage("SCM", []byte(msg[1:]), true)
-			//~ } else if rune(msg[0]) == '@' {
-				//~ this.Interpreter.SendRemIntMessage("CAM", []byte(msg[1:]), true)
-			//~ } else {
-				//~ this.Interpreter.SendChatMessage(msg)
-			//~ }
-		//~ }
+	//~ if msg != "" {
+	//~ if rune(msg[0]) == '/' {
+	//~ this.Interpreter.SendRemIntMessage("SCM", []byte(msg[1:]), true)
+	//~ } else if rune(msg[0]) == '@' {
+	//~ this.Interpreter.SendRemIntMessage("CAM", []byte(msg[1:]), true)
+	//~ } else {
+	//~ this.Interpreter.SendChatMessage(msg)
+	//~ }
+	//~ }
 
 	//~ }
 
@@ -66,8 +68,8 @@ func NewPlusSendMsg(a int, b int, params types.TokenList) *PlusSendMsg {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "SENDMESSAGE"
 
-	this.NamedParams = []string{ "message" }
-	this.NamedDefaults = []types.Token{ *types.NewToken( types.STRING, "" ) }
+	this.NamedParams = []string{"message"}
+	this.NamedDefaults = []types.Token{*types.NewToken(types.STRING, "")}
 	this.Raw = true
 
 	return this

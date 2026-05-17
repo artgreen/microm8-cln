@@ -2,12 +2,14 @@ package apple2
 
 import (
 	"image"
+	"time"
+
 	"paleotronic.com/core/hardware/servicebus"
 	"paleotronic.com/core/memory"
 	"paleotronic.com/core/settings"
-	"time"
 
 	"fmt"
+
 	"paleotronic.com/core/types"
 
 	yaml "gopkg.in/yaml.v2"

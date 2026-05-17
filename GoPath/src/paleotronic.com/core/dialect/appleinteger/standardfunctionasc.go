@@ -15,7 +15,9 @@ func (this *StandardFunctionASC) FunctionExecute(params *types.TokenList) error 
 	/* vars */
 	var value string
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().Content
 
@@ -28,7 +30,7 @@ func (this *StandardFunctionASC) FunctionExecute(params *types.TokenList) error 
 		this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(0)))
 	}
 
-    return nil
+	return nil
 }
 
 func (this *StandardFunctionASC) Syntax() string {

@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
@@ -89,7 +88,7 @@ func CheckVersion() string {
 		//fmt.Printf("%s", err)
 	} else {
 		defer response.Body.Close()
-		contents, err := ioutil.ReadAll(response.Body)
+		contents, err := io.ReadAll(response.Body)
 		if err != nil {
 			//fmt.Printf("%s", err)
 		}
@@ -111,7 +110,7 @@ func GetChecksum() string {
 		//fmt.Printf("%s", err)
 	} else {
 		defer response.Body.Close()
-		contents, err := ioutil.ReadAll(response.Body)
+		contents, err := io.ReadAll(response.Body)
 		if err != nil {
 			//fmt.Printf("%s", err)
 		}
@@ -137,7 +136,7 @@ func DownloadVersion(txt *types.TextBuffer) (string, error) {
 
 	//timeout := time.Duration(60 * time.Second)
 	client := http.Client{
-	//Timeout: timeout,
+		//Timeout: timeout,
 	}
 
 	response, err := client.Get(APP_DOWNLOAD_URL)
@@ -250,7 +249,7 @@ func DownloadVersion(txt *types.TextBuffer) (string, error) {
 		txt.GotoXY(0, 14)
 		txt.FGColor = 15
 		txt.PutStr("Verifying checksum... ")
-		chunk, _ := ioutil.ReadFile(appDownloadTempfile)
+		chunk, _ := os.ReadFile(appDownloadTempfile)
 		tmp := sha256.Sum256(chunk)
 		cksum := hex.EncodeToString(tmp[:])
 

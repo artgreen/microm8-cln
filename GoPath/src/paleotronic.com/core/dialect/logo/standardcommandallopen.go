@@ -32,7 +32,7 @@ func (this *StandardCommandALLOPEN) Execute(env *interfaces.Producable, caller i
 	result = 0
 
 	for i, v := range files.DOSBUFFERS() {
-		caller.PutStr( fmt.Sprintf("%d %s\r\n", i+1, v) )
+		caller.PutStr(fmt.Sprintf("%d %s\r\n", i+1, v))
 	}
 
 	/* enforce non void return */

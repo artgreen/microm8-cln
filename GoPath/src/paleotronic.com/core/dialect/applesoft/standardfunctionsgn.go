@@ -40,7 +40,9 @@ func (this *StandardFunctionSGN) FunctionExecute(params *types.TokenList) error 
 	var value float64
 	var r int
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().AsExtended()
 

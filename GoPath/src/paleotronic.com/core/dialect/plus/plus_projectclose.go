@@ -14,7 +14,9 @@ type PlusProjectClose struct {
 
 func (this *PlusProjectClose) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 		files.SetProject("")
@@ -59,8 +61,8 @@ func NewPlusProjectClose(a int, b int, params types.TokenList) *PlusProjectClose
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "PROJECT.USE"
 
-	this.NamedParams = []string{ "name" }
-	this.NamedDefaults = []types.Token{ *types.NewToken( types.STRING, "" ) }
+	this.NamedParams = []string{"name"}
+	this.NamedDefaults = []types.Token{*types.NewToken(types.STRING, "")}
 	this.Raw = true
 
 	return this

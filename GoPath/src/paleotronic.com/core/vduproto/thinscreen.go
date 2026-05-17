@@ -6,8 +6,8 @@ import (
 	"errors"
 	"sync"
 
-	"paleotronic.com/log"
 	"paleotronic.com/core/types"
+	"paleotronic.com/log"
 )
 
 type ThinScreenEventType int
@@ -37,7 +37,7 @@ const (
 	CamRotate     ThinScreenEventType = 100 + iota
 	CamOrbit      ThinScreenEventType = 100 + iota
 	ToggleControl ThinScreenEventType = 100 + iota
-	TextPut		  ThinScreenEventType = 100 + iota
+	TextPut       ThinScreenEventType = 100 + iota
 	TextClear     ThinScreenEventType = 100 + iota
 )
 
@@ -186,19 +186,19 @@ func (this *ThinScreenEventBuffer) TextCell(x, y, w, h int, data []int) {
 	this.Add(ThinScreenEvent{X0: x, Y0: y, W: w, H: h, Data: data, ID: TextCell})
 }
 
-func (this *ThinScreenEventBuffer) TextPut( layer, x, y int, ch rune, fg, bg int, attr types.VideoAttribute, w, h int ) {
-	this.Add( ThinScreenEvent{
+func (this *ThinScreenEventBuffer) TextPut(layer, x, y int, ch rune, fg, bg int, attr types.VideoAttribute, w, h int) {
+	this.Add(ThinScreenEvent{
 		ID: TextPut,
 		X0: x,
 		Y0: y,
 		Z0: layer,
-		C: int(ch),
+		C:  int(ch),
 		X1: fg,
 		Y1: bg,
 		Z1: int(attr),
-		W: w,
-		H: h,
-	} )
+		W:  w,
+		H:  h,
+	})
 }
 
 func (this *ThinScreenEventBuffer) ScanLine(y int, data []int) {
@@ -213,16 +213,16 @@ func (this *ThinScreenEvent) MarshalBinary() ([]byte, error) {
 	switch this.ID {
 	case TextPut:
 		s := []byte{
-						byte(this.ID),
-						byte(this.X0),
-						byte(this.Y0),
-						byte(this.Z0),
-						byte(this.X1),
-						byte(this.Y1),
-						byte(this.Z1),
-						byte(this.C),
-						byte(this.W),
-						byte(this.H),
+			byte(this.ID),
+			byte(this.X0),
+			byte(this.Y0),
+			byte(this.Z0),
+			byte(this.X1),
+			byte(this.Y1),
+			byte(this.Z1),
+			byte(this.C),
+			byte(this.W),
+			byte(this.H),
 		}
 		return s, nil
 	case ToggleControl:
@@ -308,9 +308,9 @@ func (this *ThinScreenEvent) UnmarshalBinary(data []byte) error {
 		this.X1 = int(data[4])
 		this.Y1 = int(data[5])
 		this.Z1 = int(data[6])
-		this.C  = int(data[7])
-		this.W  = int(data[8])
-		this.H  = int(data[9])
+		this.C = int(data[7])
+		this.W = int(data[8])
+		this.H = int(data[9])
 		return nil
 	case ToggleControl:
 		this.ID = ToggleControl

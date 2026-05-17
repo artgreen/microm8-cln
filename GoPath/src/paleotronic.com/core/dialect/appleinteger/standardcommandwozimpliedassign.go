@@ -1,8 +1,9 @@
 package appleinteger
 
 import (
-	"paleotronic.com/fmt"
 	"strings"
+
+	"paleotronic.com/fmt"
 
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"

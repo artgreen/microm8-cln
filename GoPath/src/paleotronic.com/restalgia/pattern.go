@@ -1,7 +1,5 @@
 package restalgia
 
-import ()
-
 type Pattern struct {
 	Name   string
 	Tracks []*Track

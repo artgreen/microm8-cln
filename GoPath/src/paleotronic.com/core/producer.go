@@ -3,7 +3,7 @@ package core
 import (
 	"bytes"
 	"errors"
-	"io/ioutil"
+	"io"
 	"os"
 	"runtime"
 	"sort"
@@ -980,7 +980,7 @@ func (this *Producer) CheckSystemCompat(slotid int, filename string) bool {
 	var inlineLoad = func() error {
 		if strings.HasPrefix(filename, "local:") {
 			filename = filename[6:]
-			data, err = ioutil.ReadFile(filename)
+			data, err = os.ReadFile(filename)
 			if err != nil {
 				return err
 			}
@@ -1129,7 +1129,7 @@ func (this *Producer) IsReconfigureNeeded(slotid int, filename string, profile s
 	var inlineLoad = func() error {
 		if strings.HasPrefix(filename, "local:") {
 			filename = filename[6:]
-			data, err = ioutil.ReadFile(filename)
+			data, err = os.ReadFile(filename)
 			if err != nil {
 				return err
 			}
@@ -1418,7 +1418,7 @@ func (this *Producer) ExecutorInitApple2(slotid int) {
 					f, e := os.Open(strings.Replace(settings.PureBootSmartVolume[slotid], "local:", "", -1))
 					if e == nil {
 						log.Println("read file ok")
-						data, e := ioutil.ReadAll(f)
+						data, e := io.ReadAll(f)
 						f.Close()
 						if e == nil {
 							log.Println("Injecting service bus")
@@ -1462,7 +1462,7 @@ func (this *Producer) ExecutorInitApple2(slotid int) {
 				if strings.HasPrefix(settings.PureBootVolume[slotid], "local:") {
 					f, e := os.Open(strings.Replace(settings.PureBootVolume[slotid], "local:", "", -1))
 					if e == nil {
-						data, e := ioutil.ReadAll(f)
+						data, e := io.ReadAll(f)
 						f.Close()
 						if e == nil {
 							servicebus.SendServiceBusMessage(
@@ -1494,7 +1494,7 @@ func (this *Producer) ExecutorInitApple2(slotid int) {
 				if strings.HasPrefix(settings.PureBootVolume2[slotid], "local:") {
 					f, e := os.Open(strings.Replace(settings.PureBootVolume2[slotid], "local:", "", -1))
 					if e == nil {
-						data, e := ioutil.ReadAll(f)
+						data, e := io.ReadAll(f)
 						f.Close()
 						if e == nil {
 							servicebus.SendServiceBusMessage(

@@ -2,8 +2,9 @@ package vduproto
 
 import (
 	"errors"
-	"paleotronic.com/fmt"
+
 	"paleotronic.com/core/types"
+	"paleotronic.com/fmt"
 )
 
 type PaddleButtonEvent struct {

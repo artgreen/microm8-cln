@@ -1,7 +1,7 @@
 package z80
 
 // MemoryAccessor is an interface to access memory addressed by the
-// Z80. 
+// Z80.
 // It defines four read/write method for accessing memory, taking
 // into account contention when needed. In systems where memory
 // contention is not an issue ReadByte and WriteByte should simply

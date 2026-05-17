@@ -2,7 +2,7 @@ package debugger
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -52,7 +52,7 @@ func serveFunc(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if os.Getenv("LOCAL_DEBUG_FILES") != "" {
-		data, err = ioutil.ReadFile(file)
+		data, err = os.ReadFile(file)
 	} else {
 		data, err = assets.Asset(file)
 		if err != nil {
@@ -237,7 +237,7 @@ func apiUpload(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Bad load address %s", loadAddrStr)
 		return
 	}
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.Write([]byte("Failed reading body"))
 		w.WriteHeader(http.StatusBadRequest)
@@ -276,7 +276,7 @@ func apiASMUpload(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Bad load address %s", loadAddrStr)
 		return
 	}
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Failed reading body"))

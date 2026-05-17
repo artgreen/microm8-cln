@@ -2,11 +2,12 @@ package applesoft
 
 import (
 	//"paleotronic.com/log"
+	"math"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 	"paleotronic.com/utils"
-	"math"
-    //"paleotronic.com/fmt"
+	//"paleotronic.com/fmt"
 )
 
 type StandardFunctionINT struct {
@@ -43,19 +44,21 @@ func (this *StandardFunctionINT) FunctionExecute(params *types.TokenList) error 
 
 	//log.Println("int() called with", params.Size(), "params...")
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	value = this.Stack.Pop().AsExtended()
 
-    fvalue := math.Floor(value)
-    if fvalue > value {
-       fvalue -= 1
-    }
+	fvalue := math.Floor(value)
+	if fvalue > value {
+		fvalue -= 1
+	}
 
-	if ((value < 0) && (fvalue != value)) {
-	  this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(int(fvalue-1))))
+	if (value < 0) && (fvalue != value) {
+		this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(int(fvalue-1))))
 	} else {
-	  this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(int(fvalue))))
+		this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(int(fvalue))))
 	}
 
 	return nil

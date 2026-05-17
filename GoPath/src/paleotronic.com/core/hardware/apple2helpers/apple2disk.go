@@ -31,12 +31,13 @@ Param List structure: --
 	16	1	PREV DRIVE (from last RWTS call)
 */
 
-import "paleotronic.com/core/hardware/cpu/mos6502"
-import "paleotronic.com/files"
-import "paleotronic.com/disk"
-import "paleotronic.com/core/memory"
-
-import "paleotronic.com/log"
+import (
+	"paleotronic.com/core/hardware/cpu/mos6502"
+	"paleotronic.com/core/memory"
+	"paleotronic.com/disk"
+	"paleotronic.com/files"
+	"paleotronic.com/log"
+)
 
 type RWTSCommand byte
 

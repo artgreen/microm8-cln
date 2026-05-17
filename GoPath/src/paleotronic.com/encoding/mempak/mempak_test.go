@@ -1,7 +1,10 @@
 package mempak
 
-import "testing"
-import "paleotronic.com/fmt"
+import (
+	"testing"
+
+	"paleotronic.com/fmt"
+)
 
 func TestEncodeDecode8x8(t *testing.T) {
 

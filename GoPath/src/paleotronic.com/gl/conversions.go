@@ -4,11 +4,12 @@ package gl
 
 import (
 	"C"
-	"paleotronic.com/fmt"
-	"paleotronic.com/log"
 	"reflect"
 	"strings"
 	"unsafe"
+
+	"paleotronic.com/fmt"
+	"paleotronic.com/log"
 )
 
 // Ptr takes a slice or pointer (to a singular scalar value or the first

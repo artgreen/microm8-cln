@@ -1,7 +1,7 @@
 package applesoft
 
 import (
-//	"paleotronic.com/fmt"
+	//	"paleotronic.com/fmt"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
 	"paleotronic.com/core/interfaces"
@@ -68,7 +68,7 @@ func (this *StandardCommandWAIT) Execute(env *interfaces.Producable, caller inte
 
 	r := 0
 
-	r = int(caller.GetMemory(addr&65535))
+	r = int(caller.GetMemory(addr & 65535))
 
 	////fmt.Printf("Wait() r == %d\n", r)
 

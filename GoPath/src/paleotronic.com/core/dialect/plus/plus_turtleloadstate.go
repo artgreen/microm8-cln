@@ -1,12 +1,13 @@
 package plus
 
 import (
+	"strings"
+
 	"paleotronic.com/core/dialect" //	"strings"
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/types"
 	"paleotronic.com/files"
 	"paleotronic.com/utils"
-	"strings"
 )
 
 type PlusTurtleLoadState struct {

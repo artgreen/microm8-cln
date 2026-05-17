@@ -661,7 +661,6 @@ func (tb *TextBuffer) CursorLeft() {
 	}
 }
 
-//
 func (tb *TextBuffer) ThisLineHeight() int {
 	var v int = 1
 	var xskip int = 1

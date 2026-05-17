@@ -1,10 +1,11 @@
 package plus
 
 import (
+	"strings"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 	"paleotronic.com/files"
-	"strings"
 )
 
 type PlusMkDir struct {
@@ -13,7 +14,9 @@ type PlusMkDir struct {
 
 func (this *PlusMkDir) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 		t := this.ValueMap["path"]
@@ -35,7 +38,7 @@ func (this *PlusMkDir) FunctionExecute(params *types.TokenList) error {
 			if e == nil {
 				this.Interpreter.PutStr("Ok\r\n")
 			} else {
-				this.Interpreter.PutStr(e.Error()+"\r\n")
+				this.Interpreter.PutStr(e.Error() + "\r\n")
 			}
 
 		}
@@ -78,8 +81,8 @@ func NewPlusMkDir(a int, b int, params types.TokenList) *PlusMkDir {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "MKDIR"
 
-	this.NamedParams = []string{ "path" }
-	this.NamedDefaults = []types.Token{ *types.NewToken( types.STRING, "" ) }
+	this.NamedParams = []string{"path"}
+	this.NamedDefaults = []types.Token{*types.NewToken(types.STRING, "")}
 	this.Raw = true
 
 	return this

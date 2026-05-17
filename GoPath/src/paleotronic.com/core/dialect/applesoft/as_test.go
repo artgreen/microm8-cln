@@ -1,10 +1,11 @@
 package applesoft
 
 import (
-	"paleotronic.com/fmt"
 	"testing"
+
+	"paleotronic.com/fmt"
+	"paleotronic.com/runestring"
 )
-import "paleotronic.com/runestring"
 
 func TestPackUnpack(t *testing.T) {
 

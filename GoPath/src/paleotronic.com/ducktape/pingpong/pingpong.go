@@ -2,10 +2,11 @@ package main
 
 import (
 	//"paleotronic.com/fmt"
-	"paleotronic.com/ducktape/client"
-	"paleotronic.com/ducktape/server"
 	"runtime"
 	"time"
+
+	"paleotronic.com/ducktape/client"
+	"paleotronic.com/ducktape/server"
 )
 
 var s *server.DuckTapeServer

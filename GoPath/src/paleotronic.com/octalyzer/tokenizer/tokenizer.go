@@ -2,9 +2,9 @@ package tokenizer
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
-	"log"
 
 	"regexp"
 )
@@ -128,7 +128,7 @@ var ASPartials = map[string]bool{
 	"HCOLOR": true,
 	"SPEED":  true,
 	"SCALE":  true,
-	"-": true,
+	"-":      true,
 }
 
 var ApplesoftReverse map[string]int
@@ -336,7 +336,7 @@ func ApplesoftDetoks(data []byte) []byte {
 		// not enough here
 		return []byte("\r\n")
 	}
-	
+
 	var lastLineNoLen int
 
 	for length > 0 {
@@ -377,7 +377,7 @@ func ApplesoftDetoks(data []byte) []byte {
 
 		var t byte = Read8(&srcptr, &length, data)
 		var lastColon = false
-		
+
 		for t != 0 && length > 0 {
 			// process token
 			if t&0x80 != 0 {
@@ -385,13 +385,13 @@ func ApplesoftDetoks(data []byte) []byte {
 				tokstr, ok := ApplesoftTokens[int(t)]
 				if ok {
 					//~ if t >= 0xc8 && t <= 0xcc {
-						//~ out = append(out, []byte(tokstr)...)
+					//~ out = append(out, []byte(tokstr)...)
 					//~ } else {
-						if firstStatement || lastColon {
-							out = append(out, []byte(tokstr+" ")...)
-						} else {
-							out = append(out, []byte(" "+tokstr+" ")...)
-						}
+					if firstStatement || lastColon {
+						out = append(out, []byte(tokstr+" ")...)
+					} else {
+						out = append(out, []byte(" "+tokstr+" ")...)
+					}
 					//~ }
 					lastColon = false
 				} else {
@@ -415,7 +415,7 @@ func ApplesoftDetoks(data []byte) []byte {
 					if BreakOnColon {
 						lastColon = true
 						out = append(out, []byte("\n")...)
-						for i := 1; i<lastLineNoLen; i++ {
+						for i := 1; i < lastLineNoLen; i++ {
 							out = append(out, []byte(" ")...)
 						}
 					}
@@ -592,7 +592,7 @@ func ApplesoftTokenize(lines []string) []byte {
 	currAddr := start
 
 	buffer := make([]byte, 0)
-	
+
 	joinedLines := []string{}
 	for _, l := range lines {
 		l = strings.Trim(l, " \r\n\t")
@@ -634,7 +634,7 @@ func ApplesoftTokenize(lines []string) []byte {
 		// PROCESS LINE
 		var lastKeyword string
 		var inREM bool
-		
+
 		for _, ch := range rest {
 
 			// case for a single character token, not in string
@@ -749,23 +749,23 @@ func ApplesoftTokenize(lines []string) []byte {
 			linebuffer = append(linebuffer, []byte(chunk)...)
 		}
 
-		 //~ for i := 5; i < len(linebuffer)-1; i++ {
-		 	//~ if linebuffer[i] == 0xc9 {
-				//~ log.Printf("Found 0xC9 (-) in linebuffer...")
-		 		//~ // minus token...
-		 		//~ before := rune(linebuffer[i-1])
-		 		//~ after := rune(linebuffer[i+1])
-		 		//~ log.Printf("Before = %s, After = %s", string(before), string(after))
+		//~ for i := 5; i < len(linebuffer)-1; i++ {
+		//~ if linebuffer[i] == 0xc9 {
+		//~ log.Printf("Found 0xC9 (-) in linebuffer...")
+		//~ // minus token...
+		//~ before := rune(linebuffer[i-1])
+		//~ after := rune(linebuffer[i+1])
+		//~ log.Printf("Before = %s, After = %s", string(before), string(after))
 
-		 		//~ if after == '.' || (after >= '0' && after <= '9') {
-		 			//~ // number part
-		 			//~ if before > 128 || before == ',' || before == 0xD0 {
-		 				//~ log.Printf("changing - token at %d to symbol", i)
-		 				//~ linebuffer[i] = byte('-')
-		 			//~ }
-		 		//~ }
-		 	//~ }
-		 //~ }
+		//~ if after == '.' || (after >= '0' && after <= '9') {
+		//~ // number part
+		//~ if before > 128 || before == ',' || before == 0xD0 {
+		//~ log.Printf("changing - token at %d to symbol", i)
+		//~ linebuffer[i] = byte('-')
+		//~ }
+		//~ }
+		//~ }
+		//~ }
 
 		// ENDING ZERO BYTE
 		linebuffer = append(linebuffer, 0x00)

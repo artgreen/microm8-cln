@@ -1,8 +1,9 @@
 package types
 
 import (
-	"paleotronic.com/fmt"
 	"testing"
+
+	"paleotronic.com/fmt"
 
 	"github.com/go-gl/mathgl/mgl64"
 	"paleotronic.com/core/memory"

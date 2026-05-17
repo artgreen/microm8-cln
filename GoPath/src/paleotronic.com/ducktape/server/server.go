@@ -8,13 +8,14 @@ import (
 	"sync"
 	"time"
 
+	"container/list"
+	"net"
+
 	"paleotronic.com/ducktape"
 	"paleotronic.com/ducktape/client"
+	"paleotronic.com/log"
 	"paleotronic.com/panic"
 )
-import "container/list"
-import "net"
-import "paleotronic.com/log"
 
 type DuckHandler func(c *ducktape.Client, s *DuckTapeServer, msg *ducktape.DuckTapeBundle) error
 

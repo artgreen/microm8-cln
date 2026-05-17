@@ -1,10 +1,12 @@
 package plus
 
 import (
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-//	"paleotronic.com/runestring"
-     "paleotronic.com/api"
+
+	//	"paleotronic.com/runestring"
+
 	//"paleotronic.com/log"
 	"strings"
 )
@@ -15,11 +17,13 @@ type PlusUserFirstname struct {
 
 func (this *PlusUserFirstname) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
-    fn, _ := s8webclient.CONN.GetUserFirstName()
-    
-    parts := strings.Split(fn, " ")
+	fn, _ := s8webclient.CONN.GetUserFirstName()
+
+	parts := strings.Split(fn, " ")
 
 	this.Stack.Push(types.NewToken(types.STRING, parts[0]))
 
@@ -60,8 +64,7 @@ func NewPlusUserFirstname(a int, b int, params types.TokenList) *PlusUserFirstna
 	this.Name = "USER.FIRSTNAME"
 
 	this.NamedParams = []string{}
-	this.NamedDefaults = []types.Token{
-	}
+	this.NamedDefaults = []types.Token{}
 	this.Raw = true
 
 	return this

@@ -33,7 +33,7 @@ func (this *StandardCommandTAGVISIBLE) Execute(env *interfaces.Producable, calle
 	}
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).SetHideTag(tt.Content, this.hidden)
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).SetHideTag(tt.Content, this.hidden)
 
 	/* enforce non void return */
 	e = apple2helpers.VECTOR(caller).Render()

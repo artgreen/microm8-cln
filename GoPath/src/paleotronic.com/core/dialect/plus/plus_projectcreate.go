@@ -1,10 +1,10 @@
 package plus
 
 import (
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-	"paleotronic.com/api"
-//	"paleotronic.com/files"
+	// "paleotronic.com/files"
 )
 
 //var backdrop string
@@ -15,13 +15,15 @@ type PlusProjectCreate struct {
 
 func (this *PlusProjectCreate) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 		name := this.ValueMap["name"].Content
 
 		if name != "" {
-			e := s8webclient.CONN.CreateProjectDir( name )
+			e := s8webclient.CONN.CreateProjectDir(name)
 			if e != nil {
 				this.Stack.Push(types.NewToken(types.STRING, e.Error()))
 			} else {
@@ -70,8 +72,8 @@ func NewPlusProjectCreate(a int, b int, params types.TokenList) *PlusProjectCrea
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "PROJCREATE"
 
-	this.NamedParams = []string{ "name" }
-	this.NamedDefaults = []types.Token{ *types.NewToken( types.STRING, "" ) }
+	this.NamedParams = []string{"name"}
+	this.NamedDefaults = []types.Token{*types.NewToken(types.STRING, "")}
 	this.Raw = true
 
 	return this

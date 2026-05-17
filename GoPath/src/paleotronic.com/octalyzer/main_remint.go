@@ -1,3 +1,4 @@
+//go:build remint
 // +build remint
 
 package main
@@ -13,7 +14,7 @@ import (
 	"time"
 
 	"github.com/go-gl/mathgl/mgl64"
-	"paleotronic.com/api"
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/hardware/cpu/mos6502"
 	"paleotronic.com/core/memory"
 	"paleotronic.com/core/settings"

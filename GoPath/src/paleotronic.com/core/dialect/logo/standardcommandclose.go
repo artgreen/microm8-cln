@@ -30,13 +30,13 @@ func (this *StandardCommandCLOSE) Execute(env *interfaces.Producable, caller int
 
 	result = 0
 
-	rtok, e := this.Command.D.(*DialectLogo).ParseTokensForResult( caller, tokens )
+	rtok, e := this.Command.D.(*DialectLogo).ParseTokensForResult(caller, tokens)
 	if e != nil {
 		return result, e
 	}
 
 	// try open a files
-	e = files.DOSCLOSE( caller.GetWorkDir(), rtok.Content)
+	e = files.DOSCLOSE(caller.GetWorkDir(), rtok.Content)
 
 	/* enforce non void return */
 	return result, e

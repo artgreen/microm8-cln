@@ -3,8 +3,8 @@ package plus
 import (
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-	"paleotronic.com/utils"
 	"paleotronic.com/fmt"
+	"paleotronic.com/utils"
 )
 
 type PlusRecordSlice struct {
@@ -15,16 +15,20 @@ func (this *PlusRecordSlice) FunctionExecute(params *types.TokenList) error {
 
 	fmt.Println("PLAY")
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	fmt.Println("Params OK")
 
-//	backend.REBOOT_NEEDED = true
+	//	backend.REBOOT_NEEDED = true
 	fn := this.ValueMap["file"].Content
 	newfn := this.ValueMap["outfile"].Content
-	sms := this.ValueMap["start"]; startms := sms.AsInteger()
-	ems := this.ValueMap["end"]; endms := ems.AsInteger()
-	e := this.Interpreter.SliceRecording( fn, newfn, startms, endms )
+	sms := this.ValueMap["start"]
+	startms := sms.AsInteger()
+	ems := this.ValueMap["end"]
+	endms := ems.AsInteger()
+	e := this.Interpreter.SliceRecording(fn, newfn, startms, endms)
 
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(1)))
 
@@ -66,7 +70,7 @@ func NewPlusRecordSlice(a int, b int, params types.TokenList) *PlusRecordSlice {
 	this.MinParams = 1
 	this.MaxParams = 4
 	this.NamedParams = []string{"file", "outfile", "start", "end"}
-	this.NamedDefaults = []types.Token{ 
+	this.NamedDefaults = []types.Token{
 		*types.NewToken(types.STRING, ""),
 		*types.NewToken(types.STRING, ""),
 		*types.NewToken(types.NUMBER, "0"),

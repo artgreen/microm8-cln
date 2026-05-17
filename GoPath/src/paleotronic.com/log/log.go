@@ -1,12 +1,12 @@
 package log
 
 import (
-	"time"
-	"os"
 	"bufio"
-	"runtime"
-	"log"
 	"fmt"
+	"log"
+	"os"
+	"runtime"
+	"time"
 )
 
 var logfile *os.File
@@ -19,7 +19,7 @@ func init() {
 	if SILENT {
 		return
 	}
-	logname := os.Args[0]+".log"
+	logname := os.Args[0] + ".log"
 
 	f, err := os.Create(logname)
 	if err != nil {
@@ -28,11 +28,11 @@ func init() {
 	logbuff = bufio.NewWriterSize(f, 4096)
 }
 
-func formatStr( format string, v ...interface{} ) string {
-	myfmt := "%s [%s] " +  format
+func formatStr(format string, v ...interface{}) string {
+	myfmt := "%s [%s] " + format
 
 	caller := "**"
-		if SHOWCALLER {
+	if SHOWCALLER {
 		pc, _, _, ok := runtime.Caller(2)
 		if ok {
 			c := runtime.FuncForPC(pc)
@@ -46,15 +46,15 @@ func formatStr( format string, v ...interface{} ) string {
 		return fmt.Sprintf("%s [%s] %v", t, caller, fmt.Sprint(v...)) + "\r\n"
 	}
 
-	return fmt.Sprintf( myfmt, t, caller, v ) + "\r\n"
+	return fmt.Sprintf(myfmt, t, caller, v) + "\r\n"
 }
 
 func Print(v ...interface{}) {
 	//
-		if SILENT {
+	if SILENT {
 		return
 	}
-	_, _ = logbuff.WriteString( formatStr("", v...) )
+	_, _ = logbuff.WriteString(formatStr("", v...))
 }
 
 func Println(v ...interface{}) {
@@ -62,7 +62,7 @@ func Println(v ...interface{}) {
 	if SILENT {
 		return
 	}
-	_, _ = logbuff.WriteString( formatStr("", v...) )
+	_, _ = logbuff.WriteString(formatStr("", v...))
 }
 
 func Printf(format string, v ...interface{}) {
@@ -70,7 +70,7 @@ func Printf(format string, v ...interface{}) {
 	if SILENT {
 		return
 	}
-	_, _ = logbuff.WriteString( formatStr(format, v...) )
+	_, _ = logbuff.WriteString(formatStr(format, v...))
 }
 
 func Fatal(v ...interface{}) {
@@ -78,7 +78,7 @@ func Fatal(v ...interface{}) {
 	if SILENT {
 		return
 	}
-	_, _ = logbuff.WriteString( formatStr("", v...) )
+	_, _ = logbuff.WriteString(formatStr("", v...))
 	os.Exit(1)
 }
 
@@ -87,7 +87,7 @@ func Fatalln(v ...interface{}) {
 	if SILENT {
 		return
 	}
-	_, _ = logbuff.WriteString( formatStr("", v...) )
+	_, _ = logbuff.WriteString(formatStr("", v...))
 	os.Exit(1)
 }
 
@@ -96,7 +96,7 @@ func Fatalf(format string, v ...interface{}) {
 	if SILENT {
 		return
 	}
-	_, _ = logbuff.WriteString( formatStr(format, v...) )
+	_, _ = logbuff.WriteString(formatStr(format, v...))
 	os.Exit(1)
 }
 
@@ -105,7 +105,7 @@ func Panic(v ...interface{}) {
 	if SILENT {
 		panic(v)
 	}
-	_, _ = logbuff.WriteString( formatStr("", v...) )
+	_, _ = logbuff.WriteString(formatStr("", v...))
 	b := make([]byte, 16384)
 	n := runtime.Stack(b, false)
 	logbuff.Write(b[0:n])
@@ -118,7 +118,7 @@ func Panicln(v ...interface{}) {
 	if SILENT {
 		panic(v)
 	}
-	_, _ = logbuff.WriteString( formatStr("", v...) )
+	_, _ = logbuff.WriteString(formatStr("", v...))
 	b := make([]byte, 16384)
 	n := runtime.Stack(b, false)
 	logbuff.Write(b[0:n])
@@ -131,7 +131,7 @@ func Panicf(format string, v ...interface{}) {
 	if SILENT {
 		panic(v)
 	}
-	_, _ = logbuff.WriteString( formatStr(format, v...) )
+	_, _ = logbuff.WriteString(formatStr(format, v...))
 	b := make([]byte, 16384)
 	n := runtime.Stack(b, false)
 	logbuff.Write(b[0:n])

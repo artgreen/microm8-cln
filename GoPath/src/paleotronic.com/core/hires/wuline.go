@@ -100,94 +100,93 @@ func WuLine(x0, y0, x1, y1 float64, c int, p HGRControllable) {
 	}
 }
 
-
 func BrenshamLine(x0, y0, x1, y1 int, p int, pp HGRControllable) {
-    // implemented straight from WP pseudocode
-    dx := x1 - x0
-    if dx < 0 {
-        dx = -dx
-    }
-    dy := y1 - y0
-    if dy < 0 {
-        dy = -dy
-    }
-    var sx, sy int
-    if x0 < x1 {
-        sx = 1
-    } else {
-        sx = -1
-    }
-    if y0 < y1 {
-        sy = 1
-    } else {
-        sy = -1
-    }
-    err := dx - dy
+	// implemented straight from WP pseudocode
+	dx := x1 - x0
+	if dx < 0 {
+		dx = -dx
+	}
+	dy := y1 - y0
+	if dy < 0 {
+		dy = -dy
+	}
+	var sx, sy int
+	if x0 < x1 {
+		sx = 1
+	} else {
+		sx = -1
+	}
+	if y0 < y1 {
+		sy = 1
+	} else {
+		sy = -1
+	}
+	err := dx - dy
 
-    for {
-        pp.Plot(x0, y0, p)
-        //if p & 3 == 3 {
-           pp.Plot(x0+1, y0, p)
-       // }
-        if x0 == x1 && y0 == y1 {
-            break
-        }
-        e2 := 2 * err
-        if e2 > -dy {
-            err -= dy
-            x0 += sx
-        }
-        if e2 < dx {
-            err += dx
-            y0 += sy
-        }
-    }
+	for {
+		pp.Plot(x0, y0, p)
+		//if p & 3 == 3 {
+		pp.Plot(x0+1, y0, p)
+		// }
+		if x0 == x1 && y0 == y1 {
+			break
+		}
+		e2 := 2 * err
+		if e2 > -dy {
+			err -= dy
+			x0 += sx
+		}
+		if e2 < dx {
+			err += dx
+			y0 += sy
+		}
+	}
 }
 
 func BrenshamLineSprite(x0, y0, x1, y1 int, p int, pp HGRControllable) {
-    // implemented straight from WP pseudocode
-    dx := x1 - x0
-    if dx < 0 {
-        dx = -dx
-    }
-    dy := y1 - y0
-    if dy < 0 {
-        dy = -dy
-    }
-    var sx, sy int
-    if x0 < x1 {
-        sx = 1
-    } else {
-        sx = -1
-    }
-    if y0 < y1 {
-        sy = 1
-    } else {
-        sy = -1
-    }
-    err := dx - dy
+	// implemented straight from WP pseudocode
+	dx := x1 - x0
+	if dx < 0 {
+		dx = -dx
+	}
+	dy := y1 - y0
+	if dy < 0 {
+		dy = -dy
+	}
+	var sx, sy int
+	if x0 < x1 {
+		sx = 1
+	} else {
+		sx = -1
+	}
+	if y0 < y1 {
+		sy = 1
+	} else {
+		sy = -1
+	}
+	err := dx - dy
 
-    for {
-        pp.HgrSpritePlot(x0, y0, p)
-        //if p & 3 == 3 {
-        //   pp.HgrSpritePlot(x0+1, y0, p)
-       // }
-        if x0 == x1 && y0 == y1 {
-            break
-        }
-        e2 := 2 * err
-        if e2 > -dy {
-            err -= dy
-            x0 += sx
-        }
-        if e2 < dx {
-            err += dx
-            y0 += sy
-        }
-    }
+	for {
+		pp.HgrSpritePlot(x0, y0, p)
+		//if p & 3 == 3 {
+		//   pp.HgrSpritePlot(x0+1, y0, p)
+		// }
+		if x0 == x1 && y0 == y1 {
+			break
+		}
+		e2 := 2 * err
+		if e2 > -dy {
+			err -= dy
+			x0 += sx
+		}
+		if e2 < dx {
+			err += dx
+			y0 += sy
+		}
+	}
 }
 
-func Swap( a, b *int ) {
+func Swap(a, b *int) {
 	c := *a
 	*a = *b
 	*b = c
@@ -200,78 +199,84 @@ func Abs(a int) int {
 	return a
 }
 
-func BrenshamLine3D( p Plotable3, x0, y0, z0, x1, y1, z1 int, c int ) {
-    var x, delta_x, step_x int
-    var y, delta_y, step_y int
-    var z, delta_z, step_z int
-    var swap_xy, swap_xz bool
-    var drift_xy, drift_xz int
-    var cx, cy, cz int 	
+func BrenshamLine3D(p Plotable3, x0, y0, z0, x1, y1, z1 int, c int) {
+	var x, delta_x, step_x int
+	var y, delta_y, step_y int
+	var z, delta_z, step_z int
+	var swap_xy, swap_xz bool
+	var drift_xy, drift_xz int
+	var cx, cy, cz int
 
-   	swap_xy = (Abs(y1 - y0) > Abs(x1 - x0))
-    if swap_xy {
-        Swap(&x0, &y0)
-        Swap(&x1, &y1)
+	swap_xy = (Abs(y1-y0) > Abs(x1-x0))
+	if swap_xy {
+		Swap(&x0, &y0)
+		Swap(&x1, &y1)
 	}
 
-    swap_xz = (Abs(z1 - z0) > Abs(x1 - x0))
-    if swap_xz {
-        Swap(&x0, &z0)
-        Swap(&x1, &z1)
+	swap_xz = (Abs(z1-z0) > Abs(x1-x0))
+	if swap_xz {
+		Swap(&x0, &z0)
+		Swap(&x1, &z1)
 	}
 
-    delta_x = Abs(x1 - x0)
-    delta_y = Abs(y1 - y0)
-    delta_z = Abs(z1 - z0)
+	delta_x = Abs(x1 - x0)
+	delta_y = Abs(y1 - y0)
+	delta_z = Abs(z1 - z0)
 
-    drift_xy  = (delta_x / 2)
-    drift_xz  = (delta_x / 2)
+	drift_xy = (delta_x / 2)
+	drift_xz = (delta_x / 2)
 
 	step_x = 1
-	if (x0 > x1) { step_x = -1 }
-    step_y = 1
-	if (y0 > y1) { step_y = -1 }
-    step_z = 1  
-    if (z0 > z1) { step_z = -1 }
+	if x0 > x1 {
+		step_x = -1
+	}
+	step_y = 1
+	if y0 > y1 {
+		step_y = -1
+	}
+	step_z = 1
+	if z0 > z1 {
+		step_z = -1
+	}
 
 	y = y0
-	z = z0  
+	z = z0
 
-    //step through longest delta (which we have swapped to x)
-    for x = x0; x <= x1; x += step_x {
-        
-        //copy position
-        cx = x
-        cy = y    
-        cz = z
+	//step through longest delta (which we have swapped to x)
+	for x = x0; x <= x1; x += step_x {
 
-        //unswap (in reverse)
-        if swap_xz { 
-	        Swap(&cx, &cz)
-        }
-        if swap_xy {
-	        Swap(&cx, &cy)
-        }
+		//copy position
+		cx = x
+		cy = y
+		cz = z
 
-        // plot
-        p.Plot(cx, cy, cz, c)
-        
-        //update progress in other planes
-        drift_xy = drift_xy - delta_y
-        drift_xz = drift_xz - delta_z
+		//unswap (in reverse)
+		if swap_xz {
+			Swap(&cx, &cz)
+		}
+		if swap_xy {
+			Swap(&cx, &cy)
+		}
 
-        //step in y plane
-        if drift_xy < 0 {
-            y = y + step_y
-            drift_xy = drift_xy + delta_x
-    	}
-        
-        //same in z
-        if drift_xz < 0 {
-            z = z + step_z
-            drift_xz = drift_xz + delta_x
-    	}
-    	
+		// plot
+		p.Plot(cx, cy, cz, c)
+
+		//update progress in other planes
+		drift_xy = drift_xy - delta_y
+		drift_xz = drift_xz - delta_z
+
+		//step in y plane
+		if drift_xy < 0 {
+			y = y + step_y
+			drift_xy = drift_xy + delta_x
+		}
+
+		//same in z
+		if drift_xz < 0 {
+			z = z + step_z
+			drift_xz = drift_xz + delta_x
+		}
+
 	}
-	  	
+
 }

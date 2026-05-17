@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"paleotronic.com/update"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
+
+	"paleotronic.com/update"
 
 	tomb "gopkg.in/tomb.v2"
 	s8webclient "paleotronic.com/api"

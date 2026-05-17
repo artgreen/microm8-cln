@@ -5,7 +5,6 @@ Simple PC Speaker style implementation
 */
 
 import (
-	"paleotronic.com/fmt"
 	"time"
 
 	"paleotronic.com/core/vduproto"

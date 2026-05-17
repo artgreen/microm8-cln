@@ -33,7 +33,7 @@ func (this *StandardCommandQUAD) Execute(env *interfaces.Producable, caller inte
 	}
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).Quad(
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).Quad(
 		float32(tt.AsFloat()),
 		float32(tt.AsFloat()),
 		this.solid,

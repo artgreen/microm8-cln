@@ -12,11 +12,13 @@ type PlusDebug struct {
 
 func (this *PlusDebug) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 		q := this.ValueMap["enabled"]
-		this.Interpreter.SetDebug( (q.AsInteger() == 1) )
+		this.Interpreter.SetDebug((q.AsInteger() == 1))
 	}
 
 	if this.Interpreter.IsDebug() {
@@ -60,8 +62,8 @@ func NewPlusDebug(a int, b int, params types.TokenList) *PlusDebug {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "SETCLASSICHGR"
 
-	this.NamedDefaults = []types.Token{ *types.NewToken(types.NUMBER, "0") }
-	this.NamedParams = []string{ "enabled" }
+	this.NamedDefaults = []types.Token{*types.NewToken(types.NUMBER, "0")}
+	this.NamedParams = []string{"enabled"}
 	this.Raw = true
 
 	return this

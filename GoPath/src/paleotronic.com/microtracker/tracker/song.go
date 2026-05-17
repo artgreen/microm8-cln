@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"sort"
 	"sync"
 	"time"
@@ -1016,7 +1015,7 @@ func (s *TSong) LoadBuffer(r io.Reader) error {
 		s.Start(s.PlayMode)
 	}()
 
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return err
 	}

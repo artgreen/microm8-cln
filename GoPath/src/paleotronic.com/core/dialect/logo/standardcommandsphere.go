@@ -33,7 +33,7 @@ func (this *StandardCommandSPHERE) Execute(env *interfaces.Producable, caller in
 	}
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).Sphere(
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).Sphere(
 		float32(tt.AsFloat()),
 		this.solid,
 	)

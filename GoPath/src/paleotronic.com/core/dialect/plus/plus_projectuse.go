@@ -1,9 +1,9 @@
 package plus
 
 import (
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-	"paleotronic.com/api"
 	"paleotronic.com/files"
 )
 
@@ -15,7 +15,9 @@ type PlusProjectUse struct {
 
 func (this *PlusProjectUse) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 		name := this.ValueMap["name"].Content
@@ -24,14 +26,14 @@ func (this *PlusProjectUse) FunctionExecute(params *types.TokenList) error {
 
 			//files.Project = true
 
-			ex, _, _, e := s8webclient.CONN.ProjectStatus( name )
+			ex, _, _, e := s8webclient.CONN.ProjectStatus(name)
 
 			if e == nil {
 
-				if ex  {
+				if ex {
 					files.SetProject(name)
 				} else {
-					this.Interpreter.PutStr("Project does not exist: "+name+"\r\n")
+					this.Interpreter.PutStr("Project does not exist: " + name + "\r\n")
 				}
 
 			}
@@ -79,8 +81,8 @@ func NewPlusProjectUse(a int, b int, params types.TokenList) *PlusProjectUse {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "PROJECT.USE"
 
-	this.NamedParams = []string{ "name" }
-	this.NamedDefaults = []types.Token{ *types.NewToken( types.STRING, "" ) }
+	this.NamedParams = []string{"name"}
+	this.NamedDefaults = []types.Token{*types.NewToken(types.STRING, "")}
 	this.Raw = true
 
 	return this

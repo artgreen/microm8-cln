@@ -1,22 +1,20 @@
 package types
 
-import (
-//	"paleotronic.com/fmt"
-)
+// "paleotronic.com/fmt"
 
 type VVContext struct {
-	Value string
+	Value     string
 	Published bool
 }
 
 type VarValue struct {
-	Value string
+	Value     string
 	Published bool
-	Content []*VVContext
+	Content   []*VVContext
 }
 
-func NewVarValue( v string ) *VarValue {
-	return &VarValue{ Content: make([]*VVContext, 0), Value: v }
+func NewVarValue(v string) *VarValue {
+	return &VarValue{Content: make([]*VVContext, 0), Value: v}
 }
 
 func (vv *VarValue) Pending() int {
@@ -38,17 +36,17 @@ func (vv *VarValue) GetValue() string {
 	return vv.Value
 }
 
-func (vv *VarValue) AssignStackedRemote( v string ) {
+func (vv *VarValue) AssignStackedRemote(v string) {
 	vv.Content = append(vv.Content, &VVContext{Value: v, Published: true})
 	////fmt.Printf("After AssignStackedRemote() = %v\n", vv.Content)
 }
 
-func (vv *VarValue) AssignStacked( v string ) {
+func (vv *VarValue) AssignStacked(v string) {
 	vv.Content = append(vv.Content, &VVContext{Value: v, Published: false})
 	////fmt.Printf("After AssignStacked() = %v\n", vv.Content)
 }
 
-func (vv *VarValue) Assign( v string, stacked bool ) {
+func (vv *VarValue) Assign(v string, stacked bool) {
 	if stacked {
 		vv.AssignStacked(v)
 	} else {
@@ -56,4 +54,3 @@ func (vv *VarValue) Assign( v string, stacked bool ) {
 		vv.Published = false
 	}
 }
-

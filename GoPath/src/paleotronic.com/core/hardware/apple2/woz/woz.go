@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"hash/crc32"
 	"io"
-	"io/ioutil"
 	"os"
 
 	"paleotronic.com/log"
@@ -56,7 +55,7 @@ type WOZImage struct {
 const trimWoz = false
 
 func NewWOZImage(r io.Reader, buffer memory.MemBytes) (*WOZImage, error) {
-	data, err := ioutil.ReadAll(r)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}

@@ -1,11 +1,12 @@
 package applesoft
 
 import (
+	"errors"
+
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/exception"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"errors"
 )
 
 type StandardCommandASFOR struct {
@@ -41,7 +42,7 @@ func (this *StandardCommandASFOR) Execute(env *interfaces.Producable, caller int
 	eq_idx = tokens.IndexOf(types.ASSIGNMENT, "=")
 	to_idx = tokens.IndexOf(types.KEYWORD, "TO")
 	step_idx = tokens.IndexOf(types.KEYWORD, "STEP")
-	
+
 	if eq_idx < 0 || to_idx < 0 {
 		return result, errors.New("SYNTAX ERROR")
 	}
@@ -74,10 +75,9 @@ func (this *StandardCommandASFOR) Execute(env *interfaces.Producable, caller int
 		caller.GetLocal().Create(forvarname, types.VT_FLOAT, types.NewFloat5b(tlo.AsExtended()))
 	} else {
 		if caller.GetLocal().Get(forvarname).Kind != types.VT_FLOAT {
-			return result, exception.NewESyntaxError("FOR variable "+forvarname+" must be a NUMBER")
+			return result, exception.NewESyntaxError("FOR variable " + forvarname + " must be a NUMBER")
 		}
 	}
-
 
 	/* init loop var */
 

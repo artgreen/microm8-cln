@@ -2,10 +2,9 @@ package plus
 
 import (
 	"paleotronic.com/core/dialect"
-	"paleotronic.com/core/types"
 	"paleotronic.com/core/hardware/apple2helpers"
-//	"paleotronic.com/runestring"
-
+	"paleotronic.com/core/types"
+	//	"paleotronic.com/runestring"
 	//"paleotronic.com/log"
 )
 
@@ -15,15 +14,17 @@ type PlusAddWindow struct {
 
 func (this *PlusAddWindow) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	if !this.Query {
 
 		// stuff
-		sxt := this.ValueMap["sx"];
-		syt := this.ValueMap["sy"];
-		ext := this.ValueMap["ex"];
-		eyt := this.ValueMap["ey"];
+		sxt := this.ValueMap["sx"]
+		syt := this.ValueMap["sy"]
+		ext := this.ValueMap["ex"]
+		eyt := this.ValueMap["ey"]
 
 		sx := sxt.AsInteger()
 		sy := syt.AsInteger()
@@ -74,13 +75,13 @@ func NewPlusAddWindow(a int, b int, params types.TokenList) *PlusAddWindow {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "WINDOW.ADD"
 
-	this.NamedParams = []string{ "name", "sx", "sy", "ex", "ey" }
+	this.NamedParams = []string{"name", "sx", "sy", "ex", "ey"}
 	this.NamedDefaults = []types.Token{
-		*types.NewToken( types.STRING, "DEFAULT" ),
-		*types.NewToken( types.NUMBER, "0" ),
-		*types.NewToken( types.NUMBER, "0" ),
-		*types.NewToken( types.NUMBER, "79" ),
-		*types.NewToken( types.NUMBER, "47" ),
+		*types.NewToken(types.STRING, "DEFAULT"),
+		*types.NewToken(types.NUMBER, "0"),
+		*types.NewToken(types.NUMBER, "0"),
+		*types.NewToken(types.NUMBER, "79"),
+		*types.NewToken(types.NUMBER, "47"),
 	}
 	this.Raw = true
 

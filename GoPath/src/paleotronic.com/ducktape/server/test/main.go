@@ -1,10 +1,11 @@
 package main
 
 import (
+	"runtime"
+
 	"paleotronic.com/ducktape"
 	"paleotronic.com/ducktape/server"
 	"paleotronic.com/log"
-	"runtime"
 )
 
 var queues server.QueueMap

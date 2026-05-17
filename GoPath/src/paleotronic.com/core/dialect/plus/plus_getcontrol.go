@@ -4,7 +4,7 @@ import (
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 	//"paleotronic.com/utils"
-//	"paleotronic.com/log"
+	//	"paleotronic.com/log"
 )
 
 type PlusGetControls struct {
@@ -17,21 +17,21 @@ func (this *PlusGetControls) FunctionExecute(params *types.TokenList) error {
 
 	//~ if !this.Query {
 
-		//~ control := this.ValueMap["control"].Content
-		//~ varname := this.ValueMap["varname"].Content
+	//~ control := this.ValueMap["control"].Content
+	//~ varname := this.ValueMap["varname"].Content
 
-		//~ log.Printf("Got params: %s, %s\n", control, varname)
+	//~ log.Printf("Got params: %s, %s\n", control, varname)
 
-		//~ s, e := this.Interpreter.GetControlState( control )
-		//~ if e != nil {
-			//~ a := this.Interpreter.GetCode()
-			//~ tl := types.NewTokenList()
-			//~ tl.Push( types.NewToken( types.VARIABLE, varname ) )
-			//~ tl.Push( types.NewToken( types.ASSIGNMENT, "=" ) )
-			//~ tl.Push( types.NewToken( types.STRING, s ) )
-			//~ this.Interpreter.GetDialect().ExecuteDirectCommand(*tl, this.Interpreter, &a, this.Interpreter.GetPC())
-			//~ log.Println(tl.AsString())
-		//~ }
+	//~ s, e := this.Interpreter.GetControlState( control )
+	//~ if e != nil {
+	//~ a := this.Interpreter.GetCode()
+	//~ tl := types.NewTokenList()
+	//~ tl.Push( types.NewToken( types.VARIABLE, varname ) )
+	//~ tl.Push( types.NewToken( types.ASSIGNMENT, "=" ) )
+	//~ tl.Push( types.NewToken( types.STRING, s ) )
+	//~ this.Interpreter.GetDialect().ExecuteDirectCommand(*tl, this.Interpreter, &a, this.Interpreter.GetPC())
+	//~ log.Println(tl.AsString())
+	//~ }
 
 	//~ }
 
@@ -71,10 +71,10 @@ func NewPlusGetControls(a int, b int, params types.TokenList) *PlusGetControls {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "GETCONTROLS"
 
-	this.NamedParams = []string{ "control", "varname" }
+	this.NamedParams = []string{"control", "varname"}
 	this.NamedDefaults = []types.Token{
-		*types.NewToken( types.STRING, "keys" ),
-		*types.NewToken( types.VARIABLE, "CO$" ),
+		*types.NewToken(types.STRING, "keys"),
+		*types.NewToken(types.VARIABLE, "CO$"),
 	}
 	this.Raw = true
 

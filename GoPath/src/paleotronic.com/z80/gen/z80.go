@@ -21,6 +21,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+//go:build ignore
 // +build ignore
 
 package main
@@ -29,7 +30,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"regexp"
@@ -922,7 +922,7 @@ func processDataFile(data_file, logical_data_file string, code *bytes.Buffer, fu
 
 	var data []byte
 	var err error
-	data, err = ioutil.ReadFile(data_file)
+	data, err = os.ReadFile(data_file)
 	if err != nil {
 		panic(err.Error())
 	}

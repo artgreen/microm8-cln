@@ -15,14 +15,14 @@ func (this *Line) Push(st Statement) {
 
 func (this Line) String() string {
 
-     out := ""
+	out := ""
 
-     for _, st := range this {
-         if out != "" {
-            out = out + " : ";
-         }
-         out = out + st.AsString()
-     }
+	for _, st := range this {
+		if out != "" {
+			out = out + " : "
+		}
+		out = out + st.AsString()
+	}
 
-     return out
+	return out
 }

@@ -42,7 +42,7 @@ func (this *StandardCommandSAVEPIC) Execute(env *interfaces.Producable, caller i
 		filename = "/" + strings.Trim(caller.GetWorkDir(), "/") + "/" + strings.Trim(filename, "/")
 	}
 
-	data, err := apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).ToJSON()
+	data, err := apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).ToJSON()
 	if err != nil {
 		return 0, err
 	}

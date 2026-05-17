@@ -1,9 +1,10 @@
 package common
 
 import (
+	"strings"
+
 	"paleotronic.com/fmt"
 	"paleotronic.com/log"
-	"strings"
 )
 
 /*
@@ -509,7 +510,7 @@ func (m *MOS6551) Tick() {
 		if m.device != nil {
 			m.update()
 		}
-	} else if m.cycles % 100 == 0 {
+	} else if m.cycles%100 == 0 {
 		m.UpdateStatus()
 	}
 }
@@ -577,17 +578,16 @@ func (m *MOS6551) update() {
 		// 	if m.device.CanSend() {
 		// 		if dsr {
 		// 			m.device.Send(m.txByte)
-  //
+		//
 		// 			s |= srTXO // Transmit buffer empty
 		// 			m.RTS = false
-  //
+		//
 		// 			if m.Command.txIRQControl == tcTxEnabledRTSLow && m.IRQ != nil {
 		// 				m.IRQ()
 		// 			}
 		// 		}
 		// 	}
 		// }
-
 
 		if !m.Status.IsSet(srTXO) && m.device.CanSend() && m.RTS {
 

@@ -10,7 +10,6 @@ import (
 	"math"
 
 	"paleotronic.com/utils"
-
 	//log2 "log"
 )
 

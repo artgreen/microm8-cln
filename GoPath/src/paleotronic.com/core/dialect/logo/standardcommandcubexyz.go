@@ -33,7 +33,7 @@ func (this *StandardCommandCUBEXYZ) Execute(env *interfaces.Producable, caller i
 	}
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).Cube(
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).Cube(
 		float32(tt.List.Get(0).AsFloat()),
 		float32(tt.List.Get(1).AsFloat()),
 		float32(tt.List.Get(2).AsFloat()),

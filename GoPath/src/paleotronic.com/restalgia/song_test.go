@@ -1,7 +1,6 @@
 package restalgia
 
 import (
-	"paleotronic.com/fmt"
 	"testing"
 )
 

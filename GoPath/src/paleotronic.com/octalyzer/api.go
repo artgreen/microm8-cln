@@ -8,7 +8,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -73,15 +72,15 @@ func CheckAndProcessSyncRequests() {
 		if r.KeyEvent != nil {
 			req := r.KeyEvent
 			// go func() {
-				for backend.ProducerMain.AddressSpace.KeyBufferSize(SelectedIndex) > 0 {
-					time.Sleep(time.Millisecond)
-				}
-				OnKeyEvent(
-					win,
-					glumby.Key(req.Key),
-					glumby.ModifierKey(req.Modifiers),
-					glumby.Action(req.Action),
-				)
+			for backend.ProducerMain.AddressSpace.KeyBufferSize(SelectedIndex) > 0 {
+				time.Sleep(time.Millisecond)
+			}
+			OnKeyEvent(
+				win,
+				glumby.Key(req.Key),
+				glumby.ModifierKey(req.Modifiers),
+				glumby.Action(req.Action),
+			)
 			// }()
 			//win.GetGLFWWindow().Focus()
 		}
@@ -113,7 +112,7 @@ func SetMainWindow(w *glumby.Window) {
 }
 
 func UnpackRequest(w http.ResponseWriter, r *http.Request, req interface{}) error {
-	b, err := ioutil.ReadAll(r.Body)
+	b, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error reading body: %v", err)
 		w.WriteHeader(400)
@@ -484,7 +483,7 @@ func HandleFreezeRestoreRequest(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Got freeze restore request: %+v", req)
 
-	data, err := ioutil.ReadFile(req.Path)
+	data, err := os.ReadFile(req.Path)
 	if err != nil {
 		fp, err := files.ReadBytesViaProvider(files.GetPath(req.Path), files.GetFilename(req.Path))
 		if err != nil {
@@ -852,7 +851,7 @@ func HandleHeartBeatRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandlePasteRequest(w http.ResponseWriter, r *http.Request) {
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		return
 	}
@@ -861,7 +860,7 @@ func HandlePasteRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleOSDRequest(w http.ResponseWriter, r *http.Request) {
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		return
 	}
@@ -938,7 +937,7 @@ func HandleAssembleRequest(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("Content-Type")
 	if contentType == "text/plain" || contentType == "text/x-asm" {
 		// Read raw text from body
-		bodyBytes, err := ioutil.ReadAll(r.Body)
+		bodyBytes, err := io.ReadAll(r.Body)
 		if err != nil {
 			w.WriteHeader(400)
 			w.Write([]byte(fmt.Sprintf("Error reading body: %v", err)))

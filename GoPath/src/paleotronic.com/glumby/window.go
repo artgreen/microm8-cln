@@ -1,16 +1,17 @@
 package glumby
 
 import (
-	"paleotronic.com/log"
 	"math" //	"sync"
 	"time"
 
+	"paleotronic.com/log"
+
 	//	log2 "log"
 
-	"paleotronic.com/fmt"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl64"
 	"paleotronic.com/core/settings"
+	"paleotronic.com/fmt"
 	"paleotronic.com/gl"
 	"paleotronic.com/octalyzer/bus" //"os"
 	//"runtime"

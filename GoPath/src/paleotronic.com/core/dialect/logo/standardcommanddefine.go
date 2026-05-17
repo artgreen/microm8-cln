@@ -2,6 +2,7 @@ package logo
 
 import (
 	"errors"
+
 	"paleotronic.com/core/dialect" //"paleotronic.com/core/hires"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"

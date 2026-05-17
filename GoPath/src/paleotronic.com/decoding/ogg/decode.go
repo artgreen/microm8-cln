@@ -7,7 +7,6 @@ import (
 	"paleotronic.com/fmt"
 
 	"bytes"
-	"io/ioutil"
 
 	"paleotronic.com/decoding/ogg/internal/vorbis"
 )
@@ -19,7 +18,7 @@ type VorbisBlob struct {
 
 func New(r io.Reader) (*VorbisBlob, error) {
 
-	raw, err := ioutil.ReadAll(r)
+	raw, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}

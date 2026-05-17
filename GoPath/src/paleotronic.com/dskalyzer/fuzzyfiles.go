@@ -1,11 +1,12 @@
 package main
 
 import (
-	"paleotronic.com/fmt"
 	"os"
 	"os/signal"
 	"strings"
 	"sync"
+
+	"paleotronic.com/fmt"
 )
 
 func inList(item string, list []string) bool {

@@ -33,7 +33,7 @@ func (this *StandardCommandQUADXY) Execute(env *interfaces.Producable, caller in
 	}
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).Quad(float32(tt.List.Get(0).AsFloat()), float32(tt.List.Get(1).AsFloat()), this.solid)
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).Quad(float32(tt.List.Get(0).AsFloat()), float32(tt.List.Get(1).AsFloat()), this.solid)
 
 	if apple2helpers.IsVectorLayerEnabled(caller) == false {
 		apple2helpers.HTab(caller, 1)

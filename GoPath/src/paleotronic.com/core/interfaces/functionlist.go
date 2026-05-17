@@ -40,14 +40,14 @@ func (this NameSpaceFunctionList) Get(s string) FunctionList {
 	return f
 }
 
-func (this NameSpaceFunctionList) GetFunctionByNameContext( ns string, n string ) (Functioner, bool, string, error) {
+func (this NameSpaceFunctionList) GetFunctionByNameContext(ns string, n string) (Functioner, bool, string, error) {
 
 	/*
 
-	Could either get: -
+		Could either get: -
 
-	a.b.c{fgdfd}
-	.c{rdffdf}
+		a.b.c{fgdfd}
+		.c{rdffdf}
 
 	*/
 
@@ -57,58 +57,58 @@ func (this NameSpaceFunctionList) GetFunctionByNameContext( ns string, n string 
 		return nil, false, "", errors.New("UNDEFINED FUNCTION")
 	}
 	funcname := parts[len(parts)-1]
-	namespace := strings.Join( parts[0:len(parts)-1], "." )
-//	log.Printf("*** GetFunctionByNameContext(): Looking for %s in namespace %s\n", funcname, namespace)
+	namespace := strings.Join(parts[0:len(parts)-1], ".")
+	//	log.Printf("*** GetFunctionByNameContext(): Looking for %s in namespace %s\n", funcname, namespace)
 
 	//~ if namespace == "" {
-		//~ namespace = ns
+	//~ namespace = ns
 	//~ }
 
 	//~ if namespace == "" {
-		//~ i := 0
-		//~ // search blind for first match
-		//~ for tnamespace, fl := range this {
-			//~ _, ok := fl[funcname]
-			//~ if ok {
-				//~ namespace = tnamespace
-				//~ i++
-			//~ }
-		//~ }
-
-		//~ if i > 1 {
-			//~ return nil, false, "", errors.New("FN ABIGUITY ERROR")
-		//~ }
-
-		//~ if i == 0 {
-			//~ return nil, false, "", errors.New("UNDEFINED FUNCTION")
-		//~ }
+	//~ i := 0
+	//~ // search blind for first match
+	//~ for tnamespace, fl := range this {
+	//~ _, ok := fl[funcname]
+	//~ if ok {
+	//~ namespace = tnamespace
+	//~ i++
+	//~ }
 	//~ }
 
-//~ //	log.Printf("--> Resolving to use %s as namespace\n", namespace)
+	//~ if i > 1 {
+	//~ return nil, false, "", errors.New("FN ABIGUITY ERROR")
+	//~ }
+
+	//~ if i == 0 {
+	//~ return nil, false, "", errors.New("UNDEFINED FUNCTION")
+	//~ }
+	//~ }
+
+	//~ //	log.Printf("--> Resolving to use %s as namespace\n", namespace)
 
 	//~ if !this.ContainsKey(namespace) {
 
-		//~ i := 0
-		//~ // search blind for first match
-		//~ for tnamespace, fl := range this {
-			//~ _, ok := fl[funcname]
-			//~ if ok {
-				//~ namespace = tnamespace
-				//~ i++
-			//~ }
-		//~ }
+	//~ i := 0
+	//~ // search blind for first match
+	//~ for tnamespace, fl := range this {
+	//~ _, ok := fl[funcname]
+	//~ if ok {
+	//~ namespace = tnamespace
+	//~ i++
+	//~ }
+	//~ }
 
-		//~ if i > 1 {
-			//~ return nil, false, "", errors.New("FN ABIGUITY ERROR")
-		//~ }
+	//~ if i > 1 {
+	//~ return nil, false, "", errors.New("FN ABIGUITY ERROR")
+	//~ }
 
-		//~ if i == 0 {
-			//~ return nil, false, "", errors.New("UNDEFINED FUNCTION")
-		//~ }
+	//~ if i == 0 {
+	//~ return nil, false, "", errors.New("UNDEFINED FUNCTION")
+	//~ }
 
-		//~ if !this.ContainsKey(namespace) {
-			//~ return nil, false, "", errors.New("UNDEFINED FUNCTION")
-		//~ }
+	//~ if !this.ContainsKey(namespace) {
+	//~ return nil, false, "", errors.New("UNDEFINED FUNCTION")
+	//~ }
 	//~ }
 
 	nn := this.Get(namespace)

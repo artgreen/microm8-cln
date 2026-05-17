@@ -3,7 +3,7 @@ package plus
 import (
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-//	"paleotronic.com/utils"
+	// "paleotronic.com/utils"
 )
 
 type PlusSplash struct {
@@ -14,7 +14,9 @@ var splash string
 
 func (this *PlusSplash) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	this.Stack.Push(types.NewToken(types.STRING, splash))
 
@@ -54,8 +56,8 @@ func NewPlusSplash(a int, b int, params types.TokenList) *PlusSplash {
 	this.CoreFunction = *dialect.NewCoreFunction(a, b, params)
 	this.Name = "SPLASH"
 
-	this.NamedParams = []string{ "image" }
-	this.NamedDefaults = []types.Token{ *types.NewToken( types.STRING, "" ) }
+	this.NamedParams = []string{"image"}
+	this.NamedDefaults = []types.Token{*types.NewToken(types.STRING, "")}
 	this.Raw = true
 
 	return this

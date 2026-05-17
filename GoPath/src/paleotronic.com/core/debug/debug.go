@@ -1,14 +1,15 @@
 package debug
 
 import (
-	"time"
-	"paleotronic.com/fmt"
 	"os"
+	"time"
+
 	"paleotronic.com/files"
+	"paleotronic.com/fmt"
 )
 
 const (
-	FORMAT = "[%08d.%06d.%02d] %5s %s\r\n"
+	FORMAT   = "[%08d.%06d.%02d] %5s %s\r\n"
 	MAXLINES = 100
 )
 
@@ -20,11 +21,11 @@ func GetLogFilename() string {
 
 	ds := time.Now().Format("20060102_150405")
 
-	return files.GetUserDirectory(files.BASEDIR)+"/super8_debug_"+ds+".log"
+	return files.GetUserDirectory(files.BASEDIR) + "/super8_debug_" + ds + ".log"
 
 }
 
-func SetDebug( b bool ) {
+func SetDebug(b bool) {
 	if b {
 		StartLogging()
 	} else {
@@ -77,7 +78,7 @@ func StopLogging() {
 	Flush()
 }
 
-func Log( msSince int64, line int64, stmt int64, component string, message string ) {
+func Log(msSince int64, line int64, stmt int64, component string, message string) {
 	if !DEBUG_ON {
 		return
 	}

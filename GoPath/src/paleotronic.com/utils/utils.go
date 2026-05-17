@@ -26,9 +26,17 @@ import (
 
 type Foo int
 
-func init() {
-	SeedRandom()
-}
+// rng is the package-local random source used by Random() and the random
+// path of GenerateRandomString. It's reseeded by PSeed() to support
+// Applesoft BASIC's RND(<negative>) deterministic-seed semantics.
+//
+// As of Go 1.20, the package-global rand.* generator is auto-seeded, so we
+// initialize rng with a time-based seed here for backward-compatible
+// non-determinism rather than relying on rand.Seed (deprecated).
+//
+// Not safe for concurrent use; callers must serialize PSeed/Random/etc.
+// across goroutines. In practice the BASIC interpreter is single-threaded.
+var rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 func OpenURL(url string) error {
 	var cmd string
@@ -70,7 +78,7 @@ var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 func RandStringRunes(n int) string {
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+		b[i] = letterRunes[rng.Intn(len(letterRunes))]
 	}
 	return string(b)
 }
@@ -217,18 +225,22 @@ func NumberPart(in string) string {
 	return out
 }
 
-// Seed the random number generator based on current nano seconds
+// SeedRandom reseeds the package's random number generator with the current
+// time. Kept for ABI compatibility; modern callers should not need to call
+// this since rng is time-seeded at package init.
 func SeedRandom() {
-	rand.Seed(time.Now().UnixNano())
+	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
+// PSeed reseeds with a caller-provided value. Used by Applesoft BASIC's
+// RND(<negative>) form to start a deterministic sequence.
 func PSeed(v int64) {
-	rand.Seed(v)
+	rng = rand.New(rand.NewSource(v))
 }
 
-// Return a random number between 0 and 1
+// Random returns a pseudo-random number in [0.0, 1.0).
 func Random() float64 {
-	return rand.Float64()
+	return rng.Float64()
 }
 
 func StrToIntStr(v string) string {

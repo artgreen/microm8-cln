@@ -21,6 +21,7 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+//go:build ignore
 // +build ignore
 
 package main
@@ -29,7 +30,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -107,7 +107,7 @@ func result(args ...string) {
 			out += fmt.Sprintf("\"%s\"", s)
 			break
 		}
-		if i < len(args) - 1 {
+		if i < len(args)-1 {
 			out += "+" + "\",\"" + "+"
 		}
 	}
@@ -152,7 +152,7 @@ func processDataFile(data_file, logical_data_file string, code *bytes.Buffer, fu
 
 	var data []byte
 	var err error
-	data, err = ioutil.ReadFile(data_file)
+	data, err = os.ReadFile(data_file)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -245,7 +245,7 @@ func processDataFile(data_file, logical_data_file string, code *bytes.Buffer, fu
 			ln(comment)
 			ln("func ", functionName, "(memory MemoryReader, address uint16, shift int) (string, uint16, int) {")
 			fmt.Println(args)
-			ln("result := \"", opcode ," \"")
+			ln("result := \"", opcode, " \"")
 			if opcode == "shift" {
 				ln("shift = SHIFT_0x" + strings.ToUpper(number)[2:])
 			} else {

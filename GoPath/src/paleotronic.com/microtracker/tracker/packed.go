@@ -3,7 +3,6 @@ package tracker
 import (
 	"crypto/md5"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -551,7 +550,7 @@ func (a *ASMEncoder) CompileSong(s *TSong, mode CompileMode, address int) (strin
 		startAddr = address
 	}
 
-	temp, err := ioutil.TempDir("", "song-asm-")
+	temp, err := os.MkdirTemp("", "song-asm-")
 	if err != nil {
 		return "", err
 	}
@@ -571,7 +570,7 @@ func (a *ASMEncoder) CompileSong(s *TSong, mode CompileMode, address int) (strin
 		}
 		outfile := fmt.Sprintf("%s/%s", temp, file)
 		//log.Printf("Copying template %s to %s", file, outfile)
-		err = ioutil.WriteFile(outfile, data, 0755)
+		err = os.WriteFile(outfile, data, 0755)
 		if err != nil {
 			return "", err
 		}
@@ -585,7 +584,7 @@ func (a *ASMEncoder) CompileSong(s *TSong, mode CompileMode, address int) (strin
 	}
 
 	if skipASM {
-		data, err := ioutil.ReadFile(outfile)
+		data, err := os.ReadFile(outfile)
 		if err != nil {
 			return "", err
 		}

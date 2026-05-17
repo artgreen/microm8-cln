@@ -1,15 +1,16 @@
 package plus
 
 import (
-//	"paleotronic.com/log"
+	//	"paleotronic.com/log"
 	//"errors"
-//	"strings"
+	//	"strings"
 
 	//"paleotronic.com/files"
+
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
 	"paleotronic.com/utils"
-	"paleotronic.com/api"
 	//"paleotronic.com/core/interfaces"
 )
 
@@ -17,19 +18,19 @@ type PlusSetMOTD struct {
 	dialect.CoreFunction
 }
 
-// params: 
+// params:
 // (1) hostname
 // (2) name
 
 func (this *PlusSetMOTD) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { 
-		return e 
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
 	}
 
 	motdtext := params.Shift().Content
-	
-	_ = s8webclient.CONN.AddMOTD( motdtext )
+
+	_ = s8webclient.CONN.AddMOTD(motdtext)
 
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(0)))
 

@@ -2,9 +2,9 @@ package applesoft
 
 import (
 	"paleotronic.com/core/dialect"
+	"paleotronic.com/core/exception"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"paleotronic.com/core/exception"
 )
 
 type StandardCommandIF struct {
@@ -60,7 +60,7 @@ func (this *StandardCommandIF) Execute(env *interfaces.Producable, caller interf
 			caller.GetPC().Statement = 0
 			caller.GetPC().Token = 0
 		} else {
-			b := caller.GetDirectAlgorithm();
+			b := caller.GetDirectAlgorithm()
 			nl = b.NextAfter(caller.GetLPC().Line)
 			caller.GetLPC().Line = nl
 			caller.GetLPC().Statement = 0

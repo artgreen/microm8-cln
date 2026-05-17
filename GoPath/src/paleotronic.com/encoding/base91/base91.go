@@ -84,12 +84,12 @@ func Decode(d string) string {
 	return string(o)
 }
 
-func EncodeString( data []byte ) string {
+func EncodeString(data []byte) string {
 
-	return Encode( string(data) )
-	
+	return Encode(string(data))
+
 }
 
-func DecodeString( s string ) ([]byte, error) {
+func DecodeString(s string) ([]byte, error) {
 	return []byte(Decode(s)), nil
 }

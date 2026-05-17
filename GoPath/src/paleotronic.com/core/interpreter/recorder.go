@@ -2,8 +2,8 @@ package interpreter
 
 import (
 	"bytes"
-	"io/ioutil"
 	log2 "log"
+	"os"
 	"sync"
 	"time"
 
@@ -731,7 +731,7 @@ func (r *Recorder) CommitBlock() {
 			// write the block
 			path := files.GetUserPath(files.BASEDIR, []string{"MyRecordings", files.GetFilename(r.pathname), fn})
 			//log2.Printf("writing file: %s", path)
-			ioutil.WriteFile(path, data, 0755)
+			os.WriteFile(path, data, 0755)
 		}(bfn(r.blocknum), r.blockbuffer.Bytes())
 	}
 	r.blocknum++

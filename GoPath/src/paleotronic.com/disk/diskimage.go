@@ -2,7 +2,7 @@ package disk
 
 import (
 	"errors"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 
@@ -659,7 +659,7 @@ func NewDSKWrapper(nibbler Nibbler, filename string) (*DSKWrapper, error) {
 	if e != nil {
 		return nil, e
 	}
-	data, e := ioutil.ReadAll(f)
+	data, e := io.ReadAll(f)
 	f.Close()
 	if e != nil {
 		return nil, e

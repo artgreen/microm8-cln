@@ -3,11 +3,10 @@ package plus
 import (
 	"time"
 
-	"paleotronic.com/runestring"
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/types"
-
+	"paleotronic.com/runestring"
 	//"paleotronic.com/log"
 	//	"paleotronic.com/fmt"
 )

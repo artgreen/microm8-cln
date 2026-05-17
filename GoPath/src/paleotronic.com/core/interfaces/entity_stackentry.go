@@ -1,11 +1,14 @@
 // entity_stackentry.go
 package interfaces
 
-import "paleotronic.com/core/types"
-import "bytes"
-import "encoding/binary"
-import "strings"
-import "errors"
+import (
+	"bytes"
+	"encoding/binary"
+	"errors"
+	"strings"
+
+	"paleotronic.com/core/types"
+)
 
 type StackEntry struct {
 	PC             *types.CodeRef // Yes (2 uint64)

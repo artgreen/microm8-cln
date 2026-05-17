@@ -2,7 +2,7 @@ package plus
 
 import (
 	"errors"
-	"io/ioutil"
+	"os"
 
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/settings"
@@ -33,7 +33,7 @@ func (this *PlusVMRestore) FunctionExecute(params *types.TokenList) error {
 	}
 
 	// restore freeze
-	data, err := ioutil.ReadFile(freeze)
+	data, err := os.ReadFile(freeze)
 	if err != nil {
 		fp, err := files.ReadBytesViaProvider(files.GetPath(freeze), files.GetFilename(freeze))
 		if err != nil {

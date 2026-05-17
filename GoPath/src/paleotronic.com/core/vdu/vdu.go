@@ -1,21 +1,20 @@
 package vdu
 
 import (
-	"paleotronic.com/fmt"
 	"math"
 	"time"
 
-	"paleotronic.com/log"
-	"paleotronic.com/core/hardware/cpu/mos6502"
-	"paleotronic.com/runestring"
-	"paleotronic.com/files"
 	"paleotronic.com/core"
 	"paleotronic.com/core/exception"
+	"paleotronic.com/core/hardware"
+	"paleotronic.com/core/hardware/cpu/mos6502"
 	"paleotronic.com/core/hires"
 	"paleotronic.com/core/interfaces"
-	"paleotronic.com/core/hardware"
 	"paleotronic.com/core/types"
 	"paleotronic.com/core/vduconst"
+	"paleotronic.com/files"
+	"paleotronic.com/log"
+	"paleotronic.com/runestring"
 	"paleotronic.com/utils"
 )
 
@@ -989,7 +988,7 @@ func (this *VDUCore) ColorAt(x, y int) int {
 		return int(v & 15)
 	} else {
 		// hi nibble
-		return int(v & 240) / 16
+		return int(v&240) / 16
 	}
 }
 
@@ -1244,7 +1243,6 @@ func (this *VDUCore) ClearLine() {
 
 		to := this.XYToOffset(c, r)
 		this.TextMemory.SetValue(to, uint(this.AsciiToPoke(' ')|(this.FGColour<<16)|(this.BGColour<<20)))
-
 
 		cx := (this.BGColour << 4) | this.FGColour
 
@@ -2098,7 +2096,7 @@ func (this *VDUCore) SaveVDUState() {
 	this.SaveCursorX = this.CursorX
 	this.SaveCursorY = this.CursorY
 	this.SaveAttribute = this.Attribute
-	this.SaveTextMode  = this.TextMode
+	this.SaveTextMode = this.TextMode
 }
 
 func (this *VDUCore) RestoreVDUState() {
@@ -2107,9 +2105,8 @@ func (this *VDUCore) RestoreVDUState() {
 	this.CursorX = this.SaveCursorX
 	this.CursorY = this.SaveCursorY
 	this.Attribute = this.SaveAttribute
-	this.TextMode  = this.SaveTextMode
+	this.TextMode = this.SaveTextMode
 }
-
 
 func (this *VDUCore) AssetCheck(p, f string) (*files.FilePack, error) {
 	return nil, nil
@@ -2195,6 +2192,6 @@ func (this *VDUCore) SendRestalgiaEvent(b byte, s string) {
 
 }
 
-func (this *VDUCore) SetBGColourTriple(r,g,b int) {
+func (this *VDUCore) SetBGColourTriple(r, g, b int) {
 
 }

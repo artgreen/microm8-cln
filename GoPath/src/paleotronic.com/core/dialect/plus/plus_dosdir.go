@@ -1,8 +1,9 @@
 package plus
 
 import (
-	"paleotronic.com/fmt"
 	"strings"
+
+	"paleotronic.com/fmt"
 
 	"paleotronic.com/core/hardware/apple2helpers"
 

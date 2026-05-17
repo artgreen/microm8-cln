@@ -3,6 +3,7 @@ package apple2
 import (
 	"bytes"
 	"encoding/binary"
+
 	//rlog "log"
 	//log2 "log"
 	"math"
@@ -348,10 +349,10 @@ func (d *IOCardDiskII) HandleServiceBusRequest(r *servicebus.ServiceBusRequest) 
 		d.GetDrive(drive % 2).Eject()
 		d.GetDrive(drive%2).InsertDisk(t.Filename, false)
 		switch t.Drive {
-			case 0:
-				settings.PureBootVolume[index] = t.Filename
-			case 1:
-				settings.PureBootVolume2[index] = t.Filename
+		case 0:
+			settings.PureBootVolume[index] = t.Filename
+		case 1:
+			settings.PureBootVolume2[index] = t.Filename
 		}
 
 	case servicebus.DiskIIInsertBytes:
@@ -362,10 +363,10 @@ func (d *IOCardDiskII) HandleServiceBusRequest(r *servicebus.ServiceBusRequest) 
 		d.GetDrive(drive % 2).Eject()
 		d.GetDrive(drive%2).InsertDiskBin(t.Bytes, t.Filename, false)
 		switch t.Drive {
-			case 0:
-				settings.PureBootVolume[index] = t.Filename
-			case 1:
-				settings.PureBootVolume2[index] = t.Filename
+		case 0:
+			settings.PureBootVolume[index] = t.Filename
+		case 1:
+			settings.PureBootVolume2[index] = t.Filename
 		}
 
 	case servicebus.DiskIIToggleWriteProtect:

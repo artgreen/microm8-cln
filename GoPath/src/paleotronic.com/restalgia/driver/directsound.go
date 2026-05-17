@@ -1,3 +1,4 @@
+//go:build shit
 // +build shit
 
 package driver
@@ -16,7 +17,7 @@ var (
 
 	user32           = syscall.MustLoadDLL("user32")
 	GetDesktopWindow = user32.MustFindProc("GetDesktopWindow")
-    SampleRate int
+	SampleRate       int
 )
 
 const (
@@ -50,7 +51,7 @@ func get(sampleRate, channels int) (Output, error) {
 		sr:    sampleRate,
 		chans: channels,
 		ch:    make(chan float32, 4096*4),
-        //ch:    make(chan float32, 4096*4),
+		//ch:    make(chan float32, 4096*4),
 	}
 
 	o.ds, err = dsound.DirectSoundCreate(nil)
@@ -70,7 +71,7 @@ func get(sampleRate, channels int) (Output, error) {
 	}
 	o.blockAlign = channels * bits / 8
 	o.bytesPerSec = sampleRate * o.blockAlign
-	o.blockSize = uint32((sampleRate / (numBlock*12)) * o.blockAlign)
+	o.blockSize = uint32((sampleRate / (numBlock * 12)) * o.blockAlign)
 	format := &dsound.WaveFormatEx{
 		FormatTag:      dsound.WAVE_FORMAT_PCM,
 		Channels:       uint16(channels),
@@ -91,8 +92,8 @@ func get(sampleRate, channels int) (Output, error) {
 	if err != nil {
 		panic(err)
 	}
-    
-    SampleRate = sampleRate
+
+	SampleRate = sampleRate
 
 	go o.start()
 	return &o, nil

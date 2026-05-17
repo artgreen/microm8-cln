@@ -3,8 +3,8 @@ package plus
 import (
 	"paleotronic.com/core/dialect"
 	"paleotronic.com/core/types"
-	"paleotronic.com/utils"
 	"paleotronic.com/runestring"
+	"paleotronic.com/utils"
 )
 
 type PlusImageMapAdd struct {
@@ -13,17 +13,19 @@ type PlusImageMapAdd struct {
 
 func (this *PlusImageMapAdd) FunctionExecute(params *types.TokenList) error {
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 
 	rstr := this.Stack.Shift().Content
 	fstr := this.Stack.Shift().Content
-	
-	mm := types.NewInlineImageManager( this.Interpreter.GetMemIndex(), this.Interpreter.GetMemoryMap() )
-	
+
+	mm := types.NewInlineImageManager(this.Interpreter.GetMemIndex(), this.Interpreter.GetMemoryMap())
+
 	rs := runestring.Cast(rstr)
 	ch := rs.Runes[0]
-	
-	mm.Add( ch, fstr )
+
+	mm.Add(ch, fstr)
 
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(1)))
 

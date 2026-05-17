@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"paleotronic.com/api"
+	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/settings"
@@ -129,8 +129,8 @@ func (c *ChatClient) CheckPalette() {
 }
 
 /*
-	CIM - chat incoming message
-	COM - chat outgoing message
+CIM - chat incoming message
+COM - chat outgoing message
 */
 func (c *ChatClient) Init() {
 

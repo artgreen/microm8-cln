@@ -2,18 +2,18 @@ package main
 
 import (
 	"errors"
-	"paleotronic.com/fmt"
-	"gopkg.in/yaml.v1"
-	"io/ioutil"
-	"paleotronic.com/log"
 	"net"
 	"net/rpc"
 	"os"
 	"os/signal"
-	"paleotronic.com/postoffice/core"
 	"strconv"
 	"syscall"
 	"time"
+
+	"gopkg.in/yaml.v1"
+	"paleotronic.com/fmt"
+	"paleotronic.com/log"
+	postoffice "paleotronic.com/postoffice/core"
 )
 
 type MQ struct{}
@@ -211,7 +211,7 @@ func saveConfig(filename string) {
 		os.Exit(2)
 	}
 
-	err := ioutil.WriteFile(filename, raw, 0644)
+	err := os.WriteFile(filename, raw, 0644)
 	//log.Printf("YAML: %v", string(raw))
 	if err != nil {
 		log.Fatal("MQ Shutdown failed due to: %v", err.Error())
@@ -227,7 +227,7 @@ func loadConfig(filename string) {
 	queues = make(postoffice.QueueMap)
 
 	// does file exist
-	raw, err := ioutil.ReadFile(filename)
+	raw, err := os.ReadFile(filename)
 	if err != nil {
 		log.Fatal("MQ Startup failed due to: %v", err.Error())
 		os.Exit(2)

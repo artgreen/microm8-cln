@@ -30,7 +30,7 @@ func (this *StandardCommandWINDOW) Execute(env *interfaces.Producable, caller in
 
 	result = 0
 
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).SetBoundsMode(types.WINDOW)
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).SetBoundsMode(types.WINDOW)
 
 	/* enforce non void return */
 	return result, nil

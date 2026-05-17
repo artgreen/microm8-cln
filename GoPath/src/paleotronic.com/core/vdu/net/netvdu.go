@@ -2,7 +2,6 @@ package vdu
 
 import (
 	"errors"
-	"paleotronic.com/fmt"
 	//"os"
 	"math"
 	"time"
@@ -14,13 +13,13 @@ import (
 	"paleotronic.com/core/vduserver"
 	"paleotronic.com/files"
 	"paleotronic.com/log"
-	"paleotronic.com/utils"
 	"paleotronic.com/restalgia"
 	"paleotronic.com/restalgia/driver"
+	"paleotronic.com/utils"
 )
 
 const (
-	TEXT_BASE_WIDTH = 80
+	TEXT_BASE_WIDTH  = 80
 	TEXT_BASE_HEIGHT = 48
 )
 
@@ -251,7 +250,7 @@ func (this *NetVDU) Clear() {
 }
 */
 
-func (this *NetVDU) ConfigSpecification( vm types.VideoMode ) {
+func (this *NetVDU) ConfigSpecification(vm types.VideoMode) {
 
 	this.Specification.HUDLayers = make([]vduproto.LayerSpec, 0)
 	this.Specification.GFXLayers = make([]vduproto.LayerSpec, 0)
@@ -259,63 +258,63 @@ func (this *NetVDU) ConfigSpecification( vm types.VideoMode ) {
 	//fmt.Printf("Debug: VideoMode actual rows = %d, virtual = %d\n", vm.ActualRows, vm.Rows)
 
 	// TEXT LAYER ZERO
-//	xft := vm.Columns / TEXT_BASE_WIDTH
+	//	xft := vm.Columns / TEXT_BASE_WIDTH
 	yft := TEXT_BASE_HEIGHT / vm.Rows
 	var r vduproto.LayerRect
 	if vm.ActualRows != vm.Rows {
 		//fmt.Println("Partial text mode")
 		r = vduproto.LayerRect{
-			0, uint16(vm.Rows-vm.ActualRows)*uint16(yft),
-			TEXT_BASE_WIDTH-1, TEXT_BASE_HEIGHT-1,
+			0, uint16(vm.Rows-vm.ActualRows) * uint16(yft),
+			TEXT_BASE_WIDTH - 1, TEXT_BASE_HEIGHT - 1,
 		}
 	} else {
 		//fmt.Println("FULL text mode")
 		r = vduproto.LayerRect{
 			0, 0,
-			TEXT_BASE_WIDTH-1, TEXT_BASE_HEIGHT-1,
+			TEXT_BASE_WIDTH - 1, TEXT_BASE_HEIGHT - 1,
 		}
 	}
-	this.Specification.HUDLayers = append( this.Specification.HUDLayers, vduproto.LayerConfigText(
+	this.Specification.HUDLayers = append(this.Specification.HUDLayers, vduproto.LayerConfigText(
 		vduproto.APPLE_TEXT_PAGE_0,
 		(vm.ActualRows > 0),
 		TEXT_BASE_WIDTH, TEXT_BASE_HEIGHT,
 		vm.Columns, vm.Rows,
 		vm.Palette,
 		r,
-	) )
+	))
 
 	// LOWRES LAYER ZERO
-	this.Specification.GFXLayers = append( this.Specification.GFXLayers, vduproto.LayerConfigGFX(
+	this.Specification.GFXLayers = append(this.Specification.GFXLayers, vduproto.LayerConfigGFX(
 		vduproto.APPLE_LORES_PAGE_0,
 		(vm.ActualRows < vm.Rows && vm.Width < 50),
 		40, 48,
 		vm.Palette,
 		vduproto.LayerRect{
-			0, 0, 39, (47 - (uint16(vm.ActualRows)*2)),
+			0, 0, 39, (47 - (uint16(vm.ActualRows) * 2)),
 		},
-	) )
+	))
 
 	// HIRES LAYER ZERO
-	this.Specification.GFXLayers = append( this.Specification.GFXLayers, vduproto.LayerConfigGFX(
+	this.Specification.GFXLayers = append(this.Specification.GFXLayers, vduproto.LayerConfigGFX(
 		vduproto.APPLE_HIRES_PAGE_0,
 		(vm.ActualRows < vm.Rows && vm.Width > 50 && this.DisplayPage == 0),
 		280, 192,
 		vm.Palette,
 		vduproto.LayerRect{
-			0, 0, 279, (191 - (uint16(vm.ActualRows)*8)),
+			0, 0, 279, (191 - (uint16(vm.ActualRows) * 8)),
 		},
-	) )
+	))
 
 	// HIRES LAYER ONE
-	this.Specification.GFXLayers = append( this.Specification.GFXLayers, vduproto.LayerConfigGFX(
+	this.Specification.GFXLayers = append(this.Specification.GFXLayers, vduproto.LayerConfigGFX(
 		vduproto.APPLE_HIRES_PAGE_1,
 		(vm.ActualRows < vm.Rows && vm.Width > 50 && this.DisplayPage == 1),
 		280, 192,
 		vm.Palette,
 		vduproto.LayerRect{
-			0, 0, 279, (191 - (uint16(vm.ActualRows)*8)),
+			0, 0, 279, (191 - (uint16(vm.ActualRows) * 8)),
 		},
-	) )
+	))
 
 	//fmt.Println( this.Specification.String() )
 
@@ -574,7 +573,7 @@ func (this *NetVDU) ExecNative(mem []int, a int, x int, y int, pc int, sr int, s
 
 func (this *NetVDU) SetClassicHGR(v bool) {
 	// send ThinScreen event here...
-	this.ThinEvents.ToggleHGR( v )
+	this.ThinEvents.ToggleHGR(v)
 	this.UseClassicHGR = v
 	this.Server.SendThinScreenMessages(this.ThinEvents.GetEvents())
 }
@@ -751,7 +750,6 @@ func (this *NetVDU) CamRot(x, y, z float32) {
 	this.Server.SendThinScreenMessages(this.ThinEvents.GetEvents())
 }
 
-
 func (this *NetVDU) CamPos(x, y, z float32) {
 	this.ThinEvents.CamPos(x, y, z)
 	this.Server.SendThinScreenMessages(this.ThinEvents.GetEvents())
@@ -785,7 +783,7 @@ func (this *NetVDU) HgrPlotHold(x2, y2 int, hc int) {
 	this.ThinEvents.Plot2D(page, x2, y2, hc)
 }
 
-func (this *NetVDU) HColorAt( x, y int ) int {
+func (this *NetVDU) HColorAt(x, y int) int {
 	return hires.GetAppleHiRES().HgrScreen(this.GetBitmapMemory()[this.GetCurrentPage()%2], x, y)
 }
 

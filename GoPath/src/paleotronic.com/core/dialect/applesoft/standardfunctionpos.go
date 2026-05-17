@@ -51,7 +51,9 @@ func (this *StandardFunctionPOS) FunctionExecute(params *types.TokenList) error 
 	/* vars */
 	//var value int
 
-	if e := this.CoreFunction.FunctionExecute(params); e != nil { return e }
+	if e := this.CoreFunction.FunctionExecute(params); e != nil {
+		return e
+	}
 	this.Stack.Clear()
 
 	//value = this.Stack.Pop().AsInteger()

@@ -31,7 +31,7 @@ func (this *StandardCommandRL) Execute(env *interfaces.Producable, caller interf
 	}
 
 	//cx := caller.GetVDU().GetCursorX()
-	apple2helpers.VECTOR(caller).GetTurtle( this.Command.D.(*DialectLogo).Driver.GetTurtle() ).RollLeft(float32(tt.AsFloat()))
+	apple2helpers.VECTOR(caller).GetTurtle(this.Command.D.(*DialectLogo).Driver.GetTurtle()).RollLeft(float32(tt.AsFloat()))
 	if apple2helpers.IsVectorLayerEnabled(caller) == false {
 		apple2helpers.HTab(caller, 1)
 		apple2helpers.VTab(caller, 21)

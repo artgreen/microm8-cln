@@ -2,9 +2,9 @@ package applesoft
 
 import (
 	"paleotronic.com/core/dialect"
+	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
 	"paleotronic.com/core/types"
-	"paleotronic.com/core/hardware/apple2helpers"
 )
 
 type StandardCommandCLS struct {

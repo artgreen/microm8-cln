@@ -1,3 +1,4 @@
+//go:build remint
 // +build remint
 
 package backend

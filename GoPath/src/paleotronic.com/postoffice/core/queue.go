@@ -3,12 +3,12 @@ package postoffice
 import (
 	"bytes"
 	"errors"
-	"gopkg.in/yaml.v1"
-	"io/ioutil"
-	"paleotronic.com/log"
 	"os"
 	"sync"
 	"time"
+
+	"gopkg.in/yaml.v1"
+	"paleotronic.com/log"
 )
 
 type MQAddress struct {
@@ -47,7 +47,7 @@ func ReadMQClientConfig(filename string) *MQAddress {
 	var config MQAddress = MQAddress{Hostname: "localhost", Port: 9001}
 
 	// does file exist
-	raw, err := ioutil.ReadFile(filename)
+	raw, err := os.ReadFile(filename)
 	if err != nil {
 		log.Fatal("Load client config failed due to: %v", err.Error())
 		os.Exit(2)
@@ -72,7 +72,7 @@ func WriteMQClientConfig(filename string, config *MQAddress) {
 		os.Exit(2)
 	}
 
-	err := ioutil.WriteFile(filename, raw, 0644)
+	err := os.WriteFile(filename, raw, 0644)
 	//log.Printf("YAML: %v", string(raw))
 	if err != nil {
 		log.Fatal("Config save failed: %v", err.Error())

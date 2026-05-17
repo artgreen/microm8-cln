@@ -3,9 +3,9 @@ package spectrum
 import (
 	"fmt"
 
-	"paleotronic.com/z80"
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/interfaces"
+	"paleotronic.com/z80"
 
 	corez80 "paleotronic.com/core/hardware/cpu/z80"
 )

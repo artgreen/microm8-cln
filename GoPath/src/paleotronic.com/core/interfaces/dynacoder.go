@@ -16,6 +16,6 @@ type DynaCoder interface {
 	GetDialect() Dialecter
 	SetDialect(dia Dialecter)
 	GetFunctionSpec() (string, types.TokenList)
-	SetHidden( b bool )
+	SetHidden(b bool)
 	IsHidden() bool
 }
