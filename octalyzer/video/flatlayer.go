@@ -407,7 +407,7 @@ func (this *GraphicsLayer) SetSubFormat(lsf types.LayerSubFormat, force bool) {
 			this.d[i].Mesh = GetPlaneAsTrianglesInv(this.glWidth, this.glHeight)
 
 			this.BitmapLayers[i] = image.NewRGBA(image.Rect(0, 0, this.ScreenTexW+pixelBorder, this.ScreenTexH))
-			draw.Draw(this.BitmapLayers[i], this.BitmapLayers[i].Bounds(), image.Transparent, image.ZP, draw.Src)
+			draw.Draw(this.BitmapLayers[i], this.BitmapLayers[i].Bounds(), image.Transparent, image.Point{}, draw.Src)
 
 			this.d[i].Texture.SetSourceSame(this.BitmapLayers[i]) // force update
 		}

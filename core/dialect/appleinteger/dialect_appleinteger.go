@@ -3065,7 +3065,7 @@ func Fields(str string) []string {
 
 func in(str string, list []string) bool {
 	for _, v := range list {
-		if strings.ToLower(v) == strings.ToLower(str) {
+		if strings.EqualFold(v, str) {
 			return true
 		}
 	}

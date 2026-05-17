@@ -502,7 +502,9 @@ func (w *WOZTrack) WriteBit(ptr int, value byte) {
 	w.Data.Set(byteIdx, b)
 
 	w.Modified = true
-	if w.mMin == w.mMin && w.mMax == 0 {
+	// Initialise the dirty window on the first write (mMin==mMax==0).
+	// Was: `w.mMin == w.mMin` (always true) — caught by staticcheck SA4000.
+	if w.mMin == 0 && w.mMax == 0 {
 		w.mMax = ptr
 		w.mMin = ptr
 	} else {

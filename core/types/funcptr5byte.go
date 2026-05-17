@@ -42,19 +42,19 @@ func (i *FuncPtr5b) GetArgPointer() int {
 	return v
 }
 
-func (i FuncPtr5b) GetFirstByte() byte {
+func (i *FuncPtr5b) GetFirstByte() byte {
 
 	return i.fb
 
 }
 
-func (i FuncPtr5b) SetFirstByte(l byte) {
+func (i *FuncPtr5b) SetFirstByte(l byte) {
 
 	i.fb = l
 
 }
 
-func (i FuncPtr5b) String() string {
+func (i *FuncPtr5b) String() string {
 
 	return utils.IntToStr(int(i.GetPointer()))
 

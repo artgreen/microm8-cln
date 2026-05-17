@@ -109,7 +109,9 @@ func (pfp *PackageFileProvider) Exists(p string, f string) bool {
 		return true
 	} else if (p != "/" && p != "") && f == "" {
 		return (pfp.pack[p] != nil)
-	} else if (p != "/" && p != "") && f == "" {
+	} else if (p != "/" && p != "") && f != "" {
+		// Look up a specific file inside a package.
+		// Was: `f == ""` (same as the previous branch) — caught by staticcheck SA4014.
 		p, exists := pfp.pack[p]
 		if !exists {
 			return false

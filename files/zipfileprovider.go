@@ -49,12 +49,12 @@ func (z *ZipFileProvider) writeFiles() error {
 
 	for path, fr := range z.content {
 		fh := &zip.FileHeader{
-			Comment: fr.Description,
-			Name:    path,
-			Method:  zip.Deflate,
+			Comment:  fr.Description,
+			Name:     path,
+			Method:   zip.Deflate,
+			Modified: fr.Modified,
 		}
 		//fh.SetMode(os.FileMode)
-		fh.SetModTime(fr.Modified)
 		if fr.Directory {
 			// set dir attribute
 			fh.ExternalAttrs = 16
@@ -151,15 +151,15 @@ func (mfp *ZipFileProvider) exists(p, f string) (bool, []string) {
 	r := regexp.MustCompile(pattern)
 
 	for target, entry := range mfp.content {
-		if strings.ToLower(entry.FilePath) == strings.ToLower(p) && strings.ToLower(entry.FileName) == strings.ToLower(f) {
+		if strings.EqualFold(entry.FilePath, p) && strings.EqualFold(entry.FileName, f) {
 			return true, []string{target}
-		} else if strings.ToLower(entry.FilePath) == strings.ToLower(p) && r.MatchString(entry.FileName) {
+		} else if strings.EqualFold(entry.FilePath, p) && r.MatchString(entry.FileName) {
 			ext := GetExt(f)
 			base := f[0 : len(f)-len(ext)-1]
 			m := r.FindAllStringSubmatch(entry.FileName, -1)
 			eExt := m[0][4]
 			eBase := m[0][1]
-			if strings.ToLower(eBase) == strings.ToLower(base) && strings.ToLower(eExt) == strings.ToLower(ext) {
+			if strings.EqualFold(eBase, base) && strings.EqualFold(eExt, ext) {
 				return true, []string{target}
 			}
 		}

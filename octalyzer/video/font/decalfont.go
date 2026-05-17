@@ -81,7 +81,7 @@ func LoadPNG(filename string) (image.Image, error) {
 }
 
 func fillRGBA(img *image.RGBA, c color.RGBA) {
-	draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.ZP, draw.Src)
+	draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.Point{}, draw.Src)
 }
 
 func (this *DecalFont) GetScaleZ() float32 {

@@ -183,7 +183,9 @@ func (client *FSClient) ClientSender() {
 		case <-client.Quit:
 			log.Println("Client ", client.Name, " quitting")
 			client.Conn.Close()
-			break
+			client.OK = false
+			// Without setting OK=false, the for-loop would spin until the next
+			// send error. Bare `break` only exited the select (staticcheck SA4011).
 		}
 	}
 	client.SEND_OK = false

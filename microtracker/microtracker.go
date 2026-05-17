@@ -1670,7 +1670,7 @@ func (m *MicroTracker) Run(ent interfaces.Interpretable) {
 									nn := p.Tracks[m.cTrack].Notes[idx]
 									if nn != nil && nn.Note != nil {
 										newOctave, err := strconv.ParseUint(string(rune(ch)), 10, 32)
-										if err == nil && newOctave >= 0 && newOctave <= 6 {
+										if err == nil && newOctave <= 6 {
 											nn.SetOctave(byte(newOctave))
 											m.Song.PlayLine(m.cTrack)
 										}

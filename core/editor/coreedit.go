@@ -2414,7 +2414,6 @@ func (this *CoreEdit) GridChooser(prompt string, items []GridItem, hmargin, vmar
 			}
 		case 13:
 			done = true
-			break
 		case 27:
 			return -1
 		}
@@ -2496,7 +2495,6 @@ func (this *CoreEdit) ShowKeymap(prompt string, hmargin, vmargin int) int {
 		switch ch {
 		case 13:
 			done = true
-			break
 		case 27:
 			return -1
 		}

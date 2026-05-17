@@ -223,7 +223,7 @@ func (this *DynaCode) HasToken(tt types.TokenType, content string) bool {
 	for _, l := range this.Code.C {
 		for _, s := range l {
 			for _, tok := range s.Content {
-				if tok.Type == tt && strings.ToLower(content) == strings.ToLower(tok.Content) {
+				if tok.Type == tt && strings.EqualFold(content, tok.Content) {
 					return true
 				} else if tok.Type == types.LIST && tok.List != nil {
 					if tok.List.IndexOfN(-1, tt, content) != -1 {

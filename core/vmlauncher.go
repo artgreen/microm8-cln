@@ -45,7 +45,12 @@ cd ~
 
 func (vm *VM) ApplyLaunchConfig(config *VMLauncherConfig) error {
 
-	if config.ZXState != nil || strings.Contains(settings.SpecFile[vm.Index], "spectrum") {
+	// Treat the spectrum hardware as a hint that we should render in the
+	// legacy non-unified path. We can only consult config.ZXState once we
+	// know config is non-nil — the original code dereferenced it before the
+	// nil guard below (caught by staticcheck SA5011).
+	zxState := config != nil && config.ZXState != nil
+	if zxState || strings.Contains(settings.SpecFile[vm.Index], "spectrum") {
 		settings.UnifiedRender[vm.Index] = false
 	} else {
 		settings.UnifiedRender[vm.Index] = settings.UnifiedRenderGlobal

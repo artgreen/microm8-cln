@@ -68,7 +68,7 @@ func (dsk *DSKWrapper) GenericReadData(path string, name string) (int, []byte, e
 		}
 
 		for _, fd := range info {
-			if strings.ToLower(fd.Name()) == strings.ToLower(name) {
+			if strings.EqualFold(fd.Name(), name) {
 				_, addr, data, err := dsk.PRODOSReadFile(fd)
 				return addr, data, err
 			}

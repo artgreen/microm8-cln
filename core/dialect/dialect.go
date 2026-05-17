@@ -2539,7 +2539,7 @@ func (this *Dialect) SplitOnToken(tokens types.TokenList, tok types.Token) types
 	result = result.Add(*types.NewTokenList())
 
 	for _, tt1 := range tokens.Content {
-		if (tt1.Type == tok.Type) && (strings.ToLower(tt1.Content) == strings.ToLower(tok.Content)) {
+		if (tt1.Type == tok.Type) && (strings.EqualFold(tt1.Content, tok.Content)) {
 			idx++
 			//SetLength(result, idx+1);
 			result = result.Add(*types.NewTokenList())

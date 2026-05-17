@@ -35,7 +35,7 @@ func (d *IOCardMockingBoard) Init(slot int) {
 	for i := 0; i < len(d.chips); i++ {
 		d.chips[i] = common.NewAY38910(
 			fmt.Sprintf("ay.%d", i),
-			(i%1)*0x80,
+			(i%2)*0x80,
 			cpu.BaseSpeed,
 			int(settings.SampleRate),
 			0xff,

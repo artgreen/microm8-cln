@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	//lint:ignore SA1019 protobuf migration to google.golang.org/protobuf/proto deferred to a dedicated phase (touches generated code).
 	"github.com/golang/protobuf/proto"
 	"paleotronic.com/server/forumapi"
 )

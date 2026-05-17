@@ -245,7 +245,7 @@ func (this *TextLayer) PlotBlank(wv, hv float32, solid bool, x, y int) {
 
 	target := image.Rect(xp, yp, xp+w, yp+h) // Char pos
 
-	//draw.Draw(this.Bitmap, target, image.Transparent, image.ZP, draw.Src)
+	//draw.Draw(this.Bitmap, target, image.Transparent, image.Point{}, draw.Src)
 	accelimage.FillRGBA(this.Bitmap, target, color.RGBA{0, 0, 0, 0})
 
 }
@@ -313,7 +313,7 @@ func (this *TextLayer) PlotPixelFont(ch rune, colidx, bcolidx, shade int, va typ
 		mappedimage := this.GetInlineImageByRune(ch, imageW, imageH)
 
 		if mappedimage == nil {
-			draw.Draw(this.Bitmap, target, &image.Uniform{av}, image.ZP, draw.Src)
+			draw.Draw(this.Bitmap, target, &image.Uniform{av}, image.Point{}, draw.Src)
 			return
 		}
 
@@ -449,7 +449,7 @@ func NewTextLayer(width, height int, glWidth float32, glHeight float32, data *me
 	if this.Bitmap == nil {
 		this.Bitmap = image.NewRGBA(image.Rect(0, 0, this.ScreenTexW, this.ScreenTexH))
 	}
-	draw.Draw(this.Bitmap, this.Bitmap.Bounds(), image.Transparent, image.ZP, draw.Src)
+	draw.Draw(this.Bitmap, this.Bitmap.Bounds(), image.Transparent, image.Point{}, draw.Src)
 
 	this.d.Texture.SetSourceSame(this.Bitmap) // force update
 

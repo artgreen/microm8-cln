@@ -671,7 +671,7 @@ func (d *Disk) HasFileSHA256(sha string) (bool, *DiskFile) {
 func (d *Disk) GetFileChecksum(filename string) (bool, string) {
 
 	for _, f := range d.Files {
-		if strings.ToLower(filename) == strings.ToLower(f.Filename) {
+		if strings.EqualFold(filename, f.Filename) {
 			return true, f.SHA256
 		}
 	}

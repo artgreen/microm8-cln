@@ -4,11 +4,17 @@
 # the repo has no cloud CI, by design.
 #
 # Usage:
-#   tools/scripts/check.sh           # fmt + vet + test + build (race-enabled)
-#   tools/scripts/check.sh fmt       # gofmt -l (non-gating until Phase 2)
-#   tools/scripts/check.sh vet       # go vet on allowlist
-#   tools/scripts/check.sh test      # go test -race on allowlist
-#   tools/scripts/check.sh build     # build octalyzer
+#   tools/scripts/check.sh             # fmt + vet + staticcheck + test + build (race-enabled)
+#   tools/scripts/check.sh fmt         # gofmt -l (non-gating until Phase 2)
+#   tools/scripts/check.sh vet         # go vet on allowlist
+#   tools/scripts/check.sh staticcheck # honnef.co/go/tools/cmd/staticcheck on ./...
+#   tools/scripts/check.sh test        # go test -race on allowlist
+#   tools/scripts/check.sh build       # build octalyzer
+#
+# The staticcheck policy lives in staticcheck.conf at the repo root. The
+# enabled set finds real bugs (SA*, plus some ST/S); the noisier style checks
+# are explicitly disabled there with rationale. Run `staticcheck -explain SAXXX`
+# to read about a check.
 #
 # See also:
 #   tools/scripts/test.sh   for deeper test modes (cover, bench, fuzz, flake)
@@ -56,6 +62,37 @@ run_vet() {
     GOFLAGS=-mod=mod go vet $VET_FLAGS ./...
 }
 
+# Locate staticcheck. We prefer the binary on PATH but fall back to GOPATH/bin
+# because `go install` puts it there and that directory is rarely on PATH for
+# casual contributors. If neither is present, print a one-line install hint.
+find_staticcheck() {
+    if command -v staticcheck >/dev/null 2>&1; then
+        command -v staticcheck
+        return 0
+    fi
+    local gopath_bin
+    gopath_bin="$(go env GOPATH)/bin/staticcheck"
+    if [ -x "$gopath_bin" ]; then
+        echo "$gopath_bin"
+        return 0
+    fi
+    return 1
+}
+
+run_staticcheck() {
+    echo "==> staticcheck ./..."
+    cd "$REPO_ROOT"
+    local bin
+    if ! bin="$(find_staticcheck)"; then
+        echo "staticcheck not found. Install it with:" >&2
+        echo "    go install honnef.co/go/tools/cmd/staticcheck@latest" >&2
+        echo "and ensure \$(go env GOPATH)/bin is on \$PATH (or rerun via tools/scripts/check.sh)." >&2
+        return 1
+    fi
+    # The check set is driven by ./staticcheck.conf, not flags here.
+    "$bin" ./...
+}
+
 run_test() {
     "$SCRIPT_DIR/test.sh" race
 }
@@ -65,18 +102,20 @@ run_build() {
 }
 
 case "${1:-all}" in
-    fmt)   run_fmt ;;
-    vet)   run_vet ;;
-    test)  run_test ;;
-    build) run_build ;;
+    fmt)         run_fmt ;;
+    vet)         run_vet ;;
+    staticcheck) run_staticcheck ;;
+    test)        run_test ;;
+    build)       run_build ;;
     all)
         run_fmt
         run_vet
+        run_staticcheck
         run_test
         run_build
         ;;
     *)
-        echo "Usage: $0 [fmt|vet|test|build|all]" >&2
+        echo "Usage: $0 [fmt|vet|staticcheck|test|build|all]" >&2
         exit 2
         ;;
 esac

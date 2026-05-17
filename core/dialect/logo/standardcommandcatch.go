@@ -60,7 +60,7 @@ func (this *StandardCommandCATCH) Execute(env *interfaces.Producable, caller int
 	a := caller.GetDirectAlgorithm()
 
 	e = caller.GetDialect().ExecuteDirectCommand(*list, caller, a, caller.GetLPC())
-	if e != nil && strings.ToLower(e.Error()) == strings.ToLower(errtype) {
+	if e != nil && strings.EqualFold(e.Error(), errtype) {
 		//fmt.Println("in catch", e.Error())
 		e = nil
 	}

@@ -89,19 +89,14 @@ func (this *StandardCommandDIM) Execute(env *interfaces.Producable, caller inter
 		switch ch { /* FIXME - Switch statement needs cleanup */
 		case '%':
 			vt = types.VT_INTEGER
-			break
 		case '#':
 			vt = types.VT_FLOAT
-			break
 		case '!':
 			vt = types.VT_FLOAT
-			break
 		case '$':
 			vt = types.VT_STRING
-			break
 		case '@':
 			vt = types.VT_BOOLEAN
-			break
 		}
 
 		ns := ""

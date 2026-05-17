@@ -60,7 +60,7 @@ func (p *PNGOutput) PlotDots(x, y float64, chunk []byte, hdpi, vdpi float64, c f
 					int(yy+dh),
 				)
 				fmt.RPrintf("Point at %d, %d\n", int(xx), int(yy))
-				draw.Draw(p.image, dr, image.NewUniform(color.RGBA{0, 0, 0, 255}), image.ZP, draw.Src)
+				draw.Draw(p.image, dr, image.NewUniform(color.RGBA{0, 0, 0, 255}), image.Point{}, draw.Src)
 			}
 		}
 	}
@@ -108,7 +108,7 @@ func (p *PNGOutput) NewPage() {
 	p.image = image.NewRGBA(
 		dr,
 	)
-	draw.Draw(p.image, dr, image.NewUniform(color.RGBA{255, 255, 255, 255}), image.ZP, draw.Src)
+	draw.Draw(p.image, dr, image.NewUniform(color.RGBA{255, 255, 255, 255}), image.Point{}, draw.Src)
 }
 
 func (p *PNGOutput) Flush(ent interfaces.Interpretable) {
@@ -162,7 +162,7 @@ func (p *PNGOutput) drawGraphicsText(ch rune, inverse bool, sx, sy, dw, dh float
 		)
 
 		fmt.RPrintf("Point at %d, %d\n", int(xx), int(yy))
-		draw.Draw(p.image, dr, image.NewUniform(color.RGBA{0, 0, 0, 255}), image.ZP, draw.Src)
+		draw.Draw(p.image, dr, image.NewUniform(color.RGBA{0, 0, 0, 255}), image.Point{}, draw.Src)
 		p.plotted = true
 
 	}

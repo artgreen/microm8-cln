@@ -1075,7 +1075,7 @@ func (this *FileCatalog) StartScreen() {
 
 func inList(s string, list []string) bool {
 	for _, v := range list {
-		if strings.ToLower(s) == strings.ToLower(v) {
+		if strings.EqualFold(s, v) {
 			return true
 		}
 	}

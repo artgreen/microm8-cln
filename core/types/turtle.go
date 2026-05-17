@@ -209,7 +209,7 @@ func (t *Turtle) LoadModelFromTag(tag string) {
 	t.tag = ""
 	newc := make([]*TurtleCommand, 0)
 	for _, c := range t.Track {
-		if strings.ToLower(c.Tag) == strings.ToLower(tag) {
+		if strings.EqualFold(c.Tag, tag) {
 			newc = append(newc, &TurtleCommand{
 				Type:   c.Type,
 				FValue: c.FValue,

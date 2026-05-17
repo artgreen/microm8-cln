@@ -1912,7 +1912,11 @@ func (this *DialectShell) ProcessDynamicCommand(ent interfaces.Interpretable, cm
 	}
 
 	if utils.Copy(cmd, 1, 3) == "PR#" {
-		cmd = strings.Trim(utils.Delete(cmd, 1, 3), " ")
+		// The PR# argument parsing was abandoned mid-implementation; the
+		// switch below was commented out long ago. The Trim/Delete was
+		// reassigning cmd to a value that is never read (staticcheck SA4017).
+		// Keep the branch as a no-op pending a real reimplementation.
+
 		//		mode := utils.StrToInt(cmd)
 
 		//		switch mode { /* FIXME - Switch statement needs cleanup */

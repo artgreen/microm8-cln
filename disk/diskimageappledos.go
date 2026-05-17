@@ -821,7 +821,7 @@ func (d *DSKWrapper) AppleDOSNextFreeCatalogEntry(name string) (*FileDescriptor,
 
 		if fd.IsUnused() {
 			return &fd, nil
-		} else if name != "" && strings.ToLower(fd.NameUnadorned()) == strings.ToLower(name) {
+		} else if name != "" && strings.EqualFold(fd.NameUnadorned(), name) {
 			return &fd, nil
 		}
 		count++
@@ -872,7 +872,7 @@ func (d *DSKWrapper) AppleDOSNamedCatalogEntry(name string) (*FileDescriptor, er
 
 		//fmt.Printf("FILE NAME CHECK [%s] vs [%s]\n", strings.ToLower(fd.NameUnadorned()), strings.ToLower(name))
 
-		if name != "" && strings.ToLower(fd.NameUnadorned()) == strings.ToLower(name) {
+		if name != "" && strings.EqualFold(fd.NameUnadorned(), name) {
 			return &fd, nil
 		}
 		count++

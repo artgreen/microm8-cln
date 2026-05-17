@@ -20,8 +20,6 @@ import (
 	"sync"
 	"time"
 
-	fmt2 "paleotronic.com/fmt"
-
 	"paleotronic.com/core/interfaces"
 	pnc "paleotronic.com/panic"
 
@@ -1013,11 +1011,11 @@ func maininner() {
 
 	// Handle MCP mode
 	if *sscListPorts {
-		fmt2.Println("Available hardware serial ports:")
+		fmt.Println("Available hardware serial ports:")
 		ports, err := common.EnumerateSerialPorts()
 		if err == nil {
 			for i, port := range ports {
-				fmt2.Printf("  %d) %s\n", i+1, port)
+				fmt.Printf("  %d) %s\n", i+1, port)
 			}
 		}
 		os.Exit(0)

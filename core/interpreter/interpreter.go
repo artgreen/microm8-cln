@@ -2455,7 +2455,7 @@ func (this *Interpreter) SplitOnTokenWithBrackets(tokens types.TokenList, tok ty
 	result = result.Add(*types.NewTokenList())
 
 	for _, tt := range tokens.Content {
-		if (tt.Type == tok.Type) && (strings.ToLower(tt.Content) == strings.ToLower(tok.Content) || tok.Content == "") && (bc == 0) {
+		if (tt.Type == tok.Type) && (strings.EqualFold(tt.Content, tok.Content) || tok.Content == "") && (bc == 0) {
 			idx++
 			result = result.Add(*types.NewTokenList())
 		} else {
@@ -3431,11 +3431,11 @@ func (this *Interpreter) SeekForwards(current types.CodeRef, eType types.TokenTy
 
 	t = this.GetNextToken(&ptr)
 	for (ptr.Line != -1) && (notFound) {
-		if (pairType != types.NOP) && (t.Type == pairType) && (strings.ToLower(t.Content) == strings.ToLower(pairValue)) {
+		if (pairType != types.NOP) && (t.Type == pairType) && (strings.EqualFold(t.Content, pairValue)) {
 			nestCount++
-		} else if (t.Type == eType) && (nestCount > 0) && (strings.ToLower(t.Content) == strings.ToLower(eValue)) {
+		} else if (t.Type == eType) && (nestCount > 0) && (strings.EqualFold(t.Content, eValue)) {
 			nestCount--
-		} else if (t.Type == eType) && (nestCount == 0) && (strings.ToLower(t.Content) == strings.ToLower(eValue)) {
+		} else if (t.Type == eType) && (nestCount == 0) && (strings.EqualFold(t.Content, eValue)) {
 			notFound = false
 			result.Line = ptr.Line
 			result.Statement = ptr.Statement
@@ -4018,11 +4018,11 @@ func (this *Interpreter) SeekBackwards(current types.CodeRef, eType types.TokenT
 	t = this.GetPrevToken(&ptr)
 	for (ptr.Line != -1) && (notFound) {
 
-		if (pairType != types.NOP) && (t.Type == pairType) && (strings.ToLower(t.Content) == strings.ToLower(pairValue)) {
+		if (pairType != types.NOP) && (t.Type == pairType) && (strings.EqualFold(t.Content, pairValue)) {
 			nestCount++
-		} else if (t.Type == eType) && (nestCount > 0) && (strings.ToLower(t.Content) == strings.ToLower(eValue)) {
+		} else if (t.Type == eType) && (nestCount > 0) && (strings.EqualFold(t.Content, eValue)) {
 			nestCount--
-		} else if (t.Type == eType) && (nestCount == 0) && (strings.ToLower(t.Content) == strings.ToLower(eValue)) {
+		} else if (t.Type == eType) && (nestCount == 0) && (strings.EqualFold(t.Content, eValue)) {
 			notFound = false
 			result.Line = ptr.Line
 			result.Statement = ptr.Statement
@@ -4974,7 +4974,7 @@ func (this *Interpreter) NextTokenInstance(current *types.CodeRef, ttype types.T
 			if tcontent == "" {
 				result = true
 			} else {
-				result = (strings.ToLower(tcontent) == strings.ToLower(tok.Content))
+				result = (strings.EqualFold(tcontent, tok.Content))
 			}
 		}
 	}

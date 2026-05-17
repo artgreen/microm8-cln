@@ -1303,7 +1303,7 @@ func ResolveFileViaProvider(p string, f string) ([]string, error) {
 
 		fmt.Println("PATH =", file.Path, " vs ", f)
 		name := GetFilename(file.Path)
-		if strings.ToLower(f) == strings.ToLower(name) {
+		if strings.EqualFold(f, name) {
 			return []string{name}, nil
 		}
 
@@ -1315,7 +1315,7 @@ func ResolveFileViaProvider(p string, f string) ([]string, error) {
 			if ext != "" {
 				cname += "." + ext
 			}
-			if strings.ToLower(f) == strings.ToLower(cname) || (!needsExt && strings.ToLower(f) == strings.ToLower(base)) {
+			if strings.EqualFold(f, cname) || (!needsExt && strings.EqualFold(f, base)) {
 				fmt.Printf("-------------------> Found: %s\n", name)
 				return []string{name}, nil
 			}
@@ -1376,7 +1376,7 @@ func CheckPathCI(path string) (bool, string) {
 		// we got some stuff, check for a match
 		match := false
 		for _, info := range files {
-			if strings.ToLower(info) == strings.ToLower(chunk) {
+			if strings.EqualFold(info, chunk) {
 				wp += info
 
 				//fmt.Printf("wp: [%s]\n", wp)

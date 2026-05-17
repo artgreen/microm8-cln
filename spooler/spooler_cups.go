@@ -1,8 +1,6 @@
 //go:build !windows
 // +build !windows
 
-// go:build !windows
-
 package spooler
 
 import (

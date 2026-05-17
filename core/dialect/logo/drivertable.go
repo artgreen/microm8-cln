@@ -116,7 +116,7 @@ func TableSearchRow(t *types.Token, row int, value *types.Token, variance *types
 			match = cv >= (v-fv) && cv <= (v+fv)
 		} else {
 			// simple string match
-			match = strings.ToLower(tt.Content) == strings.ToLower(value.Content)
+			match = strings.EqualFold(tt.Content, value.Content)
 		}
 		if match {
 			list.Push(types.NewToken(types.NUMBER, utils.IntToStr(c)))
@@ -159,7 +159,7 @@ func TableSearchColumn(t *types.Token, col int, value *types.Token, variance *ty
 			match = cv >= (v-fv) && cv <= (v+fv)
 		} else {
 			// simple string match
-			match = strings.ToLower(tt.Content) == strings.ToLower(value.Content)
+			match = strings.EqualFold(tt.Content, value.Content)
 		}
 		if match {
 			list.Push(types.NewToken(types.NUMBER, utils.IntToStr(r)))
