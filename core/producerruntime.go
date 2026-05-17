@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"time"
 
 	s8webclient "paleotronic.com/api"
@@ -11,6 +12,7 @@ import (
 	"paleotronic.com/core/types"
 	"paleotronic.com/files"
 	"paleotronic.com/fmt"
+	"paleotronic.com/internal/lifecycle"
 	"paleotronic.com/runestring"
 )
 
@@ -72,15 +74,56 @@ func NewProducer(r *memory.MemoryMap, bootstrap string) *Producer {
 
 	settings.BlueScreen = false
 
-	go this.RebootService()
-	go this.MusicService()
+	this.StartServices()
 
 	producerIsReady = true
 
 	return this
 }
 
-func (this *Producer) MusicService() {
+// StartServices launches the two long-lived helper goroutines
+// (MusicService, RebootService) under a context owned by the Producer.
+// Calling StartServices a second time cancels the previous services
+// before relaunching, so we never leak.
+func (this *Producer) StartServices() {
+	if this.servicesCancel != nil {
+		this.servicesCancel()
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	this.servicesCtx = ctx
+	this.servicesCancel = cancel
+
+	go this.RebootService(ctx)
+	go this.MusicService(ctx)
+}
+
+// Shutdown cancels the helper goroutines started by StartServices. Safe
+// to call multiple times and safe to call before StartServices (no-op).
+func (this *Producer) Shutdown() {
+	if this.servicesCancel != nil {
+		this.servicesCancel()
+		this.servicesCancel = nil
+		this.servicesCtx = nil
+	}
+}
+
+// DefaultMusicServiceTick is the production poll cadence for
+// MusicService when Producer.MusicServiceTick is zero.
+const DefaultMusicServiceTick = 100 * time.Millisecond
+
+// DefaultRebootServiceTick is the production poll cadence for
+// RebootService when Producer.RebootServiceTick is zero.
+const DefaultRebootServiceTick = 500 * time.Millisecond
+
+// MusicService polls each VM for a pending music change and forwards the
+// request to the VM's music subsystem. Exits when ctx is canceled.
+func (this *Producer) MusicService(ctx context.Context) {
+	// Snapshot the interval at goroutine entry so concurrent updates to
+	// the field don't race the read inside SleepOrDone.
+	tick := this.MusicServiceTick
+	if tick <= 0 {
+		tick = DefaultMusicServiceTick
+	}
 	for {
 		for i, vm := range this.VM {
 			if vm == nil {
@@ -96,13 +139,25 @@ func (this *Producer) MusicService() {
 			}
 
 		}
-		time.Sleep(time.Millisecond * 100)
+		if !lifecycle.SleepOrDone(ctx, tick) {
+			return
+		}
 	}
 }
 
-func (this *Producer) RebootService() {
-	for {
-		time.Sleep(500 * time.Millisecond)
+// RebootService watches for clean-boot requests and per-slot restart
+// flags, kicking off the appropriate VM teardown/restart. Exits when ctx
+// is canceled.
+//
+// Tolerates a nil AddressSpace: the slot-restart polling path is skipped
+// when no memory map is wired up (this lets tests exercise the loop's
+// exit behaviour without standing up the full memory subsystem).
+func (this *Producer) RebootService(ctx context.Context) {
+	tick := this.RebootServiceTick
+	if tick <= 0 {
+		tick = DefaultRebootServiceTick
+	}
+	for lifecycle.SleepOrDone(ctx, tick) {
 		if settings.CleanBootRequested {
 			settings.CleanBootRequested = false
 			settings.MicroPakPath = ""
@@ -122,7 +177,7 @@ func (this *Producer) RebootService() {
 				}
 
 			}
-		} else {
+		} else if this.AddressSpace != nil {
 			for i := 0; i < settings.NUMSLOTS; i++ {
 				if this.AddressSpace.IntGetSlotRestart(i) {
 					this.AddressSpace.IntSetSlotRestart(i, false)
