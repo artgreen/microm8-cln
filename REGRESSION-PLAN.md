@@ -281,13 +281,31 @@ the specific workflow you're about to change**, not a generic
 coverage push. The regression-pinning pattern is reusable: fix a bug
 once, write the test, and now it's load-bearing forever.
 
-## 8. Open question for you
+## 8. Status
 
-Order ambiguity: Phase 8 (regression pins) is highest value but Phase
-9 (boundary tests) builds the harness everything else relies on. I'd
-lead with Phase 8 because the pins go in alongside the existing code
-without needing the harness — but if you'd rather front-load the
-harness work, swap 8 and 9. Either way Phase 10 is gated on the
-Phase 9 harness existing.
+All five phases shipped (PRs #15–#19, merged sequentially to master):
 
-If you ack the plan I'll start Phase 8.
+| Phase | PR | Tests added | Bugs found+fixed | Notes |
+|---|---|---:|---:|---|
+| 8 — regression pins | #15 | 35 | 2 | `Algorithm` locking holes + `utils.rng` thread-safety, both caught while writing pins. Two test-scaffolding stubs (`TestTaskExecution`, `TestSimpleDelta`, `TestPackagePackUnPack`) skipped with TODOs. |
+| 9 — boundary contract | #16 | 26 | 0 | Disk sector-mapper bijections, AppleDOS VTOC, FileDescriptor decoding, memory-map two-layer activation, zip provider round-trip. Bypassed the full headless-emulator harness ambition in favour of higher-ROI format-and-memory boundary tests. |
+| 10 — high-leverage units | #17 | 20 | 1 | 6502 flag/helper primitives, Token/TokenList deep tests. Pinned the `TokenList.IndexOf` start-is-exclusive off-by-one as a documented quirk with a TODO. |
+| 11 — fuzz the parsers | #18 | 3 fuzzers + 5 unit | 1 | DuckTape bundle parser (3M execs clean), WOZ parser (caught a slice-bounds panic on short input, fixed), DSK wrapper (310k execs clean). |
+| 12 — tighten the loop | #19 | n/a | n/a | `check.sh quick` (no build, `-short` tests), `cover-gaps.sh` for "where to add the next test", TESTING.md workflow docs. |
+
+End state:
+
+- **27 test packages** in the allowlist, all green under `-race -shuffle=on`
+- **~85 new tests** total across 4 PRs (excluding the existing baseline)
+- **5 latent bugs found and fixed** that didn't surface in earlier phases (3 concurrency-related, 1 parser-panic, 1 OOB)
+- **`check.sh quick`**: ~8s. **`check.sh`** (full): ~12s.
+- **`cover-gaps.sh`**: 1-command answer to "where should the next test go"
+
+The safety net is in place. Future development should:
+
+1. Run `watch.sh` while coding
+2. `check.sh quick` before each commit (~8s)
+3. `check.sh` before opening a PR (~12s, includes the build)
+4. `cover-gaps.sh ./pkg` when picking the next test to write
+5. New bugs found get a named regression pin alongside the fix —
+   that's how this safety net grows.

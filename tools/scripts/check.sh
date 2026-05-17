@@ -5,11 +5,18 @@
 #
 # Usage:
 #   tools/scripts/check.sh             # fmt + vet + staticcheck + test + build (race-enabled)
+#   tools/scripts/check.sh quick       # fmt + vet + staticcheck + tests with -short (no build)
 #   tools/scripts/check.sh fmt         # gofmt -l (non-gating until Phase 2)
 #   tools/scripts/check.sh vet         # go vet on allowlist
 #   tools/scripts/check.sh staticcheck # honnef.co/go/tools/cmd/staticcheck on ./...
 #   tools/scripts/check.sh test        # go test -race on allowlist
 #   tools/scripts/check.sh build       # build octalyzer
+#
+# The "develop without dread" workflow:
+#
+#   tools/scripts/watch.sh             # auto-reruns tests on save (instant feedback)
+#   tools/scripts/check.sh quick       # before committing (≤5s typically)
+#   tools/scripts/check.sh             # before opening a PR (full gate)
 #
 # The staticcheck policy lives in staticcheck.conf at the repo root. The
 # enabled set finds real bugs (SA*, plus some ST/S); the noisier style checks
@@ -19,6 +26,7 @@
 # See also:
 #   tools/scripts/test.sh   for deeper test modes (cover, bench, fuzz, flake)
 #   tools/scripts/watch.sh  for a file-watcher test loop
+#   tools/scripts/cover-gaps.sh  for "where should I add the next test?"
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -97,6 +105,10 @@ run_test() {
     "$SCRIPT_DIR/test.sh" race
 }
 
+run_test_short() {
+    "$SCRIPT_DIR/test.sh" short
+}
+
 run_build() {
     "$SCRIPT_DIR/build.sh"
 }
@@ -107,6 +119,17 @@ case "${1:-all}" in
     staticcheck) run_staticcheck ;;
     test)        run_test ;;
     build)       run_build ;;
+    quick)
+        # Pre-commit workhorse: fmt + vet + staticcheck + tests in -short
+        # mode (skips fuzz seed-replay, network/lifecycle loops that sleep).
+        # Skips the build because go test compiles every package's tests
+        # already — a clean test run gives high confidence the binary
+        # builds too.
+        run_fmt
+        run_vet
+        run_staticcheck
+        run_test_short
+        ;;
     all)
         run_fmt
         run_vet
@@ -115,7 +138,7 @@ case "${1:-all}" in
         run_build
         ;;
     *)
-        echo "Usage: $0 [fmt|vet|staticcheck|test|build|all]" >&2
+        echo "Usage: $0 [fmt|vet|staticcheck|test|build|quick|all]" >&2
         exit 2
         ;;
 esac

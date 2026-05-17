@@ -5,6 +5,7 @@
 #   tools/scripts/test.sh                    # quick: -race on the test allowlist
 #   tools/scripts/test.sh unit               # all unit tests on the allowlist
 #   tools/scripts/test.sh race               # -race on the allowlist
+#   tools/scripts/test.sh short              # -race -short: skip slow tests (watch-loop default)
 #   tools/scripts/test.sh cover              # coverage report
 #   tools/scripts/test.sh cover html         # coverage report + open HTML
 #   tools/scripts/test.sh bench              # benchmarks only (-run=^$ -bench=.)
@@ -40,6 +41,11 @@ run_unit() {
 run_race() {
     echo "==> go test -race (allowlist)"
     go test -race -shuffle=on $TEST_PKGS
+}
+
+run_short() {
+    echo "==> go test -race -short (allowlist)"
+    go test -race -shuffle=on -short $TEST_PKGS
 }
 
 run_cover() {
@@ -132,6 +138,7 @@ run_pkg() {
 case "${1:-race}" in
     unit)  run_unit ;;
     race)  run_race ;;
+    short) run_short ;;
     cover) shift; run_cover "${1:-}" ;;
     bench) run_bench ;;
     fuzz)  shift; run_fuzz "$@" ;;

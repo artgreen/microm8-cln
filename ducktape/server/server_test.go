@@ -42,6 +42,9 @@ func newTestClient(t *testing.T) (*ducktape.Client, net.Conn, *list.List) {
 // goroutine returns within a couple of seconds (client.Close sleeps
 // 1s before closing the conn).
 func TestClientSender_QuitTerminatesGoroutine(t *testing.T) {
+	if testing.Short() {
+		t.Skip("slow: client.Close sleeps 1s before tearing down the conn")
+	}
 	defer testutil.NoGoroutineLeaks(t)()
 
 	c, peer, _ := newTestClient(t)
