@@ -19,6 +19,7 @@ import (
 
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/hardware/servicebus"
+	"paleotronic.com/core/memory"
 	"paleotronic.com/core/settings"
 	"paleotronic.com/core/types"
 	"paleotronic.com/debugger"
@@ -41,7 +42,7 @@ var (
 
 // SSE configuration
 const (
-	heartbeatInterval = 30 * time.Second  // Send heartbeat every 30 seconds
+	heartbeatInterval = 30 * time.Second // Send heartbeat every 30 seconds
 )
 
 // Tool parameter structs
@@ -91,6 +92,31 @@ type WriteMemoryRangeParams struct {
 	Values  []int `json:"values" jsonschema:"description:Array of values to write (each 0-255)"`
 }
 
+type ListRAMRegionsParams struct{}
+
+type ReadRAMByteParams struct {
+	Region string `json:"region" jsonschema:"description:RAM region label, such as main.main.text or aux.main.hgr1"`
+	Offset int    `json:"offset" jsonschema:"description:Byte offset within the RAM region,minimum:0"`
+}
+
+type ReadRAMRangeParams struct {
+	Region string `json:"region" jsonschema:"description:RAM region label, such as main.main.text or aux.main.hgr1"`
+	Offset int    `json:"offset" jsonschema:"description:Starting byte offset within the RAM region,minimum:0"`
+	Count  int    `json:"count" jsonschema:"description:Number of bytes to read,minimum:1"`
+}
+
+type WriteRAMByteParams struct {
+	Region string `json:"region" jsonschema:"description:RAM region label, such as main.main.text or aux.main.hgr1"`
+	Offset int    `json:"offset" jsonschema:"description:Byte offset within the RAM region,minimum:0"`
+	Value  int    `json:"value" jsonschema:"description:Byte value to write,minimum:0,maximum:255"`
+}
+
+type WriteRAMRangeParams struct {
+	Region string `json:"region" jsonschema:"description:RAM region label, such as main.main.text or aux.main.hgr1"`
+	Offset int    `json:"offset" jsonschema:"description:Starting byte offset within the RAM region,minimum:0"`
+	Values []int  `json:"values" jsonschema:"description:Array of byte values to write (each 0-255)"`
+}
+
 type SetCPUSpeedParams struct {
 	Speed float64 `json:"speed" jsonschema:"description:Speed multiplier (0.25 to 4.0),minimum:0.25,maximum:4.0"`
 }
@@ -130,7 +156,7 @@ type LoadBasicProgramParams struct {
 }
 
 type ReadInterpreterCodeParams struct {
-	Dialect string `json:"dialect,omitempty" jsonschema:"description:Interpreter dialect to read from (fp for Applesoft/microBASIC, int for Integer BASIC, logo for Logo). Uses current if not specified,enum:[fp,int,logo]"`
+	Dialect   string `json:"dialect,omitempty" jsonschema:"description:Interpreter dialect to read from (fp for Applesoft/microBASIC, int for Integer BASIC, logo for Logo). Uses current if not specified,enum:[fp,int,logo]"`
 	Procedure string `json:"procedure,omitempty" jsonschema:"description:Logo procedure name to read (Logo only)"`
 }
 
@@ -147,7 +173,7 @@ type GetGraphicsScreenParams struct {
 }
 
 type JoystickEventParams struct {
-	Controller int  `json:"controller,omitempty" jsonschema:"description:Controller number (0 or 1),minimum:0,maximum:1,default:0"`
+	Controller int    `json:"controller,omitempty" jsonschema:"description:Controller number (0 or 1),minimum:0,maximum:1,default:0"`
 	Type       string `json:"type,omitempty" jsonschema:"description:Controller type,enum:[joystick,paddle],default:joystick"`
 	X          int    `json:"x,omitempty" jsonschema:"description:X position (-127 to 127 for joystick; 0-255 for paddle),minimum:-127,maximum:255"`
 	Y          int    `json:"y,omitempty" jsonschema:"description:Y position (-127 to 127 for joystick only),minimum:-127,maximum:127"`
@@ -174,8 +200,8 @@ type DebugCPUControlParams struct {
 }
 
 type DebugBreakpointAddParams struct {
-	Address *int    `json:"address,omitempty" jsonschema:"description:Breakpoint address (PC)"`
-	Type    string  `json:"type,omitempty" jsonschema:"description:Breakpoint type,enum:[address,register,memory-read,memory-write]"`
+	Address   *int   `json:"address,omitempty" jsonschema:"description:Breakpoint address (PC)"`
+	Type      string `json:"type,omitempty" jsonschema:"description:Breakpoint type,enum:[address,register,memory-read,memory-write]"`
 	Condition string `json:"condition,omitempty" jsonschema:"description:Breakpoint condition expression"`
 }
 
@@ -303,8 +329,8 @@ func handleBreak(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToo
 	// Send Ctrl+C key press (keycode 3)
 	syncWindow <- SyncWindowRequest{
 		KeyEvent: &KeyRequest{
-			Key:    3,  // Ctrl+C keycode
-			Action: 1,  // press
+			Key:    3, // Ctrl+C keycode
+			Action: 1, // press
 		},
 	}
 
@@ -314,8 +340,8 @@ func handleBreak(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToo
 	// Send key release
 	syncWindow <- SyncWindowRequest{
 		KeyEvent: &KeyRequest{
-			Key:    3,  // Ctrl+C keycode
-			Action: 0,  // release
+			Key:    3, // Ctrl+C keycode
+			Action: 0, // release
 		},
 	}
 
@@ -344,7 +370,7 @@ func handleInsertDisk(ctx context.Context, cc *mcp.ServerSession, params *mcp.Ca
 				Bytes:    diskBytes,
 			},
 		)
-		settings.PureBootVolume[SelectedIndex] = "local:"+args.Filename
+		settings.PureBootVolume[SelectedIndex] = "local:" + args.Filename
 	case 1:
 		servicebus.SendServiceBusMessage(
 			SelectedIndex,
@@ -355,7 +381,7 @@ func handleInsertDisk(ctx context.Context, cc *mcp.ServerSession, params *mcp.Ca
 				Bytes:    diskBytes,
 			},
 		)
-		settings.PureBootVolume2[SelectedIndex] = "local:"+args.Filename
+		settings.PureBootVolume2[SelectedIndex] = "local:" + args.Filename
 	case 2:
 		servicebus.SendServiceBusMessage(
 			SelectedIndex,
@@ -379,7 +405,7 @@ func handleInsertDisk(ctx context.Context, cc *mcp.ServerSession, params *mcp.Ca
 
 func handleEjectDisk(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[EjectDiskParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	switch args.Drive {
 	case 0, 1:
 		servicebus.SendServiceBusMessage(
@@ -394,7 +420,7 @@ func handleEjectDisk(ctx context.Context, cc *mcp.ServerSession, params *mcp.Cal
 			0,
 		)
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Disk ejected from drive %d", args.Drive),
@@ -404,7 +430,7 @@ func handleEjectDisk(ctx context.Context, cc *mcp.ServerSession, params *mcp.Cal
 
 func handleKeyEvent(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[KeyEventParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	if args.Key == 13 {
 		if args.Action == 1 {
 			e := backend.ProducerMain.GetInterpreter(SelectedIndex)
@@ -419,7 +445,7 @@ func handleKeyEvent(ctx context.Context, cc *mcp.ServerSession, params *mcp.Call
 			},
 		}
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Key event sent: key=%d action=%d", args.Key, args.Action),
@@ -429,16 +455,16 @@ func handleKeyEvent(ctx context.Context, cc *mcp.ServerSession, params *mcp.Call
 
 func handleScreenshot(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ScreenshotParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	settings.ScreenShotNeeded = true
 	for settings.ScreenShotNeeded {
 		time.Sleep(1 * time.Millisecond)
 	}
-	
+
 	if err := os.WriteFile(args.Path, settings.ScreenShotJPEGData, 0644); err != nil {
 		return nil, fmt.Errorf("failed to save screenshot: %w", err)
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Screenshot saved to %s", args.Path),
@@ -469,7 +495,7 @@ func handleGetTextScreen(ctx context.Context, cc *mcp.ServerSession, params *mcp
 	}
 
 	// Try to get text screen content from TEXT or TXT2 layers
-	var textScreen =  "TEXT or TXT2 layer active but no content available"
+	var textScreen = "TEXT or TXT2 layer active but no content available"
 	for _, l := range HUDLayers[SelectedIndex] {
 		if l == nil || !l.Spec.GetActive() {
 			continue
@@ -496,10 +522,10 @@ func handleGetTextScreen(ctx context.Context, cc *mcp.ServerSession, params *mcp
 
 func handleReadMemory(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ReadMemoryParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
 	value := int(e.GetMemory(args.Address)) & 0xff
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Memory at $%04X: $%02X (%d)", args.Address, value, value),
@@ -509,34 +535,34 @@ func handleReadMemory(ctx context.Context, cc *mcp.ServerSession, params *mcp.Ca
 
 func handleReadMemoryRange(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ReadMemoryRangeParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	if args.Address < 0 || args.Address > 65535 {
 		return nil, fmt.Errorf("invalid address: must be 0-65535")
 	}
-	
+
 	if args.Count < 1 || args.Count > 65536 {
 		return nil, fmt.Errorf("invalid count: must be 1-65536")
 	}
-	
-	if args.Address + args.Count > 65536 {
+
+	if args.Address+args.Count > 65536 {
 		return nil, fmt.Errorf("memory range exceeds address space")
 	}
-	
+
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
 	data := make([]byte, args.Count)
 	for i := 0; i < args.Count; i++ {
-		data[i] = byte(int(e.GetMemory(args.Address + i)) & 0xff)
+		data[i] = byte(int(e.GetMemory(args.Address+i)) & 0xff)
 	}
-	
+
 	var result strings.Builder
 	result.WriteString(fmt.Sprintf("Memory at $%04X:\n", args.Address))
 	for i := 0; i < len(data); i += 16 {
-		result.WriteString(fmt.Sprintf("%04X: ", args.Address + i))
-		
+		result.WriteString(fmt.Sprintf("%04X: ", args.Address+i))
+
 		for j := 0; j < 16 && i+j < len(data); j++ {
 			result.WriteString(fmt.Sprintf("%02X ", data[i+j]))
 		}
-		
+
 		result.WriteString(" |")
 		for j := 0; j < 16 && i+j < len(data); j++ {
 			b := data[i+j]
@@ -548,7 +574,7 @@ func handleReadMemoryRange(ctx context.Context, cc *mcp.ServerSession, params *m
 		}
 		result.WriteString("|\n")
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{Text: result.String()}},
 	}, nil
@@ -556,10 +582,10 @@ func handleReadMemoryRange(ctx context.Context, cc *mcp.ServerSession, params *m
 
 func handleWriteMemory(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[WriteMemoryParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
 	e.SetMemory(args.Address, uint64(args.Value))
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Memory at $%04X set to $%02X (%d)", args.Address, args.Value, args.Value),
@@ -569,31 +595,31 @@ func handleWriteMemory(ctx context.Context, cc *mcp.ServerSession, params *mcp.C
 
 func handleWriteMemoryRange(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[WriteMemoryRangeParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	// Validate address range
 	if args.Address < 0 || args.Address > 65535 {
 		return nil, fmt.Errorf("invalid address: must be 0-65535")
 	}
-	
+
 	// Validate that address + length doesn't overflow
-	if args.Address + len(args.Values) > 65536 {
+	if args.Address+len(args.Values) > 65536 {
 		return nil, fmt.Errorf("memory range exceeds address space")
 	}
-	
+
 	// Validate values are in valid byte range
 	for i, value := range args.Values {
 		if value < 0 || value > 255 {
 			return nil, fmt.Errorf("invalid value at index %d: must be 0-255", i)
 		}
 	}
-	
+
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
-	
+
 	// Write each byte to memory
 	for i, value := range args.Values {
-		e.SetMemory(args.Address + i, uint64(value))
+		e.SetMemory(args.Address+i, uint64(value))
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Wrote %d bytes to memory starting at $%04X", len(args.Values), args.Address),
@@ -601,13 +627,204 @@ func handleWriteMemoryRange(ctx context.Context, cc *mcp.ServerSession, params *
 	}, nil
 }
 
+func currentRAMMMU() (*memory.MemoryManagementUnit, error) {
+	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
+	if e == nil {
+		return nil, fmt.Errorf("no interpreter available")
+	}
+	mm := e.GetMemoryMap()
+	if mm == nil {
+		return nil, fmt.Errorf("no memory map available")
+	}
+	mmu := mm.BlockMapper[e.GetMemIndex()]
+	if mmu == nil {
+		return nil, fmt.Errorf("no memory mapper available")
+	}
+	return mmu, nil
+}
+
+func resolveRAMBlock(region string) (*memory.MemoryBlock, error) {
+	region = strings.TrimSpace(region)
+	if region == "" {
+		return nil, fmt.Errorf("region is required")
+	}
+	mmu, err := currentRAMMMU()
+	if err != nil {
+		return nil, err
+	}
+	block := mmu.Get(region)
+	if block == nil {
+		return nil, fmt.Errorf("unknown RAM region %q", region)
+	}
+	if !block.IsRAM() {
+		return nil, fmt.Errorf("region %q is not RAM", region)
+	}
+	return block, nil
+}
+
+func validateRAMRange(block *memory.MemoryBlock, offset, count int) error {
+	if offset < 0 {
+		return fmt.Errorf("invalid offset: must be >= 0")
+	}
+	if count < 1 {
+		return fmt.Errorf("invalid count: must be >= 1")
+	}
+	if offset > block.Size || count > block.Size-offset {
+		return fmt.Errorf("RAM range exceeds region bounds (size: %d bytes)", block.Size)
+	}
+	return nil
+}
+
+func validateByteValue(value int, index int) error {
+	if value < 0 || value > 255 {
+		if index >= 0 {
+			return fmt.Errorf("invalid value at index %d: must be 0-255", index)
+		}
+		return fmt.Errorf("invalid value: must be 0-255")
+	}
+	return nil
+}
+
+func formatRAMHexDump(region string, offset int, data []byte) string {
+	var result strings.Builder
+	result.WriteString(fmt.Sprintf("RAM region %s at offset $%04X:\n", region, offset))
+	for i := 0; i < len(data); i += 16 {
+		result.WriteString(fmt.Sprintf("%04X: ", offset+i))
+
+		for j := 0; j < 16 && i+j < len(data); j++ {
+			result.WriteString(fmt.Sprintf("%02X ", data[i+j]))
+		}
+
+		result.WriteString(" |")
+		for j := 0; j < 16 && i+j < len(data); j++ {
+			b := data[i+j]
+			if b >= 32 && b < 127 {
+				result.WriteByte(b)
+			} else {
+				result.WriteByte('.')
+			}
+		}
+		result.WriteString("|\n")
+	}
+	return result.String()
+}
+
+func handleListRAMRegions(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ListRAMRegionsParams]) (*mcp.CallToolResultFor[any], error) {
+	mmu, err := currentRAMMMU()
+	if err != nil {
+		return nil, err
+	}
+
+	blocks := mmu.ListRAMBlocks()
+	sort.Slice(blocks, func(i, j int) bool {
+		return blocks[i].Label < blocks[j].Label
+	})
+
+	jsonData, err := json.MarshalIndent(blocks, "", "  ")
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal RAM regions: %w", err)
+	}
+
+	return &mcp.CallToolResultFor[any]{
+		Content: []mcp.Content{&mcp.TextContent{Text: string(jsonData)}},
+	}, nil
+}
+
+func handleReadRAMByte(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ReadRAMByteParams]) (*mcp.CallToolResultFor[any], error) {
+	args := params.Arguments
+	block, err := resolveRAMBlock(args.Region)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateRAMRange(block, args.Offset, 1); err != nil {
+		return nil, err
+	}
+
+	value := int(block.DirectRead(args.Offset)) & 0xff
+	return &mcp.CallToolResultFor[any]{
+		Content: []mcp.Content{&mcp.TextContent{
+			Text: fmt.Sprintf("RAM region %s offset $%04X: $%02X (%d)", block.Label, args.Offset, value, value),
+		}},
+	}, nil
+}
+
+func handleReadRAMRange(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ReadRAMRangeParams]) (*mcp.CallToolResultFor[any], error) {
+	args := params.Arguments
+	block, err := resolveRAMBlock(args.Region)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateRAMRange(block, args.Offset, args.Count); err != nil {
+		return nil, err
+	}
+
+	data := make([]byte, args.Count)
+	for i := 0; i < args.Count; i++ {
+		data[i] = byte(int(block.DirectRead(args.Offset+i)) & 0xff)
+	}
+
+	return &mcp.CallToolResultFor[any]{
+		Content: []mcp.Content{&mcp.TextContent{Text: formatRAMHexDump(block.Label, args.Offset, data)}},
+	}, nil
+}
+
+func handleWriteRAMByte(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[WriteRAMByteParams]) (*mcp.CallToolResultFor[any], error) {
+	args := params.Arguments
+	block, err := resolveRAMBlock(args.Region)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateRAMRange(block, args.Offset, 1); err != nil {
+		return nil, err
+	}
+	if err := validateByteValue(args.Value, -1); err != nil {
+		return nil, err
+	}
+	if !block.DirectWrite(args.Offset, uint64(args.Value)) {
+		return nil, fmt.Errorf("failed to write RAM region %q at offset %d", block.Label, args.Offset)
+	}
+
+	return &mcp.CallToolResultFor[any]{
+		Content: []mcp.Content{&mcp.TextContent{
+			Text: fmt.Sprintf("Wrote 1 byte to RAM region %s at offset $%04X", block.Label, args.Offset),
+		}},
+	}, nil
+}
+
+func handleWriteRAMRange(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[WriteRAMRangeParams]) (*mcp.CallToolResultFor[any], error) {
+	args := params.Arguments
+	block, err := resolveRAMBlock(args.Region)
+	if err != nil {
+		return nil, err
+	}
+	if err := validateRAMRange(block, args.Offset, len(args.Values)); err != nil {
+		return nil, err
+	}
+	for i, value := range args.Values {
+		if err := validateByteValue(value, i); err != nil {
+			return nil, err
+		}
+	}
+	for i, value := range args.Values {
+		if !block.DirectWrite(args.Offset+i, uint64(value)) {
+			return nil, fmt.Errorf("failed to write RAM region %q at offset %d", block.Label, args.Offset+i)
+		}
+	}
+
+	return &mcp.CallToolResultFor[any]{
+		Content: []mcp.Content{&mcp.TextContent{
+			Text: fmt.Sprintf("Wrote %d bytes to RAM region %s starting at offset $%04X", len(args.Values), block.Label, args.Offset),
+		}},
+	}, nil
+}
+
 func handleSetCPUSpeed(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[SetCPUSpeedParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
 	cpu := apple2helpers.GetCPU(e)
 	cpu.SetWarpUser(args.Speed)
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("CPU speed set to %.2fx", args.Speed),
@@ -627,39 +844,39 @@ func handleTypeText(ctx context.Context, cc *mcp.ServerSession, params *mcp.Call
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
 
 	s := time.Now()
-	for e.GetPasteBuffer().String() != "" && time.Since(s) < 30 * time.Second {
+	for e.GetPasteBuffer().String() != "" && time.Since(s) < 30*time.Second {
 		time.Sleep(250 * time.Millisecond)
 	}
 
 	e.SetPasteBuffer(runestring.Cast(args.Text))
 
-// 	// Type the text synchronously (not in a goroutine)
-// 	for _, char := range args.Text {
-// 		// Convert rune to ASCII code
-// 		keyCode := int(char)
-//
-// 		// Send key press
-// 		syncWindow <- SyncWindowRequest{
-// 			KeyEvent: &KeyRequest{
-// 				Key:    keyCode,
-// 				Action: 1, // press
-// 			},
-// 		}
-//
-// 		// Small delay for key press to register
-// 		time.Sleep(10 * time.Millisecond)
-//
-// 		// Send key release
-// 		syncWindow <- SyncWindowRequest{
-// 			KeyEvent: &KeyRequest{
-// 				Key:    keyCode,
-// 				Action: 0, // release
-// 			},
-// 		}
-//
-// 		// Delay between characters
-// 		time.Sleep(time.Duration(delay) * time.Millisecond)
-// 	}
+	// 	// Type the text synchronously (not in a goroutine)
+	// 	for _, char := range args.Text {
+	// 		// Convert rune to ASCII code
+	// 		keyCode := int(char)
+	//
+	// 		// Send key press
+	// 		syncWindow <- SyncWindowRequest{
+	// 			KeyEvent: &KeyRequest{
+	// 				Key:    keyCode,
+	// 				Action: 1, // press
+	// 			},
+	// 		}
+	//
+	// 		// Small delay for key press to register
+	// 		time.Sleep(10 * time.Millisecond)
+	//
+	// 		// Send key release
+	// 		syncWindow <- SyncWindowRequest{
+	// 			KeyEvent: &KeyRequest{
+	// 				Key:    keyCode,
+	// 				Action: 0, // release
+	// 			},
+	// 		}
+	//
+	// 		// Delay between characters
+	// 		time.Sleep(time.Duration(delay) * time.Millisecond)
+	// 	}
 
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
@@ -824,40 +1041,40 @@ func handleApplesoftWrite(ctx context.Context, cc *mcp.ServerSession, params *mc
 	base := 0x801
 
 	// Set the BASIC program start pointer
-	e.SetMemory(103, uint64(base & 0xFF))      // 0x67 - TXTTAB low byte
-	e.SetMemory(104, uint64((base >> 8) & 0xFF)) // 0x68 - TXTTAB high byte
+	e.SetMemory(103, uint64(base&0xFF))      // 0x67 - TXTTAB low byte
+	e.SetMemory(104, uint64((base>>8)&0xFF)) // 0x68 - TXTTAB high byte
 
 	// Write the tokenized program
 	for i, b := range tokenized {
-		e.SetMemory(base + i, uint64(b))
+		e.SetMemory(base+i, uint64(b))
 	}
 
 	// Calculate end address
 	end := base + len(tokenized)
-	arr := end  // Array storage starts at program end
-	ft := 0x9600  // Free space pointer
+	arr := end   // Array storage starts at program end
+	ft := 0x9600 // Free space pointer
 
 	// Set various pointers that Applesoft BASIC uses
-	e.SetMemory(74, uint64(end & 0xFF))       // 0x4A - VARTAB low byte (start of simple variables)
-	e.SetMemory(75, uint64((end >> 8) & 0xFF)) // 0x4B - VARTAB high byte
+	e.SetMemory(74, uint64(end&0xFF))      // 0x4A - VARTAB low byte (start of simple variables)
+	e.SetMemory(75, uint64((end>>8)&0xFF)) // 0x4B - VARTAB high byte
 
-	e.SetMemory(105, uint64(end & 0xFF))      // 0x69 - PRGEND low byte
-	e.SetMemory(106, uint64((end >> 8) & 0xFF)) // 0x6A - PRGEND high byte
+	e.SetMemory(105, uint64(end&0xFF))      // 0x69 - PRGEND low byte
+	e.SetMemory(106, uint64((end>>8)&0xFF)) // 0x6A - PRGEND high byte
 
-	e.SetMemory(175, uint64(end & 0xFF))      // 0xAF - VARTAB duplicate low byte
-	e.SetMemory(176, uint64((end >> 8) & 0xFF)) // 0xB0 - VARTAB duplicate high byte
+	e.SetMemory(175, uint64(end&0xFF))      // 0xAF - VARTAB duplicate low byte
+	e.SetMemory(176, uint64((end>>8)&0xFF)) // 0xB0 - VARTAB duplicate high byte
 
-	e.SetMemory(107, uint64(arr & 0xFF))      // 0x6B - ARYTAB low byte (start of array variables)
-	e.SetMemory(108, uint64((arr >> 8) & 0xFF)) // 0x6C - ARYTAB high byte
+	e.SetMemory(107, uint64(arr&0xFF))      // 0x6B - ARYTAB low byte (start of array variables)
+	e.SetMemory(108, uint64((arr>>8)&0xFF)) // 0x6C - ARYTAB high byte
 
-	e.SetMemory(109, uint64(arr & 0xFF))      // 0x6D - STREND low byte (end of arrays)
-	e.SetMemory(110, uint64((arr >> 8) & 0xFF)) // 0x6E - STREND high byte
+	e.SetMemory(109, uint64(arr&0xFF))      // 0x6D - STREND low byte (end of arrays)
+	e.SetMemory(110, uint64((arr>>8)&0xFF)) // 0x6E - STREND high byte
 
-	e.SetMemory(111, uint64(ft & 0xFF))       // 0x6F - FRETOP low byte (start of string storage)
-	e.SetMemory(112, uint64((ft >> 8) & 0xFF)) // 0x70 - FRETOP high byte
+	e.SetMemory(111, uint64(ft&0xFF))      // 0x6F - FRETOP low byte (start of string storage)
+	e.SetMemory(112, uint64((ft>>8)&0xFF)) // 0x70 - FRETOP high byte
 
-	e.SetMemory(115, uint64(ft & 0xFF))       // 0x73 - HIMEM low byte
-	e.SetMemory(116, uint64((ft >> 8) & 0xFF)) // 0x74 - HIMEM high byte
+	e.SetMemory(115, uint64(ft&0xFF))      // 0x73 - HIMEM low byte
+	e.SetMemory(116, uint64((ft>>8)&0xFF)) // 0x74 - HIMEM high byte
 
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
@@ -869,28 +1086,28 @@ func handleApplesoftWrite(ctx context.Context, cc *mcp.ServerSession, params *mc
 func handleListFiles(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ListFilesParams]) (*mcp.CallToolResultFor[any], error) {
 	// Import needed for files package
 	args := params.Arguments
-	
+
 	// Default to root if no path specified
 	path := args.Path
 	if path == "" {
 		path = "/"
 	}
-	
+
 	// Read directory via provider
 	dirs, files, err := files.ReadDirViaProvider(path, "*.*")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read directory %s: %w", path, err)
 	}
-	
+
 	// Build response
 	var result strings.Builder
 	result.WriteString(fmt.Sprintf("Files in %s:\n\n", path))
-	
+
 	// Add parent directory if not at root
 	if path != "/" && path != "" {
 		result.WriteString("../  <parent directory>\n")
 	}
-	
+
 	// List directories first
 	if len(dirs) > 0 {
 		result.WriteString("Directories:\n")
@@ -905,7 +1122,7 @@ func handleListFiles(ctx context.Context, cc *mcp.ServerSession, params *mcp.Cal
 		}
 		result.WriteString("\n")
 	}
-	
+
 	// List files
 	if len(files) > 0 {
 		result.WriteString("Files:\n")
@@ -917,25 +1134,25 @@ func handleListFiles(ctx context.Context, cc *mcp.ServerSession, params *mcp.Cal
 			} else if file.Size > 1024 {
 				sizeStr = fmt.Sprintf("%.1fK", float64(file.Size)/1024)
 			}
-			
+
 			// Build file entry
 			entry := fmt.Sprintf("  %s", file.Name)
 			if file.Extension != "" {
 				entry += "." + file.Extension
 			}
 			entry += fmt.Sprintf(" (%s)", sizeStr)
-			
+
 			if file.Description != "" {
 				entry += fmt.Sprintf(" - %s", file.Description)
 			}
-			
+
 			result.WriteString(entry + "\n")
 		}
 	}
-	
+
 	// Summary
 	result.WriteString(fmt.Sprintf("\nTotal: %d directories, %d files\n", len(dirs), len(files)))
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{Text: result.String()}},
 	}, nil
@@ -943,11 +1160,11 @@ func handleListFiles(ctx context.Context, cc *mcp.ServerSession, params *mcp.Cal
 
 func handleReadFile(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ReadFileParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	// Parse the path to separate directory and filename
 	path := args.Path
 	var dir, filename string
-	
+
 	// Handle absolute paths starting with /
 	if strings.HasPrefix(path, "/") {
 		parts := strings.Split(strings.TrimPrefix(path, "/"), "/")
@@ -969,16 +1186,16 @@ func handleReadFile(ctx context.Context, cc *mcp.ServerSession, params *mcp.Call
 			filename = path
 		}
 	}
-	
+
 	// Read the file
 	fileRecord, err := files.ReadBytesViaProvider(strings.Trim(dir, "/"), filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file %s: %w", path, err)
 	}
-	
+
 	// Prepare response based on file type
 	var content string
-	
+
 	// Check if it's likely a text file based on extension
 	ext := strings.ToLower(files.GetExt(filename))
 	textExts := []string{"txt", "bas", "lst", "asm", "s", "cfg", "ini", "md", "log", "bat", "sh"}
@@ -989,7 +1206,7 @@ func handleReadFile(ctx context.Context, cc *mcp.ServerSession, params *mcp.Call
 			break
 		}
 	}
-	
+
 	// If it's a text file or small enough, try to display as text
 	if isText || len(fileRecord.Content) < 8192 {
 		// Try to interpret as text
@@ -1002,32 +1219,32 @@ func handleReadFile(ctx context.Context, cc *mcp.ServerSession, params *mcp.Call
 				break
 			}
 		}
-		
+
 		if isPrintable {
 			content = fmt.Sprintf("File: %s\nSize: %d bytes\n\n%s", path, len(fileRecord.Content), textContent)
 		} else {
 			// Binary file - show hex dump
 			content = fmt.Sprintf("File: %s\nSize: %d bytes\nType: Binary\n\n", path, len(fileRecord.Content))
 			content += "Hex dump (first 256 bytes):\n"
-			
+
 			limit := len(fileRecord.Content)
 			if limit > 256 {
 				limit = 256
 			}
-			
+
 			for i := 0; i < limit; i += 16 {
 				content += fmt.Sprintf("%04X: ", i)
-				
+
 				// Hex bytes
 				for j := 0; j < 16 && i+j < limit; j++ {
 					content += fmt.Sprintf("%02X ", fileRecord.Content[i+j])
 				}
-				
+
 				// Padding
 				for j := limit - i; j < 16 && i+j >= limit; j++ {
 					content += "   "
 				}
-				
+
 				// ASCII representation
 				content += " |"
 				for j := 0; j < 16 && i+j < limit; j++ {
@@ -1040,7 +1257,7 @@ func handleReadFile(ctx context.Context, cc *mcp.ServerSession, params *mcp.Call
 				}
 				content += "|\n"
 			}
-			
+
 			if len(fileRecord.Content) > 256 {
 				content += fmt.Sprintf("\n... (%d more bytes)", len(fileRecord.Content)-256)
 			}
@@ -1050,7 +1267,7 @@ func handleReadFile(ctx context.Context, cc *mcp.ServerSession, params *mcp.Call
 		content = fmt.Sprintf("File: %s\nSize: %d bytes\nType: Binary (too large to display)\n", path, len(fileRecord.Content))
 		content += "\nFile read successfully but content is too large to display in MCP response."
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{Text: content}},
 	}, nil
@@ -1058,34 +1275,34 @@ func handleReadFile(ctx context.Context, cc *mcp.ServerSession, params *mcp.Call
 
 func handleInsertDiskFile(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[InsertDiskFileParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	// Validate drive number
 	if args.Drive < 0 || args.Drive > 2 {
 		return nil, fmt.Errorf("invalid drive number %d (must be 0-2)", args.Drive)
 	}
-	
+
 	// Ensure the filepath starts with /
 	filepath := args.Filepath
 	if !strings.HasPrefix(filepath, "/") {
 		filepath = "/" + filepath
 	}
-	
+
 	// Check if it's a high capacity disk (3.5" or hard disk image)
 	// First, we need to check if the file exists and get its size
 	dir := files.GetPath(filepath)
 	filename := files.GetFilename(filepath)
-	
+
 	// Try to get file info by listing the directory
 	dirs, fileList, err := files.ReadDirViaProvider(dir, "*.*")
 	if err != nil {
 		return nil, fmt.Errorf("failed to access directory %s: %w", dir, err)
 	}
-	
+
 	// Find the file in the list
 	var fileSize int64
 	var fileExt string
 	found := false
-	
+
 	for _, f := range fileList {
 		fullName := f.Name
 		if f.Extension != "" {
@@ -1098,7 +1315,7 @@ func handleInsertDiskFile(ctx context.Context, cc *mcp.ServerSession, params *mc
 			break
 		}
 	}
-	
+
 	if !found {
 		// Check directories (in case it's a disk image inside a directory)
 		for _, d := range dirs {
@@ -1109,14 +1326,14 @@ func handleInsertDiskFile(ctx context.Context, cc *mcp.ServerSession, params *mc
 			}
 		}
 	}
-	
+
 	if !found {
 		return nil, fmt.Errorf("file not found: %s", filepath)
 	}
-	
+
 	// Determine if it's a high capacity disk
 	isHighCapacity := files.Apple2IsHighCapacity(fileExt, int(fileSize))
-	
+
 	// Send the appropriate service bus message
 	if isHighCapacity {
 		servicebus.SendServiceBusMessage(
@@ -1137,15 +1354,15 @@ func handleInsertDiskFile(ctx context.Context, cc *mcp.ServerSession, params *mc
 			},
 		)
 	}
-	
+
 	// Mount the disk image for file system access
 	files.MountDSKImage(files.GetPath(filepath), files.GetFilename(filepath), args.Drive)
-	
+
 	diskType := "5.25\" disk"
 	if isHighCapacity {
 		diskType = "3.5\" disk / hard disk"
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Inserted %s into drive %d: %s", diskType, args.Drive, filepath),
@@ -1155,23 +1372,23 @@ func handleInsertDiskFile(ctx context.Context, cc *mcp.ServerSession, params *mc
 
 func handleLoadBasicProgram(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[LoadBasicProgramParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	// Ensure the path starts with /
 	path := args.Path
 	if !strings.HasPrefix(path, "/") {
 		path = "/" + path
 	}
-	
+
 	// Extract directory and filename
 	dir := files.GetPath(path)
 	filename := files.GetFilename(path)
-	
+
 	// Check if file exists
 	_, fileList, err := files.ReadDirViaProvider(dir, "*.*")
 	if err != nil {
 		return nil, fmt.Errorf("failed to access directory %s: %w", dir, err)
 	}
-	
+
 	// Find the file in the list
 	var fileExt string
 	found := false
@@ -1186,11 +1403,11 @@ func handleLoadBasicProgram(ctx context.Context, cc *mcp.ServerSession, params *
 			break
 		}
 	}
-	
+
 	if !found {
 		return nil, fmt.Errorf("file not found: %s", path)
 	}
-	
+
 	// Auto-detect dialect if not specified
 	dialect := args.Dialect
 	if dialect == "" {
@@ -1200,7 +1417,7 @@ func handleLoadBasicProgram(ctx context.Context, cc *mcp.ServerSession, params *
 			// Try to determine from common extensions
 			switch strings.ToLower(fileExt) {
 			case "bas", "a", "apl", "app":
-				dialect = "fp"  // Applesoft BASIC
+				dialect = "fp" // Applesoft BASIC
 			case "i", "int":
 				dialect = "int" // Integer BASIC
 			case "l", "lgo":
@@ -1212,15 +1429,15 @@ func handleLoadBasicProgram(ctx context.Context, cc *mcp.ServerSession, params *
 			dialect = info.Dialect
 		}
 	}
-	
+
 	// Validate dialect
 	if dialect != "fp" && dialect != "int" && dialect != "logo" {
 		return nil, fmt.Errorf("invalid dialect: %s (must be fp, int, or logo)", dialect)
 	}
-	
+
 	// Get the interpreter for the selected slot
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
-	
+
 	// Build the run command
 	var runCommand string
 	if args.AutoRun {
@@ -1235,37 +1452,37 @@ func handleLoadBasicProgram(ctx context.Context, cc *mcp.ServerSession, params *
 			runCommand = fmt.Sprintf("load \"%s\"\r\n", path)
 		}
 	}
-	
+
 	// Set up the VMLauncherConfig
 	cfg := &settings.VMLauncherConfig{
 		WorkingDir: dir,
 		Dialect:    dialect,
 		RunCommand: runCommand,
 	}
-	
+
 	// Apply the configuration
 	settings.VMLaunch[e.GetMemIndex()] = cfg
-	
+
 	// Set the appropriate machine spec if needed
 	if !strings.HasPrefix(settings.SpecFile[e.GetMemIndex()], "apple2") {
 		settings.SpecFile[e.GetMemIndex()] = "apple2e-en.yaml"
 	}
-	
+
 	// Trigger a restart to load and potentially run the program
 	e.GetMemoryMap().IntSetSlotRestart(e.GetMemIndex(), true)
-	
+
 	// Prepare result message
 	dialectName := map[string]string{
 		"fp":   "Applesoft BASIC",
 		"int":  "Integer BASIC",
 		"logo": "Logo",
 	}[dialect]
-	
+
 	action := "Loading and running"
 	if !args.AutoRun {
 		action = "Loading"
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("%s %s program: %s", action, dialectName, path),
@@ -1275,13 +1492,13 @@ func handleLoadBasicProgram(ctx context.Context, cc *mcp.ServerSession, params *
 
 func handleReadInterpreterCode(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[ReadInterpreterCodeParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	// Get the interpreter for the selected slot
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
 	if e == nil {
 		return nil, fmt.Errorf("no interpreter available")
 	}
-	
+
 	// Get the current dialect if not specified
 	dialect := args.Dialect
 	if dialect == "" {
@@ -1302,16 +1519,16 @@ func handleReadInterpreterCode(ctx context.Context, cc *mcp.ServerSession, param
 			return nil, fmt.Errorf("no dialect active, please specify dialect parameter")
 		}
 	}
-	
+
 	var codeText string
-	
+
 	// Read the code based on dialect
 	switch dialect {
 	case "logo":
 		// For Logo, we can get specific procedures or all workspace
 		lines := e.GetDialect().GetWorkspaceBody(false, args.Procedure)
 		codeText = strings.Join(lines, "\r\n")
-		
+
 	case "fp", "int":
 		// For BASIC variants, get the program listing
 		algorithm := e.GetCode()
@@ -1320,45 +1537,45 @@ func handleReadInterpreterCode(ctx context.Context, cc *mcp.ServerSession, param
 				Content: []mcp.Content{&mcp.TextContent{Text: "No program in memory"}},
 			}, nil
 		}
-		
+
 		// Build the listing similar to how EDIT does it
 		var lines []string
 		lineNum := algorithm.GetLowIndex()
 		highIndex := algorithm.GetHighIndex()
 		nlen := len(utils.IntToStr(highIndex))
-		
+
 		for lineNum != -1 {
 			line, _ := algorithm.Get(lineNum)
 			lineStr := fmt.Sprintf("%*d  ", nlen, lineNum)
-			
+
 			stmtCount := 0
 			for _, stmt := range line {
 				if stmtCount > 0 {
 					lineStr += ":"
 				}
-				
+
 				// Convert statement tokens to string
 				stmtTokens := *stmt.SubList(0, stmt.Size())
 				stmtStr := e.TokenListAsString(stmtTokens)
 				lineStr += stmtStr
 				stmtCount++
 			}
-			
+
 			lines = append(lines, lineStr)
 			lineNum = algorithm.NextAfter(lineNum)
 		}
-		
+
 		codeText = strings.Join(lines, "\r\n")
-		
+
 	default:
 		return nil, fmt.Errorf("unsupported dialect: %s", dialect)
 	}
-	
+
 	// Return the code
 	if codeText == "" {
 		codeText = "No code in memory"
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{Text: codeText}},
 	}, nil
@@ -1366,13 +1583,13 @@ func handleReadInterpreterCode(ctx context.Context, cc *mcp.ServerSession, param
 
 func handleWriteInterpreterCode(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[WriteInterpreterCodeParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	// Get the interpreter for the selected slot
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
 	if e == nil {
 		return nil, fmt.Errorf("no interpreter available")
 	}
-	
+
 	// Get the current dialect if not specified
 	dialect := args.Dialect
 	if dialect == "" {
@@ -1393,7 +1610,7 @@ func handleWriteInterpreterCode(ctx context.Context, cc *mcp.ServerSession, para
 			return nil, fmt.Errorf("no dialect active, please specify dialect parameter")
 		}
 	}
-	
+
 	// Validate that the current interpreter matches the requested dialect
 	currentDialect := e.GetDialect()
 	if currentDialect != nil {
@@ -1413,21 +1630,21 @@ func handleWriteInterpreterCode(ctx context.Context, cc *mcp.ServerSession, para
 			}
 		}
 	}
-	
+
 	// Handle code replacement or appending
 	if args.Replace {
 		// Clear existing code
 		e.SetCode(types.NewAlgorithm())
 	}
-	
+
 	// Parse and load the new code
 	lines := strings.Split(args.Code, "\n")
-	
+
 	// Set skip mem parse flag to avoid triggering memory parse during load
 	if currentDialect != nil {
 		currentDialect.SetSkipMemParse(true)
 	}
-	
+
 	// Parse each line
 	for _, line := range lines {
 		// Clean up the line
@@ -1435,7 +1652,7 @@ func handleWriteInterpreterCode(ctx context.Context, cc *mcp.ServerSession, para
 		if line == "" {
 			continue
 		}
-		
+
 		// For Logo, we might need special handling
 		if dialect == "logo" {
 			// Logo procedures are typically defined with TO/END blocks
@@ -1446,24 +1663,24 @@ func handleWriteInterpreterCode(ctx context.Context, cc *mcp.ServerSession, para
 			e.Parse(line)
 		}
 	}
-	
+
 	// Reset skip mem parse flag
 	if currentDialect != nil {
 		currentDialect.SetSkipMemParse(false)
 	}
-	
+
 	// Return success message
 	action := "Replaced"
 	if !args.Replace {
 		action = "Appended to"
 	}
-	
+
 	dialectName := map[string]string{
 		"fp":   "Applesoft/microBASIC",
 		"int":  "Integer BASIC",
 		"logo": "Logo",
 	}[dialect]
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("%s %s code (%d lines)", action, dialectName, len(lines)),
@@ -1479,59 +1696,59 @@ func handleListAppleIITree(ctx context.Context, cc *mcp.ServerSession, params *m
 		if depth > 10 {
 			return nil, nil
 		}
-		
+
 		// Get directories in current path
 		dirs, _, err := files.ReadDirViaProvider(path, "*.*")
 		if err != nil {
 			// Silently skip directories that can't be read
 			return nil, nil
 		}
-		
+
 		var folders []string
-		
+
 		// Process each directory
 		for _, dir := range dirs {
 			// Skip parent directory entry
 			if dir.Name == ".." {
 				continue
 			}
-			
+
 			// Skip hidden directories (starting with .)
 			if strings.HasPrefix(dir.Name, ".") {
 				continue
 			}
-			
+
 			// Build full path
 			fullPath := strings.TrimRight(path, "/") + "/" + dir.Name
-			
+
 			// Add this folder to the list
 			folders = append(folders, fullPath)
-			
+
 			// Recursively collect subdirectories
 			subFolders, _ := collectFolders(fullPath, depth+1)
 			if subFolders != nil {
 				folders = append(folders, subFolders...)
 			}
 		}
-		
+
 		return folders, nil
 	}
-	
+
 	// Start collection from /appleii/
 	startPath := "/appleii"
 	allFolders, err := collectFolders(startPath, 0)
 	if err != nil {
 		return nil, fmt.Errorf("failed to traverse directory tree: %w", err)
 	}
-	
+
 	// Sort the folders for consistent output
 	sort.Strings(allFolders)
-	
+
 	// Build response
 	var result strings.Builder
 	result.WriteString("Apple II Directory Tree:\n")
 	result.WriteString("========================\n\n")
-	
+
 	if len(allFolders) == 0 {
 		result.WriteString("No subdirectories found under /appleii/\n")
 	} else {
@@ -1541,25 +1758,25 @@ func handleListAppleIITree(ctx context.Context, cc *mcp.ServerSession, params *m
 			// Calculate depth by counting slashes after /appleii
 			relPath := strings.TrimPrefix(folder, "/appleii")
 			depth := strings.Count(relPath, "/")
-			
+
 			// Add spacing between depth levels
 			if depth != currentDepth {
 				result.WriteString("\n")
 				currentDepth = depth
 			}
-			
+
 			// Add indentation based on depth
 			indent := strings.Repeat("  ", depth)
-			
+
 			// Extract just the folder name
 			parts := strings.Split(strings.TrimRight(folder, "/"), "/")
 			folderName := parts[len(parts)-1]
-			
+
 			result.WriteString(fmt.Sprintf("%s%s/\n", indent, folderName))
 		}
-		
+
 		result.WriteString(fmt.Sprintf("\nTotal folders: %d\n", len(allFolders)))
-		
+
 		// Also provide a flat list for easy parsing
 		result.WriteString("\nFlat list of all paths:\n")
 		result.WriteString("-----------------------\n")
@@ -1567,7 +1784,7 @@ func handleListAppleIITree(ctx context.Context, cc *mcp.ServerSession, params *m
 			result.WriteString(folder + "\n")
 		}
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{Text: result.String()}},
 	}, nil
@@ -1575,19 +1792,18 @@ func handleListAppleIITree(ctx context.Context, cc *mcp.ServerSession, params *m
 
 // Gaming handler functions
 func handleGetGraphicsScreen(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[GetGraphicsScreenParams]) (*mcp.CallToolResultFor[any], error) {
-	
+
 	// Enable unified render mode
 	settings.UnifiedRender[SelectedIndex] = true
-	
+
 	// Wait a bit for the frame to be available
 	time.Sleep(50 * time.Millisecond)
-	
+
 	// Get the unified render frame
 	frame := settings.UnifiedRenderFrame[SelectedIndex]
 	if frame == nil {
 		return nil, fmt.Errorf("unified render frame not available")
 	}
-	
 
 	// Encode the image to PNG or JPEG
 	var buf bytes.Buffer
@@ -1626,11 +1842,10 @@ func handleGetGraphicsScreen(ctx context.Context, cc *mcp.ServerSession, params 
 			Meta: mcp.Meta{
 				"subject": "Apple II Video Screen",
 			},
-			Data: buf.Bytes(),
+			Data:     buf.Bytes(),
 			MIMEType: "image/png",
 		}},
 	}, nil
-	
 
 }
 
@@ -1639,7 +1854,7 @@ func getColorStats(img *image.RGBA) map[string]interface{} {
 	bounds := img.Bounds()
 	totalPixels := bounds.Dx() * bounds.Dy()
 	colorCounts := make(map[uint32]int)
-	
+
 	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
 		for x := bounds.Min.X; x < bounds.Max.X; x++ {
 			r, g, b, _ := img.At(x, y).RGBA()
@@ -1648,7 +1863,7 @@ func getColorStats(img *image.RGBA) map[string]interface{} {
 			colorCounts[color]++
 		}
 	}
-	
+
 	// Find dominant colors
 	var dominantColors []map[string]interface{}
 	for color, count := range colorCounts {
@@ -1657,15 +1872,15 @@ func getColorStats(img *image.RGBA) map[string]interface{} {
 			g := (color >> 5) & 0x1F
 			b := color & 0x1F
 			dominantColors = append(dominantColors, map[string]interface{}{
-				"r":         r * 8,  // Scale back to 0-255
-				"g":         g * 8,
-				"b":         b * 8,
-				"pixels":    count,
+				"r":          r * 8, // Scale back to 0-255
+				"g":          g * 8,
+				"b":          b * 8,
+				"pixels":     count,
 				"percentage": float64(count) * 100.0 / float64(totalPixels),
 			})
 		}
 	}
-	
+
 	return map[string]interface{}{
 		"total_pixels":    totalPixels,
 		"unique_colors":   len(colorCounts),
@@ -1675,47 +1890,47 @@ func getColorStats(img *image.RGBA) map[string]interface{} {
 
 func handleJoystickEvent(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[JoystickEventParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	// Validate controller number
 	if args.Controller < 0 || args.Controller > 1 {
 		return nil, fmt.Errorf("invalid controller number: %d", args.Controller)
 	}
-	
+
 	// Get the interpreter
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
-	
+
 	// Joystick/paddle values are typically read from these memory locations:
 	// $C064-$C067: Paddle/joystick analog inputs
 	// $C061-$C063: Button inputs
-	
+
 	if args.Type == "joystick" {
 		// Map joystick X/Y to paddle values
 		// Joystick center is 0,0 ranging to -127,127
 		// Paddle values are 0-255 with 128 as center
-		
+
 		paddleX := args.X + 128
 		paddleY := args.Y + 128
-		
+
 		// Clamp values
 		if paddleX < 0 {
 			paddleX = 0
 		} else if paddleX > 255 {
 			paddleX = 255
 		}
-		
+
 		if paddleY < 0 {
 			paddleY = 0
 		} else if paddleY > 255 {
 			paddleY = 255
 		}
-		
+
 		// Set paddle values (these are read via $C064/C065)
 		// Note: This is a simplified approach - real implementation would
 		// need to interface with the paddle emulation system
-		
+
 		// For now, we'll set some known memory locations that games might check
 		// This is game-specific and would need proper paddle emulation
-		
+
 		// Button states
 		buttonState := 0
 		if args.Button0 {
@@ -1727,26 +1942,26 @@ func handleJoystickEvent(ctx context.Context, cc *mcp.ServerSession, params *mcp
 		if args.Button2 {
 			buttonState |= 0x20 // Button 2 pressed
 		}
-		
+
 		// Set button state at $C061-$C063
 		if args.Controller == 0 {
 			e.SetMemory(0xC061, uint64(buttonState))
 		} else {
 			e.SetMemory(0xC062, uint64(buttonState))
 		}
-		
+
 		return &mcp.CallToolResultFor[any]{
 			Content: []mcp.Content{&mcp.TextContent{
-				Text: fmt.Sprintf("Joystick %d: X=%d Y=%d Buttons=%02X", 
+				Text: fmt.Sprintf("Joystick %d: X=%d Y=%d Buttons=%02X",
 					args.Controller, args.X, args.Y, buttonState),
 			}},
 		}, nil
 	}
-	
+
 	if args.Type == "paddle" {
 		// Paddle mode - X is the paddle position (0-255)
 		// Set paddle value
-		
+
 		// Button states
 		buttonState := 0
 		if args.Button0 {
@@ -1755,63 +1970,63 @@ func handleJoystickEvent(ctx context.Context, cc *mcp.ServerSession, params *mcp
 		if args.Button1 {
 			buttonState |= 0x40
 		}
-		
+
 		// Set button state
 		if args.Controller == 0 {
 			e.SetMemory(0xC061, uint64(buttonState))
 		} else {
 			e.SetMemory(0xC062, uint64(buttonState))
 		}
-		
+
 		return &mcp.CallToolResultFor[any]{
 			Content: []mcp.Content{&mcp.TextContent{
-				Text: fmt.Sprintf("Paddle %d: Position=%d Buttons=%02X", 
+				Text: fmt.Sprintf("Paddle %d: Position=%d Buttons=%02X",
 					args.Controller, args.X, buttonState),
 			}},
 		}, nil
 	}
-	
+
 	return nil, fmt.Errorf("unsupported controller type: %s", args.Type)
 }
 
 func handleGetGameState(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[GetGameStateParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
-	
+
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
-	
+
 	// Game-specific memory maps
 	if args.Game == "mspacman" {
 		// Ms. Pac-Man memory locations (these are approximations)
 		score := 0
 		lives := 0
 		level := 0
-		
+
 		// Read score (BCD format, typically 3 bytes)
 		score = int(e.GetMemory(0x4E00))<<16 | int(e.GetMemory(0x4E01))<<8 | int(e.GetMemory(0x4E02))
-		
+
 		// Read lives
 		lives = int(e.GetMemory(0x4E14))
-		
+
 		// Read level
 		level = int(e.GetMemory(0x4E13))
-		
+
 		// Check if game is active (simplified check)
 		gameActive := lives > 0 && lives < 10
-		
+
 		result := map[string]interface{}{
 			"game_active": gameActive,
 			"score":       score,
 			"lives":       lives,
 			"level":       level,
 		}
-		
+
 		if args.Detailed {
 			// Add detailed information
 			result["pac_position"] = map[string]int{
 				"x": int(e.GetMemory(0x4D30)),
 				"y": int(e.GetMemory(0x4D31)),
 			}
-			
+
 			// Ghost states (simplified)
 			ghosts := []map[string]int{}
 			for i := 0; i < 4; i++ {
@@ -1824,13 +2039,13 @@ func handleGetGameState(ctx context.Context, cc *mcp.ServerSession, params *mcp.
 			}
 			result["ghosts"] = ghosts
 		}
-		
+
 		jsonData, _ := json.MarshalIndent(result, "", "  ")
 		return &mcp.CallToolResultFor[any]{
 			Content: []mcp.Content{&mcp.TextContent{Text: string(jsonData)}},
 		}, nil
 	}
-	
+
 	// Default response for unknown games
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
@@ -1842,10 +2057,10 @@ func handleGetGameState(ctx context.Context, cc *mcp.ServerSession, params *mcp.
 func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[GetCurrentGraphicsDataParams]) (*mcp.CallToolResultFor[any], error) {
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
 	args := params.Arguments
-	
+
 	// Get the current video mode
 	videoMode := apple2helpers.GetVideoMode(e)
-	
+
 	// Default response for TEXT mode
 	if videoMode == "TEXT" {
 		return &mcp.CallToolResultFor[any]{
@@ -1854,19 +2069,19 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 			}},
 		}, nil
 	}
-	
+
 	// Define mode-specific properties
 	var fullWidth, fullHeight int
 	var page string
 	var palette []map[string]interface{}
-	
+
 	switch videoMode {
 	case "LOGR":
 		// 40x48 Low Resolution Graphics
 		fullWidth = 40
 		fullHeight = 48
 		page = "1"
-		
+
 		// Lo-res color palette (16 colors)
 		palette = []map[string]interface{}{
 			{"index": 0, "name": "Black", "rgb": []int{0, 0, 0}},
@@ -1886,13 +2101,13 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 			{"index": 14, "name": "Aqua", "rgb": []int{114, 255, 208}},
 			{"index": 15, "name": "White", "rgb": []int{255, 255, 255}},
 		}
-		
+
 	case "DLGR":
 		// 80x48 Double Low Resolution Graphics
 		fullWidth = 80
 		fullHeight = 48
 		page = "1"
-		
+
 		// Same palette as LOGR
 		palette = []map[string]interface{}{
 			{"index": 0, "name": "Black", "rgb": []int{0, 0, 0}},
@@ -1912,13 +2127,13 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 			{"index": 14, "name": "Aqua", "rgb": []int{114, 255, 208}},
 			{"index": 15, "name": "White", "rgb": []int{255, 255, 255}},
 		}
-		
+
 	case "HGR1":
 		// 280x192 High Resolution Graphics Page 1
 		fullWidth = 280
 		fullHeight = 192
 		page = "1"
-		
+
 		// HGR color palette (6 colors + black/white)
 		palette = []map[string]interface{}{
 			{"index": 0, "name": "Black", "rgb": []int{0, 0, 0}},
@@ -1930,13 +2145,13 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 			{"index": 6, "name": "Blue", "rgb": []int{20, 207, 253}},
 			{"index": 7, "name": "White", "rgb": []int{255, 255, 255}},
 		}
-		
+
 	case "HGR2":
 		// 280x192 High Resolution Graphics Page 2
 		fullWidth = 280
 		fullHeight = 192
 		page = "2"
-		
+
 		// Same palette as HGR1
 		palette = []map[string]interface{}{
 			{"index": 0, "name": "Black", "rgb": []int{0, 0, 0}},
@@ -1948,14 +2163,14 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 			{"index": 6, "name": "Blue", "rgb": []int{20, 207, 253}},
 			{"index": 7, "name": "White", "rgb": []int{255, 255, 255}},
 		}
-		
+
 	case "DHR1":
 		// 560x192 Double High Resolution Graphics Page 1 (or 140x192 in color mode)
 		// For simplicity, we'll read it as 140x192 color mode
 		fullWidth = 140
 		fullHeight = 192
 		page = "1"
-		
+
 		// DHR uses the same 16-color palette as lo-res
 		palette = []map[string]interface{}{
 			{"index": 0, "name": "Black", "rgb": []int{0, 0, 0}},
@@ -1975,14 +2190,14 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 			{"index": 14, "name": "Aqua", "rgb": []int{114, 255, 208}},
 			{"index": 15, "name": "White", "rgb": []int{255, 255, 255}},
 		}
-		
+
 	case "DHR2":
 		// 560x192 Double High Resolution Graphics Page 2 (or 140x192 in color mode)
 		// For simplicity, we'll read it as 140x192 color mode
 		fullWidth = 140
 		fullHeight = 192
 		page = "2"
-		
+
 		// DHR uses the same 16-color palette as lo-res
 		palette = []map[string]interface{}{
 			{"index": 0, "name": "Black", "rgb": []int{0, 0, 0}},
@@ -2002,7 +2217,7 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 			{"index": 14, "name": "Aqua", "rgb": []int{114, 255, 208}},
 			{"index": 15, "name": "White", "rgb": []int{255, 255, 255}},
 		}
-		
+
 	default:
 		// Other modes not yet implemented
 		return &mcp.CallToolResultFor[any]{
@@ -2011,13 +2226,13 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 			}},
 		}, nil
 	}
-	
+
 	// Determine the actual rectangle to read
 	startX := args.X
 	startY := args.Y
 	width := args.W
 	height := args.H
-	
+
 	// Default to full screen if parameters not provided
 	if width == 0 {
 		width = fullWidth - startX
@@ -2025,7 +2240,7 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 	if height == 0 {
 		height = fullHeight - startY
 	}
-	
+
 	// Validate and clamp the rectangle to screen bounds
 	if startX < 0 {
 		startX = 0
@@ -2039,16 +2254,16 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 	if startY >= fullHeight {
 		return nil, fmt.Errorf("y coordinate %d is outside screen bounds (0-%d)", startY, fullHeight-1)
 	}
-	if startX + width > fullWidth {
+	if startX+width > fullWidth {
 		width = fullWidth - startX
 	}
-	if startY + height > fullHeight {
+	if startY+height > fullHeight {
 		height = fullHeight - startY
 	}
-	
+
 	// Create pixel array for the requested rectangle
 	pixels := make([]uint64, width*height)
-	
+
 	// Read pixels based on the mode
 	switch videoMode {
 	case "LOGR":
@@ -2077,7 +2292,7 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 			}
 		}
 	}
-	
+
 	// Build the response
 	result := map[string]interface{}{
 		"mode":       videoMode,
@@ -2091,13 +2306,13 @@ func handleGetCurrentGraphicsData(ctx context.Context, cc *mcp.ServerSession, pa
 		"pixels":     pixels,
 		"palette":    palette,
 	}
-	
+
 	// Convert to JSON
 	jsonData, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal response: %w", err)
 	}
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: string(jsonData),
@@ -2234,7 +2449,7 @@ func handleDebugMemoryRead(ctx context.Context, cc *mcp.ServerSession, params *m
 	result.WriteString(fmt.Sprintf("Memory at $%04X:\n", args.Address))
 
 	for i := 0; i < len(data); i += 16 {
-		result.WriteString(fmt.Sprintf("%04X: ", args.Address + i))
+		result.WriteString(fmt.Sprintf("%04X: ", args.Address+i))
 
 		// Hex bytes
 		for j := 0; j < 16 && i+j < len(data); j++ {
@@ -2441,9 +2656,9 @@ func handleGetMountedDisks(ctx context.Context, cc *mcp.ServerSession, params *m
 		WriteProtect bool   `json:"write_protect"`
 		Type         string `json:"type"`
 	}
-	
+
 	var disks []DiskInfo
-	
+
 	// Drive 0 (5.25" floppy)
 	if settings.PureBootVolume[SelectedIndex] != "" {
 		disks = append(disks, DiskInfo{
@@ -2453,7 +2668,7 @@ func handleGetMountedDisks(ctx context.Context, cc *mcp.ServerSession, params *m
 			Type:         "5.25\" floppy",
 		})
 	}
-	
+
 	// Drive 1 (5.25" floppy)
 	if settings.PureBootVolume2[SelectedIndex] != "" {
 		disks = append(disks, DiskInfo{
@@ -2463,7 +2678,7 @@ func handleGetMountedDisks(ctx context.Context, cc *mcp.ServerSession, params *m
 			Type:         "5.25\" floppy",
 		})
 	}
-	
+
 	// Drive 2 (SmartPort - 3.5" or hard disk)
 	if settings.PureBootSmartVolume[SelectedIndex] != "" {
 		disks = append(disks, DiskInfo{
@@ -2473,11 +2688,11 @@ func handleGetMountedDisks(ctx context.Context, cc *mcp.ServerSession, params *m
 			Type:         "SmartPort (3.5\" or HD)",
 		})
 	}
-	
+
 	// Format the response
 	var result strings.Builder
 	result.WriteString(fmt.Sprintf("Mounted disks for slot %d:\n\n", SelectedIndex))
-	
+
 	if len(disks) == 0 {
 		result.WriteString("No disks mounted\n")
 	} else {
@@ -2488,16 +2703,16 @@ func handleGetMountedDisks(ctx context.Context, cc *mcp.ServerSession, params *m
 			result.WriteString("\n")
 		}
 	}
-	
+
 	// Also return as JSON for programmatic access
 	jsonData, err := json.MarshalIndent(disks, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal disk info: %w", err)
 	}
-	
+
 	result.WriteString("\nJSON representation:\n")
 	result.WriteString(string(jsonData))
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{Text: result.String()}},
 	}, nil
@@ -2506,7 +2721,7 @@ func handleGetMountedDisks(ctx context.Context, cc *mcp.ServerSession, params *m
 func handleEmulatorState(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[EmulatorStateParams]) (*mcp.CallToolResultFor[any], error) {
 	// Get the interpreter for the selected slot
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
-	
+
 	// Determine if CPU is running (check various states)
 	isRunning := false
 	cpuState := "Unknown"
@@ -2583,12 +2798,12 @@ func handleEmulatorState(ctx context.Context, cc *mcp.ServerSession, params *mcp
 					"HL'": fmt.Sprintf("$%04X", uint16(z80cpu.H_)<<8|uint16(z80cpu.L_)),
 				},
 				"flags": map[string]interface{}{
-					"S": (z80cpu.F >> 7) & 1,  // Sign
-					"Z": (z80cpu.F >> 6) & 1,  // Zero
-					"H": (z80cpu.F >> 4) & 1,  // Half Carry
-					"P": (z80cpu.F >> 2) & 1,  // Parity/Overflow
-					"N": (z80cpu.F >> 1) & 1,  // Add/Subtract
-					"C": z80cpu.F & 1,         // Carry
+					"S": (z80cpu.F >> 7) & 1, // Sign
+					"Z": (z80cpu.F >> 6) & 1, // Zero
+					"H": (z80cpu.F >> 4) & 1, // Half Carry
+					"P": (z80cpu.F >> 2) & 1, // Parity/Overflow
+					"N": (z80cpu.F >> 1) & 1, // Add/Subtract
+					"C": z80cpu.F & 1,        // Carry
 				},
 			}
 		} else {
@@ -2617,24 +2832,24 @@ func handleEmulatorState(ctx context.Context, cc *mcp.ServerSession, params *mcp
 				"P":  fmt.Sprintf("$%02X", cpu.P),
 			},
 			"flags": map[string]interface{}{
-				"N": (cpu.P >> 7) & 1,  // Negative
-				"V": (cpu.P >> 6) & 1,  // Overflow
-				"B": (cpu.P >> 4) & 1,  // Break
-				"D": (cpu.P >> 3) & 1,  // Decimal
-				"I": (cpu.P >> 2) & 1,  // Interrupt disable
-				"Z": (cpu.P >> 1) & 1,  // Zero
-				"C": cpu.P & 1,         // Carry
+				"N": (cpu.P >> 7) & 1, // Negative
+				"V": (cpu.P >> 6) & 1, // Overflow
+				"B": (cpu.P >> 4) & 1, // Break
+				"D": (cpu.P >> 3) & 1, // Decimal
+				"I": (cpu.P >> 2) & 1, // Interrupt disable
+				"Z": (cpu.P >> 1) & 1, // Zero
+				"C": cpu.P & 1,        // Carry
 			},
 		}
 	}
-	
+
 	// Get machine profile
 	machineProfile := settings.SpecFile[SelectedIndex]
 	// Remove file extension if present
 	if idx := strings.LastIndex(machineProfile, "."); idx != -1 {
 		machineProfile = machineProfile[:idx]
 	}
-	
+
 	// Get video mode
 	videoMode := apple2helpers.GetVideoMode(e)
 
@@ -2676,10 +2891,10 @@ func handleEmulatorState(ctx context.Context, cc *mcp.ServerSession, params *mcp
 			textScreen = "(Text screen not available)"
 		}
 	}
-	
+
 	// Get disk information
 	var disks []map[string]interface{}
-	
+
 	// Drive 0 (5.25" floppy)
 	if settings.PureBootVolume[SelectedIndex] != "" {
 		disks = append(disks, map[string]interface{}{
@@ -2689,7 +2904,7 @@ func handleEmulatorState(ctx context.Context, cc *mcp.ServerSession, params *mcp
 			"type":          "5.25\" floppy",
 		})
 	}
-	
+
 	// Drive 1 (5.25" floppy)
 	if settings.PureBootVolume2[SelectedIndex] != "" {
 		disks = append(disks, map[string]interface{}{
@@ -2699,7 +2914,7 @@ func handleEmulatorState(ctx context.Context, cc *mcp.ServerSession, params *mcp
 			"type":          "5.25\" floppy",
 		})
 	}
-	
+
 	// Drive 2 (SmartPort - 3.5" or hard disk)
 	if settings.PureBootSmartVolume[SelectedIndex] != "" {
 		disks = append(disks, map[string]interface{}{
@@ -2709,31 +2924,31 @@ func handleEmulatorState(ctx context.Context, cc *mcp.ServerSession, params *mcp
 			"type":          "SmartPort",
 		})
 	}
-	
+
 	// Create structured state information
 	stateInfo := map[string]interface{}{
 		"machine": machineProfile,
-		"cpu": cpuInfo,
+		"cpu":     cpuInfo,
 		"video": map[string]interface{}{
-			"mode": videoMode,
+			"mode":        videoMode,
 			"description": getVideoModeDescription(videoMode),
 		},
 		"disks": disks,
-		"slot": SelectedIndex,
+		"slot":  SelectedIndex,
 	}
-	
+
 	// Add text screen content if available
 	if textScreen != "" && hasTextMode {
 		stateInfo["text_screen"] = textScreen
 	}
-	
+
 	// Format the response
 	var result strings.Builder
 	result.WriteString("=== Emulator State ===\n\n")
-	
+
 	// Machine Information
 	result.WriteString(fmt.Sprintf("Machine: %s\n", machineProfile))
-	
+
 	// CPU Information
 	result.WriteString(fmt.Sprintf("CPU Status: %s\n", cpuState))
 
@@ -2768,22 +2983,22 @@ func handleEmulatorState(ctx context.Context, cc *mcp.ServerSession, params *mcp
 			(cpu.P>>7)&1, (cpu.P>>6)&1, (cpu.P>>4)&1, (cpu.P>>3)&1,
 			(cpu.P>>2)&1, (cpu.P>>1)&1, cpu.P&1))
 	}
-	
+
 	// Video Information
 	result.WriteString(fmt.Sprintf("Video Mode: %s (%s)\n\n", videoMode, getVideoModeDescription(videoMode)))
-	
+
 	// Disk Information
 	if len(disks) > 0 {
 		result.WriteString("Mounted Disks:\n")
 		for _, disk := range disks {
-			result.WriteString(fmt.Sprintf("  Drive %d: %s (%s)\n", 
+			result.WriteString(fmt.Sprintf("  Drive %d: %s (%s)\n",
 				disk["drive"], disk["path"], disk["type"]))
 		}
 		result.WriteString("\n")
 	} else {
 		result.WriteString("No disks mounted\n\n")
 	}
-	
+
 	// Text Screen Content (if in TEXT mode)
 	if textScreen != "" && hasTextMode {
 		result.WriteString("Text Screen Content:\n")
@@ -2791,16 +3006,16 @@ func handleEmulatorState(ctx context.Context, cc *mcp.ServerSession, params *mcp
 		result.WriteString(textScreen)
 		result.WriteString("\n-------------------\n\n")
 	}
-	
+
 	// JSON representation for programmatic access
 	jsonData, err := json.MarshalIndent(stateInfo, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal state info: %w", err)
 	}
-	
+
 	result.WriteString("JSON representation:\n")
 	result.WriteString(string(jsonData))
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{Text: result.String()}},
 	}, nil
@@ -2831,7 +3046,7 @@ func getVideoModeDescription(mode string) string {
 func handleEnableLiveRewind(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[EnableLiveRewindParams]) (*mcp.CallToolResultFor[any], error) {
 	// Get the interpreter for the selected slot
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
-	
+
 	// Check if already recording
 	if e.IsRecordingVideo() {
 		return &mcp.CallToolResultFor[any]{
@@ -2840,10 +3055,10 @@ func handleEnableLiveRewind(ctx context.Context, cc *mcp.ServerSession, params *
 			}},
 		}, nil
 	}
-	
+
 	// Start recording with empty filename (for live rewind) and false for not saving to file
 	e.StartRecording("", false)
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Live rewind enabled for slot %d", SelectedIndex),
@@ -2854,13 +3069,13 @@ func handleEnableLiveRewind(ctx context.Context, cc *mcp.ServerSession, params *
 func handleRewindBack(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[RewindBackParams]) (*mcp.CallToolResultFor[any], error) {
 	// Get the interpreter for the selected slot
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
-	
+
 	// Get milliseconds parameter with default of 5000
 	milliseconds := params.Arguments.Milliseconds
 	if milliseconds == 0 {
 		milliseconds = 5000
 	}
-	
+
 	// Check if recording is active (required for rewind)
 	if !e.IsRecordingVideo() {
 		return &mcp.CallToolResultFor[any]{
@@ -2869,10 +3084,10 @@ func handleRewindBack(ctx context.Context, cc *mcp.ServerSession, params *mcp.Ca
 			}},
 		}, nil
 	}
-	
+
 	// Trigger the backstep in a goroutine as required
 	go e.BackstepVideo(milliseconds)
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Rewinding %d milliseconds for slot %d", milliseconds, SelectedIndex),
@@ -2883,19 +3098,19 @@ func handleRewindBack(ctx context.Context, cc *mcp.ServerSession, params *mcp.Ca
 func handleStartFileRecording(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[StartFileRecordingParams]) (*mcp.CallToolResultFor[any], error) {
 	// Get the interpreter for the selected slot
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
-	
+
 	// Stop any existing recording first
 	e.StopRecording()
-	
+
 	// Determine full CPU recording setting
 	fullCPU := settings.FileFullCPURecord
 	if params.Arguments.FullCPU {
 		fullCPU = true
 	}
-	
+
 	// Start file recording
 	e.RecordToggle(fullCPU)
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("File recording started for slot %d (full CPU: %v)", SelectedIndex, fullCPU),
@@ -2906,10 +3121,10 @@ func handleStartFileRecording(ctx context.Context, cc *mcp.ServerSession, params
 func handleStopRecording(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[StopRecordingParams]) (*mcp.CallToolResultFor[any], error) {
 	// Get the interpreter for the selected slot
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
-	
+
 	// Stop recording
 	e.StopRecording()
-	
+
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
 			Text: fmt.Sprintf("Recording stopped for slot %d", SelectedIndex),
@@ -2924,13 +3139,13 @@ func createMCPServer() *mcp.Server {
 		Name:    "microM8",
 		Version: "1.0.0",
 	}, nil)
-	
+
 	// Register all tools
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "reboot",
 		Description: "Reboot the emulator",
 	}, handleReboot)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "pause",
 		Description: "Pause or unpause the emulator",
@@ -2945,82 +3160,107 @@ func createMCPServer() *mcp.Server {
 		Name:        "insert_disk",
 		Description: "Insert a disk into a drive",
 	}, handleInsertDisk)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "eject_disk",
 		Description: "Eject a disk from a drive",
 	}, handleEjectDisk)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "get_mounted_disks",
 		Description: "Get information about currently mounted disks",
 	}, handleGetMountedDisks)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "emulator_state",
 		Description: "Get comprehensive emulator state including CPU status, video mode, text screen, and disk information",
 	}, handleEmulatorState)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "enable_live_rewind",
 		Description: "Enable live rewind functionality by starting video recording",
 	}, handleEnableLiveRewind)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "rewind_back",
 		Description: "Rewind the emulator by specified milliseconds (default: 5000ms)",
 	}, handleRewindBack)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "start_file_recording",
 		Description: "Start recording emulator output to a file",
 	}, handleStartFileRecording)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "stop_recording",
 		Description: "Stop any active recording (file or live rewind)",
 	}, handleStopRecording)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "key_event",
 		Description: "Send a keyboard event to the emulator",
 	}, handleKeyEvent)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "screenshot",
 		Description: "Take a screenshot of the emulator",
 	}, handleScreenshot)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "get_text_screen",
 		Description: "Get the current text screen contents",
 	}, handleGetTextScreen)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "read_memory",
-		Description: "Read a byte from memory",
+		Description: "Read a byte from 6502-visible mapped memory",
 	}, handleReadMemory)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "read_memory_range",
-		Description: "Read multiple bytes from memory without starting the debugger",
+		Description: "Read multiple bytes from 6502-visible mapped memory without starting the debugger",
 	}, handleReadMemoryRange)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "write_memory",
-		Description: "Write a byte to memory",
+		Description: "Write a byte to 6502-visible mapped memory",
 	}, handleWriteMemory)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "write_memory_range",
-		Description: "Write multiple bytes to memory starting at a given address",
+		Description: "Write multiple bytes to 6502-visible mapped memory starting at a given address",
 	}, handleWriteMemoryRange)
-	
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "list_ram_regions",
+		Description: "List physical RAM regions addressable by RAM region tools",
+	}, handleListRAMRegions)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "read_ram_byte",
+		Description: "Read a byte directly from a physical RAM region without changing Apple II soft-switch mapping",
+	}, handleReadRAMByte)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "read_ram_range",
+		Description: "Read multiple bytes directly from a physical RAM region without changing Apple II soft-switch mapping",
+	}, handleReadRAMRange)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "write_ram_byte",
+		Description: "Write a byte directly to a physical RAM region without changing Apple II soft-switch mapping",
+	}, handleWriteRAMByte)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "write_ram_range",
+		Description: "Write multiple bytes directly to a physical RAM region without changing Apple II soft-switch mapping",
+	}, handleWriteRAMRange)
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "set_cpu_speed",
 		Description: "Set CPU speed multiplier",
 	}, handleSetCPUSpeed)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "type_text",
 		Description: "Type text into the emulator with configurable delay between keystrokes",
@@ -3081,17 +3321,17 @@ func createMCPServer() *mcp.Server {
 		Name:        "get_graphics_screen",
 		Description: "Capture the current graphics screen as image/png",
 	}, handleGetGraphicsScreen)
- //
+	//
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "joystick_event",
 		Description: "Send joystick or paddle controller events to the emulator",
 	}, handleJoystickEvent)
- //
+	//
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "get_game_state",
 		Description: "Get structured game state for known games (score, lives, level, etc.)",
 	}, handleGetGameState)
-	
+
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "get_current_graphics_data",
 		Description: "Get the current graphics mode data including pixel color indices and palette",
@@ -3155,7 +3395,7 @@ func createMCPServer() *mcp.Server {
 func StartMCPServerSDK() error {
 	// Create the server
 	server := createMCPServer()
-	
+
 	// Check transport mode
 	switch *mcpTransport {
 	case "sse":
@@ -3171,7 +3411,7 @@ func StartMCPServerSDK() error {
 			return fmt.Errorf("MCP server error: %w", err)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -3189,45 +3429,45 @@ func startMCPServerSSE(server *mcp.Server, port int) error {
 		log.Printf("Request received: %s %s", r.Method, r.URL.Path)
 		log.Printf("Headers: %v", r.Header)
 		log.Printf("Remote addr: %s", r.RemoteAddr)
-		
+
 		// Set CORS headers
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, mcp-session-id")
-		
+
 		// Handle preflight requests
 		if r.Method == "OPTIONS" {
 			log.Printf("Handling OPTIONS preflight request")
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		
+
 		// For SSE connections, set proper headers and handle keepalive
 		if r.Method == "GET" && r.Header.Get("Accept") == "text/event-stream" {
 			w.Header().Set("Content-Type", "text/event-stream")
 			w.Header().Set("Cache-Control", "no-cache")
 			w.Header().Set("Connection", "keep-alive")
 			w.Header().Set("X-Accel-Buffering", "no") // Disable Nginx buffering
-			
+
 			// Flush headers immediately
 			if flusher, ok := w.(http.Flusher); ok {
 				flusher.Flush()
 			}
-			
+
 			log.Printf("SSE connection established, starting keepalive")
 			atomic.AddInt64(&activeConnections, 1)
-			
+
 			defer func() {
 				atomic.AddInt64(&activeConnections, -1)
 				log.Printf("SSE connection closed (remaining: %d)", atomic.LoadInt64(&activeConnections))
 			}()
-			
+
 			// Start a goroutine to send keepalive messages
 			ctx := r.Context()
 			go func() {
 				ticker := time.NewTicker(heartbeatInterval)
 				defer ticker.Stop()
-				
+
 				for {
 					select {
 					case <-ctx.Done():
@@ -3244,7 +3484,7 @@ func startMCPServerSSE(server *mcp.Server, port int) error {
 				}
 			}()
 		}
-		
+
 		log.Printf("Passing request to SSE handler")
 		// Serve the SSE handler
 		sseHandler.ServeHTTP(w, r)
@@ -3280,26 +3520,26 @@ func startMCPServerHTTPStreaming(server *mcp.Server, port int) error {
 
 	// Create a new ServeMux to handle multiple endpoints
 	mux := http.NewServeMux()
-	
+
 	// Main streaming endpoint
 	mux.HandleFunc("/mcp/stream", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Streaming request received: %s %s", r.Method, r.URL.Path)
 		log.Printf("Headers: %v", r.Header)
 		log.Printf("Remote addr: %s", r.RemoteAddr)
-		
+
 		// Set CORS headers for all requests
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID")
 		w.Header().Set("Access-Control-Expose-Headers", "Mcp-Session-Id, Mcp-Protocol-Version")
-		
+
 		// Handle preflight requests
 		if r.Method == "OPTIONS" {
 			log.Printf("Handling OPTIONS preflight request for streaming")
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		
+
 		// Track connections for GET requests
 		if r.Method == "GET" {
 			atomic.AddInt64(&activeConnections, 1)
@@ -3308,16 +3548,16 @@ func startMCPServerHTTPStreaming(server *mcp.Server, port int) error {
 				log.Printf("Streaming connection closed (remaining: %d)", atomic.LoadInt64(&activeConnections))
 			}()
 		}
-		
+
 		// Log session ID if present
 		if sessionID := r.Header.Get("Mcp-Session-Id"); sessionID != "" {
 			log.Printf("Session ID: %s", sessionID)
 		}
-		
+
 		// Pass to the streaming handler
 		streamHandler.ServeHTTP(w, r)
 	})
-	
+
 	// Health check endpoint (same as SSE)
 	mux.HandleFunc("/mcp/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -3326,7 +3566,7 @@ func startMCPServerHTTPStreaming(server *mcp.Server, port int) error {
 			atomic.LoadInt64(&activeConnections),
 			time.Since(serverStartTime).String())
 	})
-	
+
 	// Info endpoint for streaming transport
 	mux.HandleFunc("/mcp/info", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -3337,6 +3577,6 @@ func startMCPServerHTTPStreaming(server *mcp.Server, port int) error {
 	// Start HTTP server
 	addr := fmt.Sprintf(":%d", port)
 	log.Printf("Starting MCP server on %s with HTTP streaming transport", addr)
-	
+
 	return http.ListenAndServe(addr, mux)
 }

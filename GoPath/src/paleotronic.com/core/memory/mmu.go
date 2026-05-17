@@ -39,6 +39,21 @@ type MemoryBlock struct {
 	mr    Mappable
 	fr    Firmware
 	Type  int
+	isRAM bool
+}
+
+type RAMBlockInfo struct {
+	Label      string `json:"label"`
+	Base       int    `json:"base"`
+	GlobalBase int    `json:"global_base"`
+	MuxBase    int    `json:"mux_base"`
+	ForceMux   bool   `json:"force_mux"`
+	Size       int    `json:"size"`
+	Active     bool   `json:"active"`
+	ReadOk     bool   `json:"read_ok"`
+	WriteOk    bool   `json:"write_ok"`
+	State      string `json:"state"`
+	Type       int    `json:"type"`
 }
 
 func NewMemoryBlockRAM(mm *MemoryMap, index int, globalbase int, addr int, size int, active bool, label string, mux int, forceMux bool, t int) *MemoryBlock {
@@ -55,6 +70,7 @@ func NewMemoryBlockRAM(mm *MemoryMap, index int, globalbase int, addr int, size 
 		mm:         mm,
 		Index:      index,
 		Type:       t,
+		isRAM:      true,
 	}
 	b.InitMemory([]uint64(nil))
 	return b
@@ -215,6 +231,18 @@ func (b *MemoryBlock) DirectRead(offset int) uint64 {
 
 	return b.mcb.Read(offset)
 
+}
+
+func (b *MemoryBlock) DirectWrite(offset int, value uint64) bool {
+	if !b.IsRAM() || b.mcb == nil || offset < 0 || offset >= b.Size {
+		return false
+	}
+	b.mcb.Write(offset, value)
+	return true
+}
+
+func (b *MemoryBlock) IsRAM() bool {
+	return b != nil && b.isRAM
 }
 
 // Do does the read write
@@ -799,6 +827,29 @@ func (m *MemoryManagementUnit) Get(name string) *MemoryBlock {
 		return nil
 	}
 	return m.m[c]
+}
+
+func (m *MemoryManagementUnit) ListRAMBlocks() []RAMBlockInfo {
+	blocks := make([]RAMBlockInfo, 0)
+	for _, b := range m.m {
+		if !b.IsRAM() {
+			continue
+		}
+		blocks = append(blocks, RAMBlockInfo{
+			Label:      b.Label,
+			Base:       b.Base,
+			GlobalBase: b.GlobalBase,
+			MuxBase:    b.MuxBase,
+			ForceMux:   b.ForceMux,
+			Size:       b.Size,
+			Active:     b.Active,
+			ReadOk:     b.ReadOk,
+			WriteOk:    b.WriteOk,
+			State:      b.GetState(),
+			Type:       b.Type,
+		})
+	}
+	return blocks
 }
 
 func (m *MemoryManagementUnit) Enable(name string) {
