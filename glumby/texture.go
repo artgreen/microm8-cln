@@ -32,7 +32,7 @@ func GetMaxTextureSize() int32 {
 func NewSolidColorTexture(solid color.RGBA) *Texture {
 	i := image.NewRGBA(image.Rect(0, 0, 1, 1))
 
-	draw.Draw(i, image.Rect(0, 0, 1, 1), image.NewUniform(solid), image.ZP, draw.Src)
+	draw.Draw(i, image.Rect(0, 0, 1, 1), image.NewUniform(solid), image.Point{}, draw.Src)
 
 	return NewTextureFromRGBA(i)
 }
@@ -149,7 +149,7 @@ func (this *Texture) Unbind() {
 
 func NewTextureBlank(width, height int, color color.RGBA) *Texture {
 	rgba := image.NewRGBA(image.Rect(0, 0, width, height))
-	draw.Draw(rgba, rgba.Bounds(), &image.Uniform{color}, image.ZP, draw.Src)
+	draw.Draw(rgba, rgba.Bounds(), &image.Uniform{color}, image.Point{}, draw.Src)
 
 	return NewTextureFromRGBA(rgba)
 }
@@ -243,14 +243,14 @@ func (t *Texture) DrawGlyph(bind bool, x, y int, aglyph *image.RGBA, bglyph *ima
 	dst := image.NewRGBA(aglyph.Bounds())
 
 	// original color...
-	draw.Draw(dst, dst.Bounds(), &image.Uniform{ocol}, image.ZP, draw.Src)
+	draw.Draw(dst, dst.Bounds(), &image.Uniform{ocol}, image.Point{}, draw.Src)
 
 	// 'a' glyph
 	if aglyph != nil {
 		src := &image.Uniform{acol}
 		mask := aglyph
 		mr := aglyph.Bounds()
-		draw.DrawMask(dst, mr.Sub(mr.Min), src, image.ZP, mask, mr.Min, draw.Over)
+		draw.DrawMask(dst, mr.Sub(mr.Min), src, image.Point{}, mask, mr.Min, draw.Over)
 	}
 
 	// 'b' glyph
@@ -258,12 +258,12 @@ func (t *Texture) DrawGlyph(bind bool, x, y int, aglyph *image.RGBA, bglyph *ima
 		src := &image.Uniform{bcol}
 		mask := bglyph
 		mr := bglyph.Bounds()
-		draw.DrawMask(dst, mr.Sub(mr.Min), src, image.ZP, mask, mr.Min, draw.Over)
+		draw.DrawMask(dst, mr.Sub(mr.Min), src, image.Point{}, mask, mr.Min, draw.Over)
 	}
 
 	// draw to bitmap
 
 	//func Draw(dst Image, r image.Rectangle, src image.Image, sp image.Point, op Op)
-	//draw.Draw( t.Bitmap, aglyph.Bounds().Add(image.Pt(x, y)), dst, image.ZP, draw.Over )
+	//draw.Draw( t.Bitmap, aglyph.Bounds().Add(image.Pt(x, y)), dst, image.Point{}, draw.Over )
 
 }

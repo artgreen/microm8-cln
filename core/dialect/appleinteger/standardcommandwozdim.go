@@ -99,13 +99,10 @@ func (this *StandardCommandWozDIM) Execute(env *interfaces.Producable, caller in
 		switch ch { /* FIXME - Switch statement needs cleanup */
 		case '%':
 			vt = types.VT_INTEGER
-			break
 		case '$':
 			vt = types.VT_STRING
-			break
 		case '@':
 			vt = types.VT_BOOLEAN
-			break
 		}
 
 		if vt != types.VT_STRING {

@@ -67,7 +67,7 @@ func (this *MultiArgumentFunction) Evaluate(ent Interpretable, args types.TokenL
 
 		// replace instances of var ntok with value
 		for i, t := range ecopy.Content {
-			if t.Type == types.VARIABLE && strings.ToLower(t.Content) == strings.ToLower(ntok.Content) {
+			if t.Type == types.VARIABLE && strings.EqualFold(t.Content, ntok.Content) {
 				s := vtok.Content
 				if vtok.Type == types.VARIABLE {
 					vv := ent.GetLocal().Get(vtok.Content)

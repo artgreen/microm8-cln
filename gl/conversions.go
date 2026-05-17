@@ -54,8 +54,8 @@ func Str(str string) *uint8 {
 	if !strings.HasSuffix(str, "\x00") {
 		log.Fatalln("str argument missing null terminator:", str)
 	}
-	header := (*reflect.StringHeader)(unsafe.Pointer(&str))
-	return (*uint8)(unsafe.Pointer(header.Data))
+	// unsafe.StringData replaces reflect.StringHeader (deprecated Go 1.21).
+	return unsafe.StringData(str)
 }
 
 // GoStr takes a null-terminated string returned by OpenGL and constructs a

@@ -424,7 +424,9 @@ var PureBootDebugCommand string = "G"
 var AudioUsesLeapTicks = false
 
 // var UseHQAudio bool = true
-var BootMenuMS time.Duration = 5000 * time.Millisecond
+// BootMenuMS was removed in Phase 5: declared at 5000ms but unreferenced
+// anywhere else in the tree (staticcheck ST1011 flagged the unit suffix).
+// Reintroduce as a typed duration if a real boot-menu delay is needed.
 var UseBootMenu bool = true
 var DisableMetaMode [NUMSLOTS]bool
 var SpeakerBitstreamDiv int = 8

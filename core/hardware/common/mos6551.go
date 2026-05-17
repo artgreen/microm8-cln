@@ -367,22 +367,22 @@ func (r *mos6551StatusRegister) SetValue(v int) {
 	r.state = mos6551StatusRegisterFlag(v & 0xff)
 }
 
-func (r mos6551StatusRegister) GetValue() int {
+func (r *mos6551StatusRegister) GetValue() int {
 	if r.callback != nil {
 		r.callback() // allows dynamic updating of status
 	}
 	return int(r.state)
 }
 
-func (r mos6551StatusRegister) Reset() {
+func (r *mos6551StatusRegister) Reset() {
 	r.state = 0x10
 }
 
-func (r mos6551StatusRegister) ProgramReset() {
+func (r *mos6551StatusRegister) ProgramReset() {
 	r.state = r.state & 0xfd
 }
 
-func (r mos6551StatusRegister) String() string {
+func (r *mos6551StatusRegister) String() string {
 	labels := []string{
 		"IRQ",
 		"DSR",
@@ -658,7 +658,7 @@ MOS6551 State:
   RxBuffer: 0x%.2x
   TxBuffer: 0x%.2x
 `,
-		m.Status,
+		&m.Status,
 		m.Control,
 		m.Command,
 		m.rxByte,

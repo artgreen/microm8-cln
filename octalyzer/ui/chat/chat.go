@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	//lint:ignore SA1019 protobuf migration to google.golang.org/protobuf/proto deferred to a dedicated phase (touches generated code).
 	"github.com/golang/protobuf/proto"
 	s8webclient "paleotronic.com/api"
 	"paleotronic.com/core/hardware/apple2helpers"
@@ -826,7 +827,6 @@ func (this *ChatClient) GridChooser(prompt string, items []GridItem, hmargin, vm
 			}
 		case 13:
 			done = true
-			break
 		case 27:
 			return -1
 		}

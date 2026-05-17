@@ -372,7 +372,7 @@ func (a *Asm6502) MatchOpcode(m string, p string, modes []mos6502.MODEENUM) ([]*
 		if opcode == nil {
 			continue
 		}
-		if strings.ToLower(m) == strings.ToLower(opcode.Description[0:3]) {
+		if strings.EqualFold(m, opcode.Description[0:3]) {
 			for _, mode := range modes {
 				if mode == opcode.FetchMode {
 					r = append(r, opcode)

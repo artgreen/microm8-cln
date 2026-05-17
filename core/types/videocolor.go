@@ -144,8 +144,9 @@ func rgb2lab(R uint8, G uint8, B uint8) (float64, float64, float64) {
 
 	var r, g, b, X, Y, Z, fx, fy, fz, xr, yr, zr float64
 	var Ls, as, bs float64
-	var eps float64 = 216 / 24389
-	var k float64 = 24389 / 27
+	// CIE Lab thresholds (must be float division, not int)
+	var eps float64 = 216.0 / 24389.0
+	var k float64 = 24389.0 / 27.0
 
 	var Xr float64 = 0.964221 // reference white D50
 	var Yr float64 = 1.0

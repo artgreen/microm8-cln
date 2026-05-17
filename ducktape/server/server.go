@@ -210,7 +210,10 @@ func (s *DuckTapeServer) ClientSender(client *ducktape.Client) {
 		case <-client.Quit:
 			log.Println("Client ", client.Name, " quitting")
 			client.Close("Client quit")
-			break
+			// The enclosing `for { }` has no exit condition, so bare `break`
+			// (only escaping the select) leaked this goroutine forever.
+			// Return cleanly on Quit. Caught by staticcheck SA4011.
+			return
 		default:
 			time.Sleep(1 * time.Millisecond)
 		}

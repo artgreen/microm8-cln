@@ -607,7 +607,7 @@ func TestMenu(e interfaces.Interpretable) {
 			func(m *Menu) {
 				cpu := apple2helpers.GetCPU(e)
 				for _, item := range m.Items {
-					item.Checked = strings.ToLower(item.Label) == strings.ToLower(cpu.Model)
+					item.Checked = strings.EqualFold(item.Label, cpu.Model)
 				}
 			},
 		).

@@ -85,13 +85,8 @@ func byte2bool(b byte) bool {
 	return false
 }
 
-func int2bytes(i int) []byte {
-	b := bytes.NewBuffer(nil)
-	if binary.Write(b, binary.LittleEndian, i) == nil {
-		return b.Bytes()
-	}
-	return []byte{}
-}
+// (int2bytes was removed: it was unused and broken — binary.Write rejects
+// platform-int. int642bytes covers the real call site.)
 
 func int642bytes(i int64) []byte {
 	b := bytes.NewBuffer(nil)

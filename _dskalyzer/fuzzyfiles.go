@@ -11,7 +11,7 @@ import (
 
 func inList(item string, list []string) bool {
 	for _, v := range list {
-		if strings.ToLower(v) == strings.ToLower(item) {
+		if strings.EqualFold(v, item) {
 			return true
 		}
 	}

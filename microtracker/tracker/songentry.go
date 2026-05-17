@@ -113,7 +113,7 @@ func (s *TSong) EnterSingle(note string) {
 				break
 			}
 			ob := byte(oct)
-			if ob < 0 || ob > 6 {
+			if ob > 6 {
 				break
 			}
 			inst := byte(0)

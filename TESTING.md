@@ -7,18 +7,37 @@ canonical entry points.
 
 ## Quick reference
 
-| Command                                | What it does                              |
-|----------------------------------------|-------------------------------------------|
-| `tools/scripts/check.sh`               | fmt + vet + test + build (pre-commit)     |
-| `tools/scripts/test.sh`                | `go test -race -shuffle=on` on allowlist  |
-| `tools/scripts/test.sh cover`          | Coverage report with threshold check      |
-| `tools/scripts/test.sh cover html`     | Coverage report, opens HTML in browser    |
-| `tools/scripts/test.sh bench`          | Benchmarks only                           |
-| `tools/scripts/test.sh fuzz FuzzX pkg` | Fuzz `FuzzX` in `pkg` for `$FUZZTIME`     |
-| `tools/scripts/test.sh flake 10`       | Re-run 10× with `-race` to expose flakes  |
-| `tools/scripts/test.sh ./pkg`          | Forward args to `go test` for one package |
-| `tools/scripts/watch.sh`               | Re-run tests on save (fswatch/inotify)    |
-| `tools/scripts/build.sh`               | Build the `microM8` binary                |
+| Command                                 | What it does                                  |
+|-----------------------------------------|-----------------------------------------------|
+| `tools/scripts/check.sh`                | fmt + vet + staticcheck + test + build        |
+| `tools/scripts/check.sh staticcheck`    | `staticcheck ./...` honouring `staticcheck.conf` |
+| `tools/scripts/test.sh`                 | `go test -race -shuffle=on` on allowlist      |
+| `tools/scripts/test.sh cover`           | Coverage report with threshold check          |
+| `tools/scripts/test.sh cover html`      | Coverage report, opens HTML in browser        |
+| `tools/scripts/test.sh bench`           | Benchmarks only                               |
+| `tools/scripts/test.sh fuzz FuzzX pkg`  | Fuzz `FuzzX` in `pkg` for `$FUZZTIME`         |
+| `tools/scripts/test.sh flake 10`        | Re-run 10× with `-race` to expose flakes      |
+| `tools/scripts/test.sh ./pkg`           | Forward args to `go test` for one package     |
+| `tools/scripts/watch.sh`                | Re-run tests on save (fswatch/inotify)        |
+| `tools/scripts/build.sh`                | Build the `microM8` binary                    |
+
+## Linters
+
+`gofmt` and `go vet` are gating in `check.sh`. So is **staticcheck** (Phase 5):
+
+```
+go install honnef.co/go/tools/cmd/staticcheck@latest
+tools/scripts/check.sh staticcheck
+```
+
+The enabled check set lives in [`staticcheck.conf`](staticcheck.conf). The
+default `"all"` is in effect with explicit per-check disables, each annotated
+with the baseline-hit count and the reason we deferred fixing it. The tree
+runs staticcheck-clean — please keep it that way when adding code. To
+investigate a specific check, `staticcheck -explain SAXXXX` prints the
+rationale. To temporarily ignore one finding without disabling the check
+globally, add `//lint:ignore SAXXXX <reason>` directly above the offending
+line.
 
 ## Allowlists
 

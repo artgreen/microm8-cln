@@ -6,8 +6,7 @@ import (
 	"strconv"
 
 	"paleotronic.com/fmt"
-
-	. "paleotronic.com/utils"
+	"paleotronic.com/utils"
 )
 
 type TokenType int
@@ -166,30 +165,30 @@ func (tok *Token) AsNumeric() float64 {
 
 	switch tok.Type {
 	case NUMBER:
-		f, err = strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+		f, err = strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 		if err != nil {
 			f = 0
 		}
 	case INTEGER:
-		f, err = strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+		f, err = strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 		if err != nil {
 			f = 0
 		}
 		f = math.Floor(f)
 	case STRING:
-		f, err = strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+		f, err = strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 		if err != nil {
 			f = 0
 		}
 		f = math.Floor(f)
 	case WORD:
-		f, err = strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+		f, err = strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 		if err != nil {
 			f = 0
 		}
 		f = math.Floor(f)
 	case BOOLEAN:
-		f, err = strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+		f, err = strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 		if err != nil {
 			f = 0
 		}
@@ -217,24 +216,24 @@ func (tok *Token) AsNumeric64() float64 {
 
 	switch tok.Type {
 	case NUMBER:
-		f, err = strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+		f, err = strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 		if err != nil {
 			f = 0
 		}
 	case INTEGER:
-		f, err = strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+		f, err = strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 		if err != nil {
 			f = 0
 		}
 		f = math.Floor(f)
 	case STRING:
-		f, err = strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+		f, err = strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 		if err != nil {
 			f = 0
 		}
 		f = math.Floor(f)
 	case BOOLEAN:
-		f, err = strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+		f, err = strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 		if err != nil {
 			f = 0
 		}
@@ -269,7 +268,7 @@ func (tok *Token) AsInteger() int {
 		tok.Content = "0"
 	}
 
-	f, err := strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+	f, err := strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 	if err != nil {
 		f = 0
 	}
@@ -283,7 +282,7 @@ func (tok *Token) AsExtended() float64 {
 		return 0
 	}
 
-	f, err := strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+	f, err := strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 	if err != nil {
 		f = 0
 	}
@@ -304,7 +303,7 @@ func (tok *Token) AsFloat() float64 {
 		}
 	}
 
-	f, err := strconv.ParseFloat(NumberPart(FlattenASCII(tok.Content)), 64)
+	f, err := strconv.ParseFloat(utils.NumberPart(utils.FlattenASCII(tok.Content)), 64)
 	if err != nil {
 		f = 0
 	}

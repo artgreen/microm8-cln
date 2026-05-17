@@ -55,7 +55,7 @@ func (this *StandardCommandPPROP) Execute(env *interfaces.Producable, caller int
 	foundIdx := -1
 	for i := 0; i < lobj.List.Size(); i += 2 {
 		t := lobj.List.Get(i)
-		if strings.ToLower(t.Content) == strings.ToLower(pprop.Content) {
+		if strings.EqualFold(t.Content, pprop.Content) {
 			foundIdx = i
 			break
 		}

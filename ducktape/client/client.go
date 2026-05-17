@@ -225,7 +225,9 @@ func (client *DuckTapeClient) ClientSender() {
 			client.OK = false
 			log.Println("Client ", client.Name, " quitting")
 			client.Conn.Close()
-			break
+			// `for client.OK` will now observe false and exit on the next
+			// iteration. Bare `break` would only exit the select (caught by
+			// staticcheck SA4011).
 		default:
 			time.Sleep(5 * time.Millisecond)
 		}
@@ -266,7 +268,10 @@ func (client *DuckTapeClient) ClientSenderSingle() bool {
 		case <-client.Quit:
 			log.Println("Client ", client.Name, " quitting")
 			client.Conn.Close()
-			break
+			// Subsequent writes will fail and the outer caller will tear the
+			// loop down. Bare `break` here only escapes the select, which is
+			// not what the original author intended (staticcheck SA4011).
+			return didsomething
 		default:
 		}
 

@@ -72,7 +72,7 @@ func (tl TokenList) IndexOfN(start int, ttype TokenType, tcontent string) int {
 	for i, tok := range tl.Content {
 		if i > start {
 			fmt.Printf(">> tok.Content=%s, tcontent=%s\n", tok.Content, tcontent)
-			if ((tok.Type == ttype) || (ttype == INVALID)) && ((strings.ToLower(tcontent) == strings.ToLower(tok.Content)) || (tcontent == "")) {
+			if ((tok.Type == ttype) || (ttype == INVALID)) && ((strings.EqualFold(tcontent, tok.Content)) || (tcontent == "")) {
 				res = i
 				return res
 			}
@@ -89,7 +89,7 @@ func (tl TokenList) IndexOfTokenN(start int, t *Token) int {
 			if t.Type == LIST && tok.Type == LIST && t.List.Equals(tok.List) {
 				return i
 			}
-			if t.Type != LIST && strings.ToLower(t.Content) == strings.ToLower(tok.Content) {
+			if t.Type != LIST && strings.EqualFold(t.Content, tok.Content) {
 				return i
 			}
 		}
@@ -112,7 +112,7 @@ func (tl *TokenList) Equals(l *TokenList) bool {
 	}
 	for i, _ := range tl.Content {
 		fmt.Printf("List.Equals.compare tl[%d]=%s, l[%d]=%s\n", i, tl.Content[i].Content, i, l.Content[i].Content)
-		if strings.ToLower(tl.Content[i].Content) != strings.ToLower(l.Content[i].Content) {
+		if !strings.EqualFold(tl.Content[i].Content, l.Content[i].Content) {
 			return false
 		}
 	}

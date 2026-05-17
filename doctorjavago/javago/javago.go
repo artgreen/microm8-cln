@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"gopkg.in/yaml.v2"
 )
@@ -240,7 +241,15 @@ func processDeclaration(line string, parts []string) {
 		if currentFunc.Scope == "private" {
 			// keep name as-is for private functions
 		} else {
-			currentFunc.Name = strings.Title(currentFunc.Name)
+			// Capitalize the first rune to export the Go name. The previous
+			// strings.Title was deprecated in Go 1.18 (SA1019) and only
+			// affects ASCII single-word identifiers here, so an inline
+			// upper-first is sufficient.
+			if len(currentFunc.Name) > 0 {
+				r := []rune(currentFunc.Name)
+				r[0] = unicode.ToUpper(r[0])
+				currentFunc.Name = string(r)
+			}
 		}
 
 		//process args

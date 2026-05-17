@@ -160,9 +160,8 @@ func (d *SerialVirtualModem) handleCommand(c string) {
 		// drain buffer
 		d.Drain()
 
-		if strings.HasPrefix(c, "atc") {
-			// arbitrary telnet code
-		}
+		// "atc" (arbitrary telnet code) was never implemented; the empty
+		// branch tripped staticcheck SA4017 ("HasPrefix's return is ignored").
 
 		if strings.HasPrefix(c, "atw") {
 			host := "telnet.wmflabs.org"

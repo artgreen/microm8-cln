@@ -210,7 +210,7 @@ func (mfp *NetworkUserFileProvider) zexists(p, f string) (bool, []string) {
 
 	for _, entry := range files {
 		wname := entry.Name + "." + entry.Extension
-		if strings.ToLower(wname) == strings.ToLower(f) {
+		if strings.EqualFold(wname, f) {
 			return true, []string{wname}
 		} else if r.MatchString(wname) {
 			ext := GetExt(f)
@@ -218,7 +218,7 @@ func (mfp *NetworkUserFileProvider) zexists(p, f string) (bool, []string) {
 			m := r.FindAllStringSubmatch(wname, -1)
 			eExt := m[0][4]
 			eBase := m[0][1]
-			if strings.ToLower(eBase) == strings.ToLower(base) && strings.ToLower(eExt) == strings.ToLower(ext) {
+			if strings.EqualFold(eBase, base) && strings.EqualFold(eExt, ext) {
 				return true, []string{wname}
 			}
 		}

@@ -82,7 +82,7 @@ func (this *StandardFunctionGPROP) FunctionExecute(params *types.TokenList) erro
 		foundIdx := -1
 		for i := 0; i < lobj.List.Size(); i += 2 {
 			t := lobj.List.Get(i)
-			if strings.ToLower(t.Content) == strings.ToLower(field) {
+			if strings.EqualFold(t.Content, field) {
 				foundIdx = i
 				break
 			}

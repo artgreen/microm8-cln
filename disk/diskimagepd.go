@@ -1262,7 +1262,7 @@ func (dsk *DSKWrapper) PRODOSFindDirBlocks(start int, path string) (*VDH, []int,
 			continue
 		}
 
-		if strings.ToLower(target) == strings.ToLower(f.NameUnadorned()) {
+		if strings.EqualFold(target, f.NameUnadorned()) {
 			// matched path
 			newpath := strings.Join(segments, "/")
 			return dsk.PRODOSFindDirBlocks(f.IndexBlock(), newpath)
@@ -1303,7 +1303,7 @@ func (dsk *DSKWrapper) PRODOSGetFirstFreeEntry(path string, name string, grow bo
 
 			//Printf("--> Check entry: %s, %v, %v\n", fd.NameUnadorned(), fd.CreateTime(), fd.ModTime())
 
-			if fd.GetStorageType() != 0x00 && strings.ToLower(fd.NameUnadorned()) == strings.ToLower(name) {
+			if fd.GetStorageType() != 0x00 && strings.EqualFold(fd.NameUnadorned(), name) {
 				return fd, nil
 			} else if fd.GetStorageType() == 0x00 {
 				//fmt.Printf("found at entry %d in block %d\n", entries, blockList[idx])
@@ -1851,7 +1851,7 @@ func (dsk *DSKWrapper) PRODOSGetNamedEntry(path string, name string) (*ProDOSFil
 
 			//fmt.Printf(">>> Comparing %s to %s\n", strings.ToLower(fd.NameUnadorned()), strings.ToLower(name))
 
-			if fd.GetStorageType() != 0x00 && strings.ToLower(fd.NameUnadorned()) == strings.ToLower(name) {
+			if fd.GetStorageType() != 0x00 && strings.EqualFold(fd.NameUnadorned(), name) {
 				return fd, nil
 			}
 
