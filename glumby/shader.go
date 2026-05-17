@@ -1,7 +1,6 @@
 package glumby
 
 import (
-	"reflect"
 	"strings"
 	"unsafe"
 
@@ -50,8 +49,9 @@ func Str(str string) *uint8 {
 	if !strings.HasSuffix(str, "\x00") {
 		panic("str argument missing null terminator: " + str)
 	}
-	header := (*reflect.StringHeader)(unsafe.Pointer(&str))
-	return (*uint8)(unsafe.Pointer(header.Data))
+	// unsafe.StringData (Go 1.20+) replaces the deprecated reflect.StringHeader
+	// pattern for getting at the byte pointer behind a string.
+	return (*uint8)(unsafe.Pointer(unsafe.StringData(str)))
 }
 
 func Strs(strs ...string) (cstrs **uint8, free func()) {
@@ -66,12 +66,10 @@ func Strs(strs ...string) (cstrs **uint8, free func()) {
 	}
 	data := C.malloc(C.size_t(n))
 
-	// Copy all the strings into data.
-	dataSlice := *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
-		Data: uintptr(data),
-		Len:  n,
-		Cap:  n,
-	}))
+	// Copy all the strings into data. unsafe.Slice (Go 1.17+) gives us a
+	// Go-typed slice view over the C-allocated memory; replaces the
+	// deprecated reflect.SliceHeader pattern.
+	dataSlice := unsafe.Slice((*byte)(data), n)
 	css := make([]*uint8, len(strs)) // Populated with pointers to each string.
 	offset := 0
 	for i := range strs {

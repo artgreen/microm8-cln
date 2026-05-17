@@ -335,7 +335,7 @@ func (this *Producer) EndRemotes() {
 			ent.EndRemote()
 		}
 
-		this.MasterLayerPos[i] = types.LayerPosMod{0, 0}
+		this.MasterLayerPos[i] = types.LayerPosMod{XPercent: 0, YPercent: 0}
 	}
 
 	//~ this.VM = this.VM[:1]
@@ -839,7 +839,7 @@ func (this *Producer) SetPostCallback(index int, f func(index int)) {
 }
 
 func (this *Producer) SetMasterLayerPos(index int, x, y float64) {
-	this.MasterLayerPos[index] = types.LayerPosMod{x, y}
+	this.MasterLayerPos[index] = types.LayerPosMod{XPercent: x, YPercent: y}
 	this.ForceUpdate[index] = true
 }
 

@@ -12,3 +12,7 @@
 ./encoding/ffpak
 ./encoding/mempak
 ./internal/testutil
+./core/types
+./core/vduproto
+./microtracker/mock
+./octalyzer

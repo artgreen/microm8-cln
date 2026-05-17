@@ -37,8 +37,8 @@ func (this *PlusVMSpeaker) FunctionExecute(params *types.TokenList) error {
 
 	if target != slotid {
 		settings.SpeakerRedirects[slotid] = &settings.SpeakerRedirect{
-			target,
-			1,
+			VM:      target,
+			Channel: 1,
 		}
 	} else {
 		settings.SpeakerRedirects[slotid] = nil

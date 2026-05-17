@@ -47,12 +47,9 @@ func (this *StandardCommandBOOP) StateDone(env *interfaces.Producable, caller in
 	/* vars */
 	var result int
 
+	_ = result
 	caller.PutStr("done\r\n")
 	panic("testing exceptions")
-
-	/* enforce non void return */
-	return result, nil
-
 }
 
 func (this *StandardCommandBOOP) Syntax() string {

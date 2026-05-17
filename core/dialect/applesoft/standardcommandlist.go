@@ -164,7 +164,7 @@ func (this *StandardCommandLIST) Execute(env *interfaces.Producable, caller inte
 					if (lt.Type == types.KEYWORD) || (lt.Type == types.DYNAMICKEYWORD) || (lt.Type == types.OPERATOR) || (lt.Type == types.SEPARATOR) || (lt.Type == types.OBRACKET) || (lt.Type == types.COMPARITOR) || (lt.Type == types.ASSIGNMENT) {
 						ft = ft + " "
 					}
-					if ((t1.Type == types.FUNCTION) || (t1.Type == types.LABEL) || (t1.Type == types.UNSTRING) || (t1.Type == types.CBRACKET) || (t1.Type == types.OBRACKET) || (t1.Type == types.NUMBER) || (t1.Type == types.VARIABLE) || (t1.Type == types.STRING) || (t1.Type == types.LOGIC) || (t1.Type == types.OPERATOR) || (t1.Type == types.CBRACKET) || (t1.Type == types.KEYWORD) || (t1.Type == types.COMPARITOR) || (t1.Type == types.ASSIGNMENT)) && (len(ft) > 0) && (ft[len(ft)-1] != ' ') {
+					if ((t1.Type == types.FUNCTION) || (t1.Type == types.LABEL) || (t1.Type == types.UNSTRING) || (t1.Type == types.CBRACKET) || (t1.Type == types.OBRACKET) || (t1.Type == types.NUMBER) || (t1.Type == types.VARIABLE) || (t1.Type == types.STRING) || (t1.Type == types.LOGIC) || (t1.Type == types.OPERATOR) || (t1.Type == types.KEYWORD) || (t1.Type == types.COMPARITOR) || (t1.Type == types.ASSIGNMENT)) && (len(ft) > 0) && (ft[len(ft)-1] != ' ') {
 						ft = ft + " "
 					}
 

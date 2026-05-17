@@ -1,4 +1,4 @@
-// +build: !remint
+//go:build !remint
 
 package main
 

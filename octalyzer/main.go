@@ -2278,20 +2278,10 @@ func ReconfigureHUD(index int, count int, ls *types.LayerSpecMapped) {
 
 func CheckGFXCamera() {
 
-	return
-
-	for index := 0; index < memory.OCTALYZER_NUM_INTERPRETERS; index++ {
-		if RAM.ReadGlobal(index, RAM.MEMBASE(index)+memory.OCTALYZER_CAMERA_GFX_BASE) != 0 {
-			cindex := RAM.ReadGlobal(index, RAM.MEMBASE(index)+memory.OCTALYZER_MAPPED_CAM_CONTROL)
-			data := RAM.BlockRead(index, RAM.MEMBASE(index)+memory.OCTALYZER_CAMERA_GFX_BASE, memory.OCTALYZER_CAMERA_BUFFER_SIZE)
-			//fmt.Printf("*** Camera reconfig: slot %d, code %d\n", index, data[0])
-			fxcam[index][int(cindex)].Command(data, index, RAM)
-			//os.Exit(1)
-			if data[0] != uint64(types.CC_GetJSONR) {
-				RAM.WriteGlobalSilent(index, RAM.MEMBASE(index)+memory.OCTALYZER_CAMERA_GFX_BASE, 0)
-			}
-		}
-	}
+	// Original implementation iterated camera slots and reconfigured them
+	// from RAM-mapped camera-control regions. Disabled by an early return;
+	// dead body removed during Phase 4c. Restore by removing this stub if
+	// the GFX camera path is needed again.
 }
 
 func CheckHUDCamera() {
@@ -3448,7 +3438,7 @@ func OnCharEvent(w *glumby.Window, ch rune) {
 }
 
 var inBurger bool
-var burgerRect = types.LayerRect{1, 1, 7, 7}
+var burgerRect = types.LayerRect{X0: 1, Y0: 1, X1: 7, Y1: 7}
 
 func SampleMouse(w *glumby.Window) {
 

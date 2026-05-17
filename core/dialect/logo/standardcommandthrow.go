@@ -42,10 +42,6 @@ func (this *StandardCommandTHROW) Execute(env *interfaces.Producable, caller int
 	}
 
 	return result, errors.New(rtok.Content)
-
-	/* enforce non void return */
-	return result, nil
-
 }
 
 func (this *StandardCommandTHROW) Syntax() string {

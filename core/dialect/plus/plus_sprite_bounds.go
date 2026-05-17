@@ -28,7 +28,7 @@ func (this *PlusSpriteBounds) FunctionExecute(params *types.TokenList) error {
 	controller := GetSpriteController(this.Interpreter)
 
 	if !this.Query {
-		controller.SetBounds(sprite, types.SpriteBounds{x, y, size})
+		controller.SetBounds(sprite, types.SpriteBounds{X: x, Y: y, Size: size})
 	}
 	this.Stack.Push(types.NewToken(types.NUMBER, utils.IntToStr(0)))
 

@@ -326,46 +326,9 @@ func SectorMapperLinear(wanted int) int {
 func SectorMapperDOS33(wanted int) int {
 
 	return wanted
-
-	// 0x00, 0x07, 0x0E, 0x06, 0x0D, 0x05, 0x0C, 0x04,
-	// 0x0B, 0x03, 0x0A, 0x02, 0x09, 0x01, 0x08, 0x0F,
-
-	switch wanted {
-	case 0x00:
-		return 0x00
-	case 0x07:
-		return 0x01
-	case 0x0e:
-		return 0x02
-	case 0x06:
-		return 0x03
-	case 0x0d:
-		return 0x04
-	case 0x05:
-		return 0x05
-	case 0x0c:
-		return 0x06
-	case 0x04:
-		return 0x07
-	case 0x0b:
-		return 0x08
-	case 0x03:
-		return 0x09
-	case 0x0a:
-		return 0x0a
-	case 0x02:
-		return 0x0b
-	case 0x09:
-		return 0x0c
-	case 0x01:
-		return 0x0d
-	case 0x08:
-		return 0x0e
-	case 0x0f:
-		return 0x0f
-	}
-
-	return -1 // invalid sector
+	// Original implementation translated DOS 3.3 logical sectors to physical
+	// via a switch statement; preserved as dead code after an early return
+	// that turned this into an identity. Removed in Phase 4c.
 }
 
 func SectorMapperDOS33Alt(wanted int) int {
@@ -411,43 +374,9 @@ func SectorMapperDOS33Alt(wanted int) int {
 func SectorMapperDOS33bad(wanted int) int {
 
 	return wanted
-
-	switch wanted {
-	case 0:
-		return 0
-	case 1:
-		return 13
-	case 2:
-		return 11
-	case 3:
-		return 9
-	case 4:
-		return 7
-	case 5:
-		return 5
-	case 6:
-		return 3
-	case 7:
-		return 1
-	case 8:
-		return 14
-	case 9:
-		return 12
-	case 10:
-		return 10
-	case 11:
-		return 8
-	case 12:
-		return 6
-	case 13:
-		return 4
-	case 14:
-		return 2
-	case 15:
-		return 15
-	}
-
-	return -1 // invalid sector
+	// Original implementation enumerated a reversed DOS 3.3 sector map for
+	// debugging; preserved as dead code after an early return. Removed in
+	// Phase 4c.
 }
 
 // SectoreMapperProDOS handles the interleaving for dos sectors

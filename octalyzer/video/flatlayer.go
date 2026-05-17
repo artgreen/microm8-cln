@@ -127,7 +127,7 @@ func NewGraphicsLayer(width, height int, glWidth, glHeight float32, format types
 	this.ScreenTexW = SW
 	this.glWidth = glWidth
 	this.glHeight = glHeight
-	this.lastBounds = types.LayerRect{0, 0, 0, 0}
+	this.lastBounds = types.LayerRect{X0: 0, Y0: 0, X1: 0, Y1: 0}
 
 	//this.Palette = avp
 	this.Clear()

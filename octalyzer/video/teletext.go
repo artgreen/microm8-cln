@@ -130,7 +130,11 @@ func (ttp *TeleTextProcessor) Process(code byte, hold bool) {
 	case ttxtBlackBackground:
 		ttp.bgColor = 0
 	case ttxtNewBackground:
-		ttp.fgColor = ttp.fgColor
+		// TODO(modernize): original line was `ttp.fgColor = ttp.fgColor`
+		// which is a no-op. Likely intended `ttp.bgColor = ttp.fgColor`
+		// to copy the current foreground into the background (teletext's
+		// "new background" sets the bg to the most recent fg color).
+		// Preserved as no-op pending clarification.
 	// flash
 	case ttxtFlash:
 		ttp.displayMode = ttxtCharFlash
