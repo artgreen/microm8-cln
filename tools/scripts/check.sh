@@ -17,7 +17,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-MODULE_DIR="$REPO_ROOT/GoPath/src/paleotronic.com"
 
 read_allowlist() {
     grep -v '^\s*#' "$1" | grep -v '^\s*$' | tr '\n' ' '
@@ -27,7 +26,7 @@ VET_PKGS="$(read_allowlist "$REPO_ROOT/.ci/vet-allowlist.txt")"
 
 run_fmt() {
     echo "==> gofmt -l"
-    cd "$MODULE_DIR"
+    cd "$REPO_ROOT"
     local unformatted
     unformatted="$(gofmt -l . || true)"
     if [ -z "$unformatted" ]; then
@@ -43,7 +42,7 @@ run_fmt() {
 
 run_vet() {
     echo "==> go vet (allowlist)"
-    cd "$MODULE_DIR"
+    cd "$REPO_ROOT"
     GOFLAGS=-mod=mod go vet $VET_PKGS
 }
 

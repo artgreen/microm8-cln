@@ -2,17 +2,12 @@
 
 EXENAME="microM8"
 export BASEDIR=`git rev-parse --show-toplevel`
-#export GOPATH="${BASEDIR}/GoPath:${BASEDIR}/GoPath/vendor"
 if [ "$OS" == "Windows_NT" ]
 then
 	EXENAME="${EXENAME}.exe"
-    export GOPATH="${BASEDIR}\\GoPath;${BASEDIR}\\GoPath\\vendor"
 fi
 
-#export GO111MODULE=off
 export GOFLAGS="${GOFLAGS:--mod=mod}"
-
-echo $GOPATH
 
 GO=`which go`
 XGO=`which xgo`

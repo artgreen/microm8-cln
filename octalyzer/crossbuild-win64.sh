@@ -1,7 +1,6 @@
 #!/bin/bash
 
 export BASEDIR=`git rev-parse --show-toplevel`
-export GOPATH="$BASEDIR/GoPath:$BASEDIR/GoPath/vendor"
 export GOOS="windows"
 export GOARCH="amd64"
 
@@ -29,4 +28,4 @@ Run with : wine ./$EXENAME
 EOF
 
 cp resources/microm8/amd64/resource.syso .
-GO111MODULE=off go build -ldflags '-extldflags "-static"' -o "${EXENAME}" .
+GOFLAGS=-mod=mod go build -ldflags '-extldflags "-static"' -o "${EXENAME}" .

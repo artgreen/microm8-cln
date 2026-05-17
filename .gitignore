@@ -1,12 +1,13 @@
 # Build outputs
-GoPath/src/paleotronic.com/octalyzer/microM8
-GoPath/src/paleotronic.com/octalyzer/microM8.exe
-GoPath/src/paleotronic.com/octalyzer/noxarchaist
-GoPath/src/paleotronic.com/remint/remint
-GoPath/src/paleotronic.com/dskalyzer/dskalyzer
-GoPath/src/paleotronic.com/dskalyzer/asm65xx.exe
 /microM8
 /microM8.exe
+octalyzer/microM8
+octalyzer/microM8.exe
+octalyzer/noxarchaist
+remint/remint
+dskalyzer/dskalyzer
+dskalyzer/asm65xx.exe
+octalyzer/asm65xx.exe
 
 # Test / coverage artifacts
 *.test
