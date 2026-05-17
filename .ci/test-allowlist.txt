@@ -29,3 +29,5 @@
 ./ducktape/server
 ./ducktape/client
 ./fastserv/client
+./disk
+./core/memory
