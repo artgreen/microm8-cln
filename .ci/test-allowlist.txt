@@ -26,6 +26,7 @@
 ./files
 ./core
 ./core/interpreter
+./ducktape
 ./ducktape/server
 ./ducktape/client
 ./fastserv/client

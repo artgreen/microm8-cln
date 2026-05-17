@@ -1,6 +1,7 @@
 package woz
 
 import (
+	"bytes"
 	"testing"
 
 	"paleotronic.com/core/memory"
@@ -77,4 +78,28 @@ func TestWOZTrack_ReadBitRoundTrip(t *testing.T) {
 			t.Errorf("after WriteBit(%d, 0): ReadBit = %d, want 0", ptr, got)
 		}
 	}
+}
+
+// FuzzNewWOZImage_NeverPanics asserts the WOZ file parser doesn't
+// crash on arbitrary input. WOZ images come from the network or user
+// disk, so a hostile or corrupt image must produce an error rather
+// than a crash that takes microM8 down.
+//
+// Seeds: malformed headers, truncated files, oversize files.
+func FuzzNewWOZImage_NeverPanics(f *testing.F) {
+	f.Add([]byte(""))
+	f.Add([]byte("WOZ1"))
+	f.Add([]byte("WOZ1\xff\x0a\x0d\x0a"))
+	f.Add(bytes.Repeat([]byte{0xff}, 16))
+	f.Add(bytes.Repeat([]byte{0x00}, 256))
+
+	f.Fuzz(func(t *testing.T, data []byte) {
+		buf := memory.NewMemByteSlice(len(data) + 16)
+		defer func() {
+			if r := recover(); r != nil {
+				t.Fatalf("NewWOZImage panicked on %d-byte input: %v", len(data), r)
+			}
+		}()
+		_, _ = NewWOZImage(bytes.NewReader(data), buf)
+	})
 }

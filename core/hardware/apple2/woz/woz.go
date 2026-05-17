@@ -152,6 +152,13 @@ func (w *WOZImage) TrackOK() bool {
 }
 
 func (w *WOZImage) IsValid() bool {
+	// The WOZ header is 12 bytes (8 magic + 4 CRC). Short inputs
+	// can't possibly be valid, and slicing below would panic on
+	// shorter buffers.
+	if w.Size < 12 || w.Data.Len() < 12 {
+		return false
+	}
+
 	for i, v := range wozMagic {
 		if w.Data.Get(i) != v {
 			return false
@@ -162,7 +169,7 @@ func (w *WOZImage) IsValid() bool {
 	currCRC := w.GetEmbeddedCRC()
 	newCRC := crc32.ChecksumIEEE(w.Data.ByteSlice(12, w.Size))
 	if currCRC != newCRC {
-		log.Printf("Checksums differ! header CRC32=%.8x, data CRC32=%.8x")
+		log.Printf("Checksums differ! header CRC32=%.8x, data CRC32=%.8x", currCRC, newCRC)
 		return false
 	}
 
