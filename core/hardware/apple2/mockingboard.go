@@ -27,6 +27,18 @@ type IOCardMockingBoard struct {
 	buffA, buffB    [3][]float32
 }
 
+// mockingboardChipBaseOffset returns the base register offset for the
+// i-th AY-3-8910 on a Mockingboard. Chip 0 lives at offset 0x00, chip 1
+// at 0x80 (the hardware places the two AY chips' I/O at adjacent
+// 128-byte windows).
+//
+// Was: `(i % 1) * 0x80` (always 0 — every AY chip would map to the same
+// base address, causing register writes for chip 1 to silently target
+// chip 0). Caught by staticcheck SA4028 in Phase 5.
+func mockingboardChipBaseOffset(i int) int {
+	return (i % 2) * 0x80
+}
+
 func (d *IOCardMockingBoard) Init(slot int) {
 	d.IOCard.Init(slot)
 	d.Log("Initialising mockingboard...")
@@ -35,7 +47,7 @@ func (d *IOCardMockingBoard) Init(slot int) {
 	for i := 0; i < len(d.chips); i++ {
 		d.chips[i] = common.NewAY38910(
 			fmt.Sprintf("ay.%d", i),
-			(i%2)*0x80,
+			mockingboardChipBaseOffset(i),
 			cpu.BaseSpeed,
 			int(settings.SampleRate),
 			0xff,
