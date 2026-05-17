@@ -17,6 +17,11 @@ name: check
 #     environment hiccup doesn't block a merge while we shake the workflow
 #     down. Flip to required once it's been green for ~10 PRs.
 #
+# All three jobs install the GL/X11 development headers. Even the test jobs
+# need them: the allowlist includes ./octalyzer, which imports our internal
+# gl/ package (cgo bindings to OpenGL). Without the headers, `go test`
+# fails at the compile step before it can run a single test.
+#
 # All jobs share the Go module cache via actions/setup-go's built-in cache.
 
 on:
@@ -33,6 +38,20 @@ concurrency:
 
 env:
   GO_VERSION: "1.24"
+  # System packages required by go-gl/glfw and our internal gl/ cgo bindings.
+  # libgl1-mesa-dev      — GL/gl.h + libGL.so (linked from gl/package.go)
+  # libx11/xcursor/xi/   — GLFW window/input on X11
+  #   xinerama/xrandr/
+  #   xxf86vm/xorg-dev
+  APT_GL_DEPS: >-
+    libgl1-mesa-dev
+    libx11-dev
+    libxcursor-dev
+    libxi-dev
+    libxinerama-dev
+    libxrandr-dev
+    libxxf86vm-dev
+    xorg-dev
 
 jobs:
   check:
@@ -47,6 +66,11 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends $APT_GL_DEPS
 
       - name: Install staticcheck
         run: go install honnef.co/go/tools/cmd/staticcheck@latest
@@ -71,6 +95,11 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: true
 
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends $APT_GL_DEPS
+
       - name: Run test.sh race
         run: tools/scripts/test.sh race
 
@@ -92,20 +121,10 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: true
 
-      # GLFW + go-gl bindings need the X11 and GL development headers on
-      # Linux. Without these the build fails at the CGO link step.
       - name: Install system deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libgl1-mesa-dev \
-            libx11-dev \
-            libxcursor-dev \
-            libxi-dev \
-            libxinerama-dev \
-            libxrandr-dev \
-            libxxf86vm-dev \
-            xorg-dev
+          sudo apt-get install -y --no-install-recommends $APT_GL_DEPS
 
       - name: Build
         run: tools/scripts/build.sh
