@@ -153,7 +153,12 @@ var (
 var targetHost = flag.String("backend", "localhost", "Host to connect to") // blah
 var dataHost = flag.String("server", "microm8.paleotronic.com", "Server to connect to")
 var versionDisplay = flag.Bool("version", false, "Show version and exit.")
-var noUpdate = flag.Bool("no-update", false, "Dont check for updates.")
+
+// noUpdate defaults to true: remote-update helpers in package update/ are
+// kept disabled during the modernization migration (also gated by
+// update.Disabled). Pass `-no-update=false` to opt back in once the update
+// channel is known to be reachable.
+var noUpdate = flag.Bool("no-update", true, "Dont check for updates.")
 var trace6502 = flag.Bool("trace-cpu", false, "Trace 6502/Z80 access")
 var breakIll6502 = flag.Bool("stop-ill-65c02", false, "Stop on 65c02 illegal opcode")
 var trace6502mem = flag.Bool("trace-mem", false, "Trace memory writes via CPU ST?")

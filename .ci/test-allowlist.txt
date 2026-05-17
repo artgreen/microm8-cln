@@ -16,3 +16,4 @@
 ./core/vduproto
 ./microtracker/mock
 ./octalyzer
+./update
