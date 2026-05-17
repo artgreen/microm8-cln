@@ -1,0 +1,15 @@
+# Packages that currently pass `go vet` cleanly.
+# Maintained as the "known-good" baseline for CI vet.
+# Expand as we fix vet failures in later phases; the goal is `./...` after Phase 4.
+# One package path per line; comments and blank lines ignored.
+./buffer
+./runestring
+./encoding/base91
+./encoding/ffpak
+./encoding/mempak
+./log
+./panic
+./spooler
+./fmt
+./decoding
+./filerecord
