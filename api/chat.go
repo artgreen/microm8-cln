@@ -1,7 +1,6 @@
 package s8webclient
 
 import (
-	"errors"
 	"time"
 
 	//lint:ignore SA1019 protobuf migration to google.golang.org/protobuf/proto deferred to a dedicated phase (touches generated code).
@@ -228,7 +227,7 @@ func (c *Client) ChangeChatTopic(chat_id int32, topic string) (*chatapi.UpdateTo
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		if msg.ID == "CKT" {
 			resp := &chatapi.UpdateTopicResponse{}
@@ -236,7 +235,7 @@ func (c *Client) ChangeChatTopic(chat_id int32, topic string) (*chatapi.UpdateTo
 			log.Printf("Got topic response: %+v", resp)
 			return resp, err
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError("CKT", msg.Payload, nil)
 		}
 	}
 

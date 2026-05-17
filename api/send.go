@@ -1,7 +1,6 @@
 package s8webclient
 
 import (
-	"errors"
 	"time"
 
 	"paleotronic.com/ducktape"
@@ -13,7 +12,7 @@ func (c *Client) SendAndWait(id string, payload []byte, valid []string) (*duckta
 	//	var err error
 
 	if c.c == nil {
-		return &ducktape.DuckTapeBundle{}, errors.New("Not connected")
+		return &ducktape.DuckTapeBundle{}, ErrNotConnected
 	}
 
 	// Now do the connection
@@ -24,7 +23,7 @@ func (c *Client) SendAndWait(id string, payload []byte, valid []string) (*duckta
 	//var bb []byte
 	select {
 	case _ = <-tochan:
-		return &ducktape.DuckTapeBundle{}, errors.New("timeout error")
+		return &ducktape.DuckTapeBundle{}, ErrTimeout
 	case msg := <-c.c.Incoming:
 
 		for _, i := range valid {
@@ -33,8 +32,8 @@ func (c *Client) SendAndWait(id string, payload []byte, valid []string) (*duckta
 			}
 		}
 
-		return msg, errors.New("Unexpected message")
+		return msg, ErrUnexpectedMessage
 	}
 
-	//return &ducktape.DuckTapeBundle{}, errors.New("Unexpected message")
+	//return &ducktape.DuckTapeBundle{}, ErrUnexpectedMessage
 }

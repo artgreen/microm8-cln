@@ -6,7 +6,6 @@ import (
 
 	//	"strings"
 	//	"paleotronic.com/fmt"
-	"errors"
 	"time"
 
 	"paleotronic.com/filerecord"
@@ -22,7 +21,7 @@ func (c *Client) StoreRemIntFile(project string, filepath string, filename strin
 	var err error
 
 	if c.c == nil {
-		return errors.New("Not connected")
+		return ErrNotConnected
 	}
 
 	// Now do the connection
@@ -34,14 +33,14 @@ func (c *Client) StoreRemIntFile(project string, filepath string, filename strin
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "SOK" {
 			// Login OK
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError("ISV", msg.Payload, nil)
 		}
 	}
 
@@ -58,7 +57,7 @@ func (c *Client) StoreProjectFile(project string, filepath string, filename stri
 	var err error
 
 	if c.c == nil {
-		return errors.New("Not connected")
+		return ErrNotConnected
 	}
 
 	// Now do the connection
@@ -70,14 +69,14 @@ func (c *Client) StoreProjectFile(project string, filepath string, filename stri
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "SOK" {
 			// Login OK
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError("PSV", msg.Payload, nil)
 		}
 	}
 
@@ -92,7 +91,7 @@ func (c *Client) FetchRemIntFile(project string, filepath string, filename strin
 	var err error
 
 	if c.c == nil {
-		return filerecord.FileRecord{}, errors.New("Not connected")
+		return filerecord.FileRecord{}, ErrNotConnected
 	}
 
 	// Now do the connection
@@ -104,7 +103,7 @@ func (c *Client) FetchRemIntFile(project string, filepath string, filename strin
 	bb := &filerecord.FileRecord{}
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "FIL" {
@@ -112,7 +111,7 @@ func (c *Client) FetchRemIntFile(project string, filepath string, filename strin
 			err = nil
 			bb.UnJSON(msg.Payload)
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 
@@ -127,7 +126,7 @@ func (c *Client) FetchProjectFile(project string, filepath string, filename stri
 	var err error
 
 	if c.c == nil {
-		return filerecord.FileRecord{}, errors.New("Not connected")
+		return filerecord.FileRecord{}, ErrNotConnected
 	}
 
 	// Now do the connection
@@ -139,7 +138,7 @@ func (c *Client) FetchProjectFile(project string, filepath string, filename stri
 	bb := &filerecord.FileRecord{}
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "FIL" {
@@ -147,7 +146,7 @@ func (c *Client) FetchProjectFile(project string, filepath string, filename stri
 			err = nil
 			bb.UnJSON(msg.Payload)
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 
@@ -161,7 +160,7 @@ func (c *Client) FetchProjectDir(project string, filepath string, filespec strin
 	var err error
 
 	if c.c == nil {
-		return []byte(nil), errors.New("Not connected")
+		return []byte(nil), ErrNotConnected
 	}
 
 	// Now do the connection
@@ -173,7 +172,7 @@ func (c *Client) FetchProjectDir(project string, filepath string, filespec strin
 	var bb []byte
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "DIR" {
@@ -181,7 +180,7 @@ func (c *Client) FetchProjectDir(project string, filepath string, filespec strin
 			err = nil
 			bb = msg.Payload
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 
@@ -195,7 +194,7 @@ func (c *Client) FetchRemIntDir(project string, filepath string, filespec string
 	var err error
 
 	if c.c == nil {
-		return []byte(nil), errors.New("Not connected")
+		return []byte(nil), ErrNotConnected
 	}
 
 	// Now do the connection
@@ -207,7 +206,7 @@ func (c *Client) FetchRemIntDir(project string, filepath string, filespec string
 	var bb []byte
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "DIR" {
@@ -215,7 +214,7 @@ func (c *Client) FetchRemIntDir(project string, filepath string, filespec string
 			err = nil
 			bb = msg.Payload
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 
@@ -235,7 +234,7 @@ func (c *Client) CreateProjectDir(project string) error {
 	var err error
 
 	if c.c == nil {
-		return errors.New("Not connected")
+		return ErrNotConnected
 	}
 
 	// Now do the connection
@@ -246,14 +245,14 @@ func (c *Client) CreateProjectDir(project string) error {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "SOK" {
 			// Login OK
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New("Project create failed")
+			err = ErrProjectCreateFailed
 		}
 	}
 
@@ -266,7 +265,7 @@ func (c *Client) ProjectStatus(project string) (bool, bool, bool, error) {
 	var err error
 
 	if c.c == nil {
-		return false, false, false, errors.New("Not connected")
+		return false, false, false, ErrNotConnected
 	}
 
 	// Now do the connection
@@ -281,7 +280,7 @@ func (c *Client) ProjectStatus(project string) (bool, bool, bool, error) {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "PSR" {
@@ -292,7 +291,7 @@ func (c *Client) ProjectStatus(project string) (bool, bool, bool, error) {
 
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New("Project status failed")
+			err = ErrProjectStatusFailed
 		}
 	}
 
@@ -306,7 +305,7 @@ func (c *Client) FetchProjectList() ([]string, error) {
 	out := make([]string, 0)
 
 	if c.c == nil {
-		return out, errors.New("Not connected")
+		return out, ErrNotConnected
 	}
 
 	// Now do the connection
@@ -317,7 +316,7 @@ func (c *Client) FetchProjectList() ([]string, error) {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in _FetchProjectList() %s\n", msg.ID)
 		if msg.ID == "APL" {
@@ -326,7 +325,7 @@ func (c *Client) FetchProjectList() ([]string, error) {
 			//fmt.Println(string(msg.Payload))
 			out = strings.Split(string(msg.Payload), ":")
 		} else if msg.ID == "ERR" {
-			err = errors.New("Project fetch list failed")
+			err = ErrProjectListFailed
 		}
 	}
 

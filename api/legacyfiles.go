@@ -7,7 +7,6 @@ import (
 
 	//	"strings"
 	//	"paleotronic.com/fmt"
-	"errors"
 	"strings"
 	"time"
 
@@ -22,7 +21,7 @@ func (c *Client) httpGetBytes(url string) ([]byte, error) {
 		return nil, err
 	}
 	if resp.StatusCode/100 != 2 {
-		return nil, errors.New("Bad status")
+		return nil, ErrBadStatus
 	}
 	return io.ReadAll(resp.Body)
 
@@ -68,7 +67,7 @@ func (c *Client) FetchLegacyFileOld(filepath string, filename string) (filerecor
 	var err error
 
 	if c.c == nil {
-		return filerecord.FileRecord{}, errors.New("Not connected")
+		return filerecord.FileRecord{}, ErrNotConnected
 	}
 
 	// Now do the connection
@@ -80,7 +79,7 @@ func (c *Client) FetchLegacyFileOld(filepath string, filename string) (filerecor
 	bb := &filerecord.FileRecord{}
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _FetchLegacyFile() %s\n", msg.ID)
 		if msg.ID == "FIL" {
@@ -88,7 +87,7 @@ func (c *Client) FetchLegacyFileOld(filepath string, filename string) (filerecor
 			err = nil
 			bb.UnJSON(msg.Payload)
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 
@@ -102,7 +101,7 @@ func (c *Client) FetchLegacyDir(filepath string, filespec string) ([]byte, error
 	var err error
 
 	if c.c == nil {
-		return []byte(nil), errors.New("Not connected")
+		return []byte(nil), ErrNotConnected
 	}
 
 	// Now do the connection
@@ -114,7 +113,7 @@ func (c *Client) FetchLegacyDir(filepath string, filespec string) ([]byte, error
 	var bb []byte
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "DIR" {
@@ -122,7 +121,7 @@ func (c *Client) FetchLegacyDir(filepath string, filespec string) ([]byte, error
 			err = nil
 			bb = msg.Payload
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 
@@ -137,7 +136,7 @@ func (c *Client) StoreLegacyFile(filepath string, filename string, data []byte) 
 	var err error
 
 	if c.c == nil {
-		return errors.New("Not connected")
+		return ErrNotConnected
 	}
 
 	// Now do the connection
@@ -149,14 +148,14 @@ func (c *Client) StoreLegacyFile(filepath string, filename string, data []byte) 
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "SOK" {
 			// Login OK
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New("failed")
+			err = ErrServerFailure
 		}
 	}
 
