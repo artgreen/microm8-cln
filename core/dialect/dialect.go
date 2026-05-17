@@ -141,7 +141,7 @@ func (this *Dialect) BeforeRun(caller interfaces.Interpretable) {
 	// stub
 }
 
-func (this *Dialect) CheckOptimize(lno int, s string, OCode types.Algorithm) {
+func (this *Dialect) CheckOptimize(lno int, s string, OCode *types.Algorithm) {
 	// stub does nothing
 }
 
@@ -528,7 +528,7 @@ func (this *Dialect) HasCBreak(ent interfaces.Interpretable) bool {
 	return b || c
 }
 
-func (this *Dialect) ParseMemoryRepresentation(data []uint64) types.Algorithm {
+func (this *Dialect) ParseMemoryRepresentation(data []uint64) *types.Algorithm {
 
 	var lno int
 	var pos, nextpos int
@@ -536,10 +536,10 @@ func (this *Dialect) ParseMemoryRepresentation(data []uint64) types.Algorithm {
 	var st types.Statement
 
 	if len(data) < 3 {
-		return *types.NewAlgorithm()
+		return types.NewAlgorithm()
 	}
 
-	a := *types.NewAlgorithm()
+	a := types.NewAlgorithm()
 
 	if len(data) < 3 {
 		return a
@@ -2660,7 +2660,7 @@ func (this *Dialect) IsBreakingCharacter(ch rune, vs string) bool {
 	return (utils.Pos(string(ch), items) > 0)
 }
 
-func (this *Dialect) Decolon(code types.Algorithm, start int, increment int, iftosub bool) types.Algorithm {
+func (this *Dialect) Decolon(code *types.Algorithm, start int, increment int, iftosub bool) *types.Algorithm {
 
 	code = this.Renumber(code, 100, 100)
 	newcode := types.NewAlgorithm()
@@ -2766,10 +2766,10 @@ func (this *Dialect) Decolon(code types.Algorithm, start int, increment int, ift
 	}
 
 	// renumber it at the end
-	return this.Renumber(*newcode, start, increment)
+	return this.Renumber(newcode, start, increment)
 }
 
-func (this *Dialect) Renumber(code types.Algorithm, start int, increment int) types.Algorithm {
+func (this *Dialect) Renumber(code *types.Algorithm, start int, increment int) *types.Algorithm {
 
 	current := start
 
@@ -2778,7 +2778,7 @@ func (this *Dialect) Renumber(code types.Algorithm, start int, increment int) ty
 	l := code.GetLowIndex()
 	h := code.GetHighIndex()
 
-	newcode := *types.NewAlgorithm()
+	newcode := types.NewAlgorithm()
 
 	for (l <= h) && (l != -1) {
 
@@ -2842,7 +2842,7 @@ func (this *Dialect) Renumber(code types.Algorithm, start int, increment int) ty
 
 }
 
-func (this *Dialect) Reorganize(code types.Algorithm, start int, increment int) types.Algorithm {
+func (this *Dialect) Reorganize(code *types.Algorithm, start int, increment int) *types.Algorithm {
 
 	current := start
 
@@ -2852,7 +2852,7 @@ func (this *Dialect) Reorganize(code types.Algorithm, start int, increment int) 
 	l := code.GetLowIndex()
 	h := code.GetHighIndex()
 
-	newcode := *types.NewAlgorithm()
+	newcode := types.NewAlgorithm()
 
 	for (l <= h) && (l != -1) {
 

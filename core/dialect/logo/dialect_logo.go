@@ -94,7 +94,7 @@ func (this *DialectLogo) IsSeparator(ch string) bool {
 
 }
 
-func (this *DialectLogo) CheckOptimize(lno int, s string, OCode types.Algorithm) {
+func (this *DialectLogo) CheckOptimize(lno int, s string, OCode *types.Algorithm) {
 	// stub does nothing
 
 	//fmt.Println("in applesoft match")
@@ -2363,7 +2363,7 @@ func (this *DialectLogo) GetMemoryRepresentation(a *types.Algorithm) []uint64 {
 	return data
 }
 
-func (this *DialectLogo) ParseMemoryRepresentation(data []uint64) types.Algorithm {
+func (this *DialectLogo) ParseMemoryRepresentation(data []uint64) *types.Algorithm {
 
 	var lno int
 	var pos, nextpos int
@@ -2371,10 +2371,10 @@ func (this *DialectLogo) ParseMemoryRepresentation(data []uint64) types.Algorith
 	var st types.Statement
 
 	if len(data) < 3 {
-		return *types.NewAlgorithm()
+		return types.NewAlgorithm()
 	}
 
-	a := *types.NewAlgorithm()
+	a := types.NewAlgorithm()
 
 	if len(data) < 3 {
 		return a
@@ -2522,7 +2522,7 @@ func (this *DialectLogo) PostThaw(ent interfaces.Interpretable) {
 	// now unpack program again
 	if len(data) > 0 {
 		a := this.ParseMemoryRepresentation(data)
-		ent.SetCode(&a)
+		ent.SetCode(a)
 	} else {
 		ent.SetCode(types.NewAlgorithm())
 	}

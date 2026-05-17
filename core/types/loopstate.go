@@ -2,13 +2,19 @@ package types
 
 import "errors"
 
-// LoopState holds a Loop state used in for/next loops
+// LoopState holds a Loop state used in for/next loops.
+//
+// Code is a pointer so LoopState doesn't transitively embed Algorithm's
+// sync.Mutex — that previously made LoopState unsafe to copy and led to
+// silent lock-by-value bugs whenever LoopState was stored in a map or
+// slice and a method on the copied Algorithm tried to take a lock that
+// served no synchronization purpose.
 type LoopState struct {
 	Step    float64
 	Start   float64
 	Finish  float64
 	VarName string
-	Code    Algorithm
+	Code    *Algorithm
 	Entry   CodeRef
 }
 

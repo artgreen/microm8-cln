@@ -67,7 +67,7 @@ func (this *DialectAppleInteger) BeforeRun(caller interfaces.Interpretable) {
 	fixMemoryPtrs(caller)
 }
 
-func (this *DialectAppleInteger) CheckOptimize(lno int, s string, OCode types.Algorithm) {
+func (this *DialectAppleInteger) CheckOptimize(lno int, s string, OCode *types.Algorithm) {
 	// stub does nothing
 
 	if m := reSimpleLoop.FindStringSubmatch(s); len(m) > 0 {
@@ -2798,7 +2798,7 @@ func (this *DialectAppleInteger) GetMemoryRepresentation(a *types.Algorithm) []u
 	return data
 }
 
-func (this *DialectAppleInteger) ParseMemoryRepresentation(data []uint64) types.Algorithm {
+func (this *DialectAppleInteger) ParseMemoryRepresentation(data []uint64) *types.Algorithm {
 
 	var lno int
 	var pos, nextpos int
@@ -2806,10 +2806,10 @@ func (this *DialectAppleInteger) ParseMemoryRepresentation(data []uint64) types.
 	var st types.Statement
 
 	if len(data) < 3 {
-		return *types.NewAlgorithm()
+		return types.NewAlgorithm()
 	}
 
-	a := *types.NewAlgorithm()
+	a := types.NewAlgorithm()
 
 	if len(data) < 3 {
 		return a
@@ -2957,7 +2957,7 @@ func (this *DialectAppleInteger) PostThaw(ent interfaces.Interpretable) {
 	// now unpack program again
 	if len(data) > 0 {
 		a := this.ParseMemoryRepresentation(data)
-		ent.SetCode(&a)
+		ent.SetCode(a)
 	} else {
 		ent.SetCode(types.NewAlgorithm())
 	}

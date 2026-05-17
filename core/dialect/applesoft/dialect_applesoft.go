@@ -74,7 +74,7 @@ func (this *DialectApplesoft) BeforeRun(caller interfaces.Interpretable) {
 	fixMemoryPtrs(caller)
 }
 
-func (this *DialectApplesoft) CheckOptimize(lno int, s string, OCode types.Algorithm) {
+func (this *DialectApplesoft) CheckOptimize(lno int, s string, OCode *types.Algorithm) {
 	// stub does nothing
 
 	//fmt.Println("in applesoft match")
@@ -3010,7 +3010,7 @@ func (this *DialectApplesoft) GetMemoryRepresentation(a *types.Algorithm) []uint
 	return data
 }
 
-func (this *DialectApplesoft) ParseMemoryRepresentation(data []uint64) types.Algorithm {
+func (this *DialectApplesoft) ParseMemoryRepresentation(data []uint64) *types.Algorithm {
 
 	var lno int
 	var pos, nextpos int
@@ -3018,10 +3018,10 @@ func (this *DialectApplesoft) ParseMemoryRepresentation(data []uint64) types.Alg
 	var st types.Statement
 
 	if len(data) < 3 {
-		return *types.NewAlgorithm()
+		return types.NewAlgorithm()
 	}
 
-	a := *types.NewAlgorithm()
+	a := types.NewAlgorithm()
 
 	if len(data) < 3 {
 		return a
@@ -3169,7 +3169,7 @@ func (this *DialectApplesoft) PostThaw(ent interfaces.Interpretable) {
 	// now unpack program again
 	if len(data) > 0 {
 		a := this.ParseMemoryRepresentation(data)
-		ent.SetCode(&a)
+		ent.SetCode(a)
 	} else {
 		ent.SetCode(types.NewAlgorithm())
 	}
