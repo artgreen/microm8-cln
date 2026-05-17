@@ -17,26 +17,36 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # gofmt: starts non-gating because Phase 2 hasn't run yet (~384 files unformatted).
-  # After Phase 2 lands, flip continue-on-error to false to make this gate PRs.
+  # gofmt: non-gating until Phase 2 reformats the tree (~384 files unformatted
+  # right now). Emits annotations + a step-summary count so reviewers see the
+  # debt without the check going red. Flip to a hard fail in Phase 2 by setting
+  # `STRICT=1` (then this script exits 1 when anything's unformatted).
   # ---------------------------------------------------------------------------
   gofmt:
     name: gofmt
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: GoPath/src/paleotronic.com/go.mod
       - name: gofmt -l
+        env:
+          STRICT: "0"
         run: |
           unformatted=$(gofmt -l . | grep -v '^vendor/' || true)
-          if [ -n "$unformatted" ]; then
-            echo "::warning::Unformatted files (will gate after Phase 2):"
-            echo "$unformatted"
-            count=$(echo "$unformatted" | wc -l)
-            echo "Total: $count files"
+          if [ -z "$unformatted" ]; then
+            echo "All files formatted."
+            exit 0
+          fi
+          count=$(echo "$unformatted" | wc -l | tr -d ' ')
+          echo "::warning::$count files unformatted (will gate after Phase 2)"
+          echo "## Unformatted files ($count)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "$unformatted" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          while IFS= read -r f; do echo "::warning file=GoPath/src/paleotronic.com/$f::file is not gofmt-clean"; done <<< "$unformatted"
+          if [ "$STRICT" = "1" ]; then
             exit 1
           fi
 
