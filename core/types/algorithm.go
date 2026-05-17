@@ -68,7 +68,7 @@ func (this *Algorithm) GetSortedKeys() AlgorithmKeys {
 	return keys
 }
 
-func (this Algorithm) Size() int {
+func (this *Algorithm) Size() int {
 	return len(this.C)
 }
 
@@ -79,7 +79,7 @@ func (this *Algorithm) Put(i int, ll Line) {
 	this.Changed = true
 }
 
-func (this Algorithm) Get(i int) (Line, bool) {
+func (this *Algorithm) Get(i int) (Line, bool) {
 	this.m.Lock()
 	defer this.m.Unlock()
 	l, ok := this.C[i]
@@ -97,7 +97,7 @@ func NewAlgorithm() *Algorithm {
 	return this
 }
 
-func (this Algorithm) ContainsKey(key int) bool {
+func (this *Algorithm) ContainsKey(key int) bool {
 	this.m.Lock()
 	defer this.m.Unlock()
 	_, ok := this.C[key]
@@ -113,7 +113,7 @@ func (slice AlgorithmKeys) IndexOf(value int) int {
 	return -1
 }
 
-func (this Algorithm) PrevAfter(line int) int {
+func (this *Algorithm) PrevAfter(line int) int {
 	var i, l int
 	keys := this.GetSortedKeys()
 	i = keys.IndexOf(line)
@@ -141,7 +141,7 @@ func (this Algorithm) PrevAfter(line int) int {
 	return keys[i-1]
 }
 
-func (this Algorithm) NextAfter(line int) int {
+func (this *Algorithm) NextAfter(line int) int {
 	var i, h int
 	keys := this.GetSortedKeys()
 	i = keys.IndexOf(line)
@@ -168,7 +168,7 @@ func (this Algorithm) NextAfter(line int) int {
 	return keys[i+1]
 }
 
-func (this Algorithm) String() string {
+func (this *Algorithm) String() string {
 	out := ""
 
 	l := this.GetLowIndex()
@@ -231,7 +231,7 @@ func (this Algorithm) String() string {
 	return out
 }
 
-func (this Algorithm) Checksum() string {
+func (this *Algorithm) Checksum() string {
 
 	b := []byte(this.String())
 

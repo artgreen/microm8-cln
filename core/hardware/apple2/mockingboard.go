@@ -84,7 +84,7 @@ func (d *IOCardMockingBoard) SetYAML(b []byte) {
 	d.controllers[1].FromBytes(b[15:30])
 }
 
-func (d IOCardMockingBoard) ImA() string {
+func (d *IOCardMockingBoard) ImA() string {
 	return "Mockingboard"
 }
 

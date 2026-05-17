@@ -79,7 +79,7 @@ type Interpreter struct {
 	CreatedTokens       *types.TokenList
 	LastZ               int
 	Code                *types.Algorithm
-	CodeOptimizations   types.Algorithm
+	CodeOptimizations   *types.Algorithm
 	WaitUntil           time.Time
 	VarPrefix           string
 	LoopStack           types.LoopStack
@@ -1081,7 +1081,7 @@ func (this *Interpreter) BootCheck() {
 
 func (this *Interpreter) PreOptimizer() {
 	// Iterate the code and look for improvement overrides to make
-	this.CodeOptimizations = *types.NewAlgorithm()
+	this.CodeOptimizations = types.NewAlgorithm()
 
 	if this.IsRunning() {
 
@@ -2423,7 +2423,7 @@ func (this *Interpreter) Clear() {
 
 	this.State = types.EMPTY
 	this.Code = types.NewAlgorithm()
-	this.CodeOptimizations = *types.NewAlgorithm()
+	this.CodeOptimizations = types.NewAlgorithm()
 	syncmanager.Sync.SetSyncKey(this.Code.Checksum())
 
 }
@@ -4463,7 +4463,7 @@ func NewInterpreter(name string, dia interfaces.Dialecter, parent interfaces.Int
 	this.Name = name
 	this.Dialect = dia
 	this.Code = types.NewAlgorithm()
-	this.CodeOptimizations = *types.NewAlgorithm()
+	this.CodeOptimizations = types.NewAlgorithm()
 	this.DirectAlgorithm = types.NewAlgorithm()
 	this.Parent = parent
 	this.Params = types.NewTokenList()

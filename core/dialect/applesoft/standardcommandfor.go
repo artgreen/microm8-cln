@@ -113,7 +113,7 @@ func (this *StandardCommandFOR) Execute(env *interfaces.Producable, caller inter
 	ls.Finish = thi.AsExtended()
 	ls.Step = step
 	/* handle scope */
-	ls.Code = *Scope
+	ls.Code = Scope
 
 	ls.Entry = caller.GetNextStatement(LPC)
 

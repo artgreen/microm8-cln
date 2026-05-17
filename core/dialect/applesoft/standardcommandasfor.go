@@ -95,7 +95,7 @@ func (this *StandardCommandASFOR) Execute(env *interfaces.Producable, caller int
 	ls.Step = step
 
 	/* handle scope */
-	ls.Code = *Scope
+	ls.Code = Scope
 	ls.Entry = caller.GetNextStatement(LPC)
 
 	caller.GetLoopStack().Add(ls)

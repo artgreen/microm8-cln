@@ -95,7 +95,7 @@ func (this *StandardCommandWozFOR) Execute(env *interfaces.Producable, caller in
 	ls.Finish = thi.AsExtended()
 	ls.Step = step
 	/* handle scope */
-	ls.Code = *Scope
+	ls.Code = Scope
 
 	ls.Entry = caller.GetNextStatement(LPC)
 

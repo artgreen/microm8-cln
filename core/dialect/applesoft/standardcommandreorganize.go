@@ -108,9 +108,9 @@ func (this *StandardCommandREORGANIZE) Execute(env *interfaces.Producable, calle
 
 	ifgosub := (caller.GetDialect().GetTitle() == "Applesoft")
 
-	newcode := caller.GetDialect().Decolon(*a, l, h, ifgosub)
+	newcode := caller.GetDialect().Decolon(a, l, h, ifgosub)
 
-	caller.SetCode(&newcode)
+	caller.SetCode(newcode)
 
 	/* enforce non void return */
 	return result, nil

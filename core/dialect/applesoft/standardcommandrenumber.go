@@ -106,9 +106,9 @@ func (this *StandardCommandRENUMBER) Execute(env *interfaces.Producable, caller 
 	//fmt.Println("L =", l)
 	//fmt.Println("H =", h)
 
-	newcode := caller.GetDialect().Renumber(*a, l, h)
+	newcode := caller.GetDialect().Renumber(a, l, h)
 
-	caller.SetCode(&newcode)
+	caller.SetCode(newcode)
 
 	/* enforce non void return */
 	return result, nil

@@ -40,7 +40,7 @@ type Dialecter interface {
 	SetThrottle(v float32)
 	ProcessDynamicCommand(ent Interpretable, cmd string) error
 	GetPlusFunctions() FunctionList
-	Renumber(code types.Algorithm, start int, increment int) types.Algorithm
+	Renumber(code *types.Algorithm, start int, increment int) *types.Algorithm
 	PutStr(ent Interpretable, s string)
 	RealPut(ent Interpretable, ch rune)
 	Backspace(ent Interpretable)
@@ -53,7 +53,7 @@ type Dialecter interface {
 	GetCursorX(ent Interpretable) int
 	GetCursorY(ent Interpretable) int
 	RemoveProc(name string)
-	ParseMemoryRepresentation(data []uint64) types.Algorithm
+	ParseMemoryRepresentation(data []uint64) *types.Algorithm
 	GetMemoryRepresentation(a *types.Algorithm) []uint64
 	AddPlusFunction(ns string, s string, cmd Functioner)
 	AddHiddenPlusFunction(ns string, s string, cmd Functioner)
@@ -65,7 +65,7 @@ type Dialecter interface {
 	HasCBreak(ent Interpretable) bool
 	UpdateRuntimeState(ent Interpretable)
 	ThawVideoConfig(ent Interpretable)
-	CheckOptimize(lno int, s string, OCode types.Algorithm)
+	CheckOptimize(lno int, s string, OCode *types.Algorithm)
 	HomeLeft(ent Interpretable)
 	GetRealCursorPos(ent Interpretable) (int, int)
 	GetRealWindow(ent Interpretable) (int, int, int, int, int, int)
@@ -79,7 +79,7 @@ type Dialecter interface {
 	GetDynamicFunctionDef(name string) []string
 	GetDynaCommand(name string) DynaCoder
 	GetDynaFunction(name string) DynaCoder
-	Decolon(code types.Algorithm, start int, increment int, iftosub bool) types.Algorithm
+	Decolon(code *types.Algorithm, start int, increment int, iftosub bool) *types.Algorithm
 	CleanDynaCommandsByName(names []string)
 	GetWorkspaceBody(vars bool, filterProc string) []string
 	QueueCommand(command string)
