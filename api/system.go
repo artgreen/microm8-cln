@@ -3,7 +3,6 @@ package s8webclient
 import (
 	//	"strings"
 	//	"paleotronic.com/fmt"
-	"errors"
 	"time"
 
 	"paleotronic.com/ducktape/client"
@@ -41,7 +40,7 @@ func (c *Client) StoreSystemFile(filepath string, filename string, data []byte) 
 			// Login OK
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 
@@ -87,7 +86,7 @@ func (c *Client) FetchSystemFile(filepath string, filename string) (filerecord.F
 	bb := &filerecord.FileRecord{}
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in FetchSystemFile() %s - %s\n", msg.ID, )
 		if msg.ID == "FIL" {
@@ -95,7 +94,7 @@ func (c *Client) FetchSystemFile(filepath string, filename string) (filerecord.F
 			err = nil
 			bb.UnJSON(msg.Payload)
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 			////fmt.Println("Failed - "+string(msg.Payload))
 		}
 	}
@@ -125,7 +124,7 @@ func (c *Client) FetchSystemDir(filepath string, filespec string) ([]byte, error
 	var bb []byte
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		////fmt.Printf("in FetchSystemDir() %s\n%s\n", msg.ID, string(msg.Payload))
@@ -134,7 +133,7 @@ func (c *Client) FetchSystemDir(filepath string, filespec string) ([]byte, error
 			err = nil
 			bb = msg.Payload
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 

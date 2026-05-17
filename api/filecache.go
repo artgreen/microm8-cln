@@ -3,7 +3,6 @@ package s8webclient
 import (
 	"crypto/md5"
 	"encoding/json"
-	"errors" //	"paleotronic.com/fmt"
 	"strings"
 	"time"
 
@@ -54,7 +53,7 @@ func (c *Client) CacheCustomFile(req string, additional string, filepath string,
 	bb := &filerecord.FileRecord{}
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in CacheCustomFile() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "COK" {
@@ -69,7 +68,7 @@ func (c *Client) CacheCustomFile(req string, additional string, filepath string,
 			// this is JSON, including meta data
 			log.Printf("(not ok) file data: %+v", bb)
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 
@@ -115,7 +114,7 @@ func (c *Client) ValidateCacheCustomFile(req string, additional string, current 
 	bb := &filerecord.FileRecord{}
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in CacheCustomFile() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "COK" {
@@ -129,7 +128,7 @@ func (c *Client) ValidateCacheCustomFile(req string, additional string, current 
 			// this is JSON, including meta data
 
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 
@@ -179,7 +178,7 @@ func (c *Client) ExistsCustomFile(req string, additional string, filepath string
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		return false, errors.New("timeout")
+		return false, ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in ExistsCustomFile() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "EOK" {
@@ -231,13 +230,13 @@ func (c *Client) LockCustomFile(req string, additional string, filepath string, 
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		return errors.New("timeout")
+		return ErrTimeout
 	case msg := <-c.c.Incoming:
 		//			//fmt.Printf("in ExistsCustomFile() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "LOK" {
 			return nil
 		} else if msg.ID == "ERR" {
-			return errors.New("LOCK FAILED")
+			return ErrLockFailed
 		}
 	}
 
@@ -388,13 +387,13 @@ func (c *Client) CreateCustomDir(req string, additional string, filepath string,
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		return errors.New("timeout")
+		return ErrTimeout
 	case msg := <-c.c.Incoming:
 		//			//fmt.Printf("in ExistsCustomFile() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "SOK" {
 			return nil
 		} else if msg.ID == "ERR" {
-			return errors.New("MKDIR FAILED")
+			return ErrMkdirFailed
 		}
 	}
 
@@ -466,13 +465,13 @@ func (c *Client) DeleteCustomFile(req string, additional string, filepath string
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		return errors.New("timeout")
+		return ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in DeleteCustomFile() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "DOK" {
 			return nil
 		} else if msg.ID == "ERR" {
-			return errors.New("DELETE FAILED")
+			return ErrDeleteFailed
 		}
 	}
 
@@ -555,7 +554,7 @@ func (c *Client) ShareCustomFile(req string, additional string, filepath string,
 
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in CacheCustomFile() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "EXE" {
@@ -564,7 +563,7 @@ func (c *Client) ShareCustomFile(req string, additional string, filepath string,
 			port = ":" + parts[1]
 			created = (parts[2] != "0")
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 
@@ -639,13 +638,13 @@ func (c *Client) MetaDataCustomFile(req string, additional string, filepath stri
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		return errors.New("timeout")
+		return ErrTimeout
 	case msg := <-c.c.Incoming:
 		//			//fmt.Printf("in ExistsCustomFile() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "MOK" {
 			return nil
 		} else if msg.ID == "ERR" {
-			return errors.New("META UPDATE FAILED")
+			return ErrMetaUpdateFailed
 		}
 	}
 
@@ -757,13 +756,13 @@ func (c *Client) RenameCustomFile(req string, additional string, filepath string
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		return errors.New("timeout")
+		return ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in DeleteCustomFile() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "DOK" {
 			return nil
 		} else if msg.ID == "ERR" {
-			return errors.New("DELETE FAILED")
+			return ErrDeleteFailed
 		}
 	}
 

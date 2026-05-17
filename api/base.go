@@ -2,7 +2,6 @@ package s8webclient
 
 import (
 	"encoding/json"
-	"errors"
 	"strings"
 
 	"paleotronic.com/log"
@@ -214,7 +213,7 @@ func (c *Client) Register(username, password, firstname, gender, birthdate, cell
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _login() %s\n", msg.ID)
 		if msg.ID == "LOK" {
@@ -225,7 +224,7 @@ func (c *Client) Register(username, password, firstname, gender, birthdate, cell
 			c.LogMessage("UCL", "User has registered successfully")
 
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed: " + string(msg.Payload))
+			err = NewServerError("REG", msg.Payload, ErrRegistrationFailed)
 			fmt.Println(err)
 		}
 	}
@@ -263,13 +262,13 @@ func (c *Client) GRCustomGroup(req string, username string, groupname string) er
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in GRCustomGroup() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "POK" {
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 
@@ -326,13 +325,13 @@ func (c *Client) ChangePassword(password string, newpassword string) error {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in ChangePassword() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "CPO" {
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError("CPR", msg.Payload, nil)
 		}
 	}
 
@@ -370,14 +369,14 @@ func (c *Client) CustomUserQuery(req string, targetuser string) (string, error) 
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in ChangePassword() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "UIO" {
 			err = nil
 			result = string(msg.Payload)
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError(req, msg.Payload, nil)
 		}
 	}
 
@@ -429,14 +428,14 @@ func (c *Client) GetRemoteInstances(filter string) ([]filerecord.RemoteInstance,
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in GetRemoteInstances() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "GRO" {
 			err = nil
 			_ = json.Unmarshal(msg.Payload, &result)
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError("GRI", msg.Payload, nil)
 		}
 	}
 
@@ -479,11 +478,11 @@ func (c *Client) CreateUpdateBug(bug filerecord.BugReport) error {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in CreateUpdateBug() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError(code, msg.Payload, nil)
 		} else {
 			err = nil
 		}
@@ -523,14 +522,14 @@ func (c *Client) GetBugList(t filerecord.BugType) ([]filerecord.BugReport, error
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in GetBugList() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "BLO" {
 			err = nil
 			_ = json.Unmarshal(msg.Payload, &result)
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError("BGL", msg.Payload, nil)
 		}
 	}
 
@@ -575,11 +574,11 @@ func (c *Client) GetBugByID(id int64) (*filerecord.BugReport, error) {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in CreateUpdateBug() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError(code, msg.Payload, nil)
 		} else {
 			err = nil
 			bug.UnBSON(msg.Payload)
@@ -627,14 +626,14 @@ func (c *Client) GetRemoteToken(hostname string, port string) ([]byte, error) {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//fmt.Printf("in GRCustomGroup() %s, %s\n", msg.ID, string(msg.Payload))
 		rr = msg.Payload
 		if msg.ID == "RAO" {
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError("RAR", msg.Payload, nil)
 		}
 	}
 
@@ -675,13 +674,13 @@ func (c *Client) AddMOTD(motd string) error {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		fmt.Printf("in AddMOTD() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "MTO" {
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError("MTD", msg.Payload, nil)
 		}
 	}
 

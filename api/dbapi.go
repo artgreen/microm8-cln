@@ -2,7 +2,6 @@ package s8webclient
 
 import (
 	"encoding/json"
-	"errors"
 	"strings"
 	"sync"
 	"time"
@@ -63,14 +62,14 @@ func (c *Client) AppDatabaseConnect(req string, appname string, appsig string) (
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		fmt.Printf("in AppDatabaseConnect() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "DCO" {
 			dbhandle++
 			handlemap[dbhandle] = appname
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 
@@ -94,7 +93,7 @@ func (c *Client) AppDatabaseQuery(req string, handle int, appsig string, query s
 	// setup handle
 	appname, ok := handlemap[handle]
 	if !ok {
-		return -1, errors.New("Invalid DB handle")
+		return -1, ErrInvalidDBHandle
 	}
 	appnametostmtid[appname+"."+tablename] = stmthandle
 
@@ -129,7 +128,7 @@ func (c *Client) AppDatabaseQuery(req string, handle int, appsig string, query s
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		fmt.Printf("in AppDatabaseQuery() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "DQO" {
@@ -148,7 +147,7 @@ func (c *Client) AppDatabaseQuery(req string, handle int, appsig string, query s
 
 			return stmthandle, e
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError(req, msg.Payload, nil)
 		}
 	}
 
@@ -164,7 +163,7 @@ func (c *Client) DBResultCount(sthandle int) (int, error) {
 	defer stm.Unlock()
 	m, ok := stmtmap[sthandle]
 	if !ok {
-		return 0, errors.New("No such statement handle")
+		return 0, ErrNoStatementHandle
 	}
 	return len(m), nil
 }
@@ -180,14 +179,14 @@ func (c *Client) DBResultFetch(sthandle int) (map[string]interface{}, error) {
 	m, ok := stmtmap[sthandle]
 	if !ok {
 		fmt.Println("no handle", sthandle)
-		return nil, errors.New("No such statement handle")
+		return nil, ErrNoStatementHandle
 	}
 
 	fmt.Println(m)
 
 	if len(m) == 0 {
 		fmt.Println("no results for handle", sthandle)
-		return nil, errors.New("No more results")
+		return nil, ErrNoMoreResults
 	}
 
 	v := m[0]
@@ -361,7 +360,7 @@ func (c *Client) GetKeyValue(req string, keyname string) (string, error) {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 		fmt.Println("timeout")
 	case msg := <-c.c.Incoming:
 		fmt.Printf("in SetKeyValue() %s, %s\n", msg.ID, string(msg.Payload))
@@ -370,7 +369,7 @@ func (c *Client) GetKeyValue(req string, keyname string) (string, error) {
 			s := string(msg.Payload)
 			return s, nil
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError(req, msg.Payload, nil)
 			fmt.Println(err)
 		}
 	}
@@ -417,13 +416,13 @@ func (c *Client) SetKeyValue(req string, keyname string, value string) error {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		fmt.Printf("in SetKeyValue() %s, %s\n", msg.ID, string(msg.Payload))
 		if msg.ID == "KVO" {
 			return nil
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError(req, msg.Payload, nil)
 		}
 	}
 

@@ -4,7 +4,6 @@ import (
 	"paleotronic.com/utils"
 	//	"strings"
 	//	"paleotronic.com/fmt"
-	"errors"
 	"time"
 
 	"paleotronic.com/filerecord"
@@ -18,7 +17,7 @@ func (c *Client) StoreUserFile(filepath string, filename string, data []byte) er
 	var err error
 
 	if c.c == nil {
-		return errors.New("Not connected")
+		return ErrNotConnected
 	}
 
 	// Now do the connection
@@ -34,7 +33,7 @@ func (c *Client) StoreUserFile(filepath string, filename string, data []byte) er
 			// Login OK
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 
@@ -49,7 +48,7 @@ func (c *Client) FetchUserFile(filepath string, filename string) (filerecord.Fil
 	var err error
 
 	if c.c == nil {
-		return filerecord.FileRecord{}, errors.New("Not connected")
+		return filerecord.FileRecord{}, ErrNotConnected
 	}
 
 	// Now do the connection
@@ -61,7 +60,7 @@ func (c *Client) FetchUserFile(filepath string, filename string) (filerecord.Fil
 	bb := &filerecord.FileRecord{}
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "FIL" {
@@ -69,7 +68,7 @@ func (c *Client) FetchUserFile(filepath string, filename string) (filerecord.Fil
 			err = nil
 			bb.UnJSON(msg.Payload)
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 
@@ -83,7 +82,7 @@ func (c *Client) FetchUserDir(filepath string, filespec string) ([]byte, error) 
 	var err error
 
 	if c.c == nil {
-		return []byte(nil), errors.New("Not connected")
+		return []byte(nil), ErrNotConnected
 	}
 
 	// Now do the connection
@@ -95,7 +94,7 @@ func (c *Client) FetchUserDir(filepath string, filespec string) ([]byte, error) 
 	var bb []byte
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		////fmt.Printf("in _StoreUserFile() %s\n", msg.ID)
 		if msg.ID == "DIR" {
@@ -103,7 +102,7 @@ func (c *Client) FetchUserDir(filepath string, filespec string) ([]byte, error) 
 			err = nil
 			bb = msg.Payload
 		} else if msg.ID == "ERR" {
-			err = errors.New("registration failed")
+			err = ErrRegistrationFailed
 		}
 	}
 
@@ -134,7 +133,7 @@ func (c *Client) AppendCustomFile(req string, additional string, filepath string
 	var err error
 
 	if c.c == nil {
-		return errors.New("Not connected")
+		return ErrNotConnected
 	}
 
 	// Now do the connection
@@ -147,14 +146,14 @@ func (c *Client) AppendCustomFile(req string, additional string, filepath string
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//				//fmt.Printf("in AppendCustomFile() %s\n", msg.ID)
 		if msg.ID == "AOK" {
 			// Login OK
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError(req, msg.Payload, nil)
 		}
 	}
 
@@ -168,7 +167,7 @@ func (c *Client) CustomLoadAddress(req string, additional string, filepath strin
 	var err error
 
 	if c.c == nil {
-		return errors.New("Not connected")
+		return ErrNotConnected
 	}
 
 	sa := utils.IntToStr(address)
@@ -183,14 +182,14 @@ func (c *Client) CustomLoadAddress(req string, additional string, filepath strin
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		//				//fmt.Printf("in AppendCustomFile() %s\n", msg.ID)
 		if msg.ID == "SOK" {
 			// Login OK
 			err = nil
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError(req, msg.Payload, nil)
 		}
 	}
 

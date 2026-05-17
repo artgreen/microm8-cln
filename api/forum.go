@@ -1,7 +1,6 @@
 package s8webclient
 
 import (
-	"errors"
 	"time"
 
 	//lint:ignore SA1019 protobuf migration to google.golang.org/protobuf/proto deferred to a dedicated phase (touches generated code).
@@ -31,14 +30,14 @@ func (c *Client) FetchForumMessages(forum_id int32, parent_id int32) (*forumapi.
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		if msg.ID == "FMR" {
 			resp := &forumapi.FetchMessagesResponse{}
 			err = proto.Unmarshal(msg.Payload, resp)
 			return resp, err
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 
@@ -58,14 +57,14 @@ func (c *Client) FetchForums() (*forumapi.FetchForumsResponse, error) {
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		if msg.ID == "FFR" {
 			resp := &forumapi.FetchForumsResponse{}
 			err = proto.Unmarshal(msg.Payload, resp)
 			return resp, err
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 
@@ -93,14 +92,14 @@ func (c *Client) FetchForumUnread(forum_id int32) (*forumapi.FetchUnreadMessages
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		if msg.ID == "FUR" {
 			resp := &forumapi.FetchUnreadMessagesResponse{}
 			err = proto.Unmarshal(msg.Payload, resp)
 			return resp, err
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 
@@ -131,14 +130,14 @@ func (c *Client) PostMessage(forum_id int32, parent_id int32, subject, body stri
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		if msg.ID == "FPR" {
 			resp := &forumapi.PostMessageResponse{}
 			err = proto.Unmarshal(msg.Payload, resp)
 			return resp, err
 		} else if msg.ID == "ERR" {
-			err = errors.New(string(msg.Payload))
+			err = NewServerError("FPM", msg.Payload, nil)
 		}
 	}
 
@@ -167,14 +166,14 @@ func (c *Client) FetchMessage(forum_id int32, message_id int32) (*forumapi.Fetch
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		if msg.ID == "FSR" {
 			resp := &forumapi.FetchMessageResponse{}
 			err = proto.Unmarshal(msg.Payload, resp)
 			return resp, err
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 
@@ -203,14 +202,14 @@ func (c *Client) MarkMessageRead(forum_id int32, message_id int32) (*forumapi.Ma
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		if msg.ID == "FRR" {
 			resp := &forumapi.MarkMessageResponse{}
 			err = proto.Unmarshal(msg.Payload, resp)
 			return resp, err
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 
@@ -238,14 +237,14 @@ func (c *Client) SearchForumMessages(forum_id int32, searchTerm string) (*foruma
 	tochan := time.After(time.Second * 20)
 	select {
 	case _ = <-tochan:
-		err = errors.New("timeout")
+		err = ErrTimeout
 	case msg := <-c.c.Incoming:
 		if msg.ID == "FSR" {
 			resp := &forumapi.SearchForumResponse{}
 			err = proto.Unmarshal(msg.Payload, resp)
 			return resp, err
 		} else if msg.ID == "ERR" {
-			err = errors.New("i/o error")
+			err = ErrIO
 		}
 	}
 

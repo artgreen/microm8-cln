@@ -44,3 +44,10 @@ func Printf(format string, v ...interface{}) {
 func Sprintf(format string, v ...interface{}) string {
 	return fmt.Sprintf(format, v...)
 }
+
+// Errorf is a thin pass-through to fmt.Errorf so callers using the
+// paleotronic.com/fmt wrapper can format wrapped errors without a second
+// import of stdlib `fmt`. Supports the %w verb for error chaining.
+func Errorf(format string, v ...interface{}) error {
+	return fmt.Errorf(format, v...)
+}

@@ -1,6 +1,7 @@
 package fmt
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -12,6 +13,31 @@ import (
 //
 // If/when we refactor this package to take a writer parameter, expand tests
 // to cover Println/Printf/etc.
+
+// TestErrorf_PreservesWrapping verifies that the %w verb produces a chain
+// that errors.Is can traverse. api/ relies on this to keep typed sentinels
+// matchable after wrapping with context.
+func TestErrorf_PreservesWrapping(t *testing.T) {
+	t.Parallel()
+	sentinel := errors.New("sentinel")
+	wrapped := Errorf("context: %w", sentinel)
+	if !errors.Is(wrapped, sentinel) {
+		t.Fatalf("Errorf(%%w) lost wrap: errors.Is returned false")
+	}
+	if got, want := wrapped.Error(), "context: sentinel"; got != want {
+		t.Errorf("Errorf message = %q, want %q", got, want)
+	}
+}
+
+// TestErrorf_PlainMessage covers the non-%w path: the wrapper should still
+// behave like fmt.Errorf for simple formatted messages.
+func TestErrorf_PlainMessage(t *testing.T) {
+	t.Parallel()
+	err := Errorf("op %s failed: %d", "lock", 42)
+	if got, want := err.Error(), "op lock failed: 42"; got != want {
+		t.Errorf("Errorf message = %q, want %q", got, want)
+	}
+}
 
 func TestSprintf_DelegatesToStdlibFmt(t *testing.T) {
 	t.Parallel()
