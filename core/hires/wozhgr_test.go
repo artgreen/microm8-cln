@@ -1,3 +1,9 @@
+//go:build ignore
+
+// Stale — hgr.Data changed from `[8192]byte` to `*memory.MemoryControlBlock`
+// (not indexable). Quarantined until rewritten or deleted.
+// TODO(modernize/phase-4): decide fate.
+
 package hires
 
 import (

@@ -27,7 +27,7 @@ func (i *FuncPtr5b) SetPointer(v int) {
 }
 
 func (i *FuncPtr5b) GetPointer() int {
-	v := int(i.hi<<8) | int(i.lo)
+	v := int(i.hi)<<8 | int(i.lo)
 	return v
 }
 
@@ -38,7 +38,7 @@ func (i *FuncPtr5b) SetArgPointer(v int) {
 }
 
 func (i *FuncPtr5b) GetArgPointer() int {
-	v := int(i.vhi<<8) | int(i.vlo)
+	v := int(i.vhi)<<8 | int(i.vlo)
 	return v
 }
 

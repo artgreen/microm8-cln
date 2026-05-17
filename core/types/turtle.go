@@ -93,36 +93,43 @@ type TurtleCommand struct {
 }
 
 type Turtle struct {
-	HomePosition mgl64.Vec3              `json:"homePosition,omitempty"`
-	Position     mgl64.Vec3              `json:"position,omitempty"`
-	ViewDir      mgl64.Vec3              `json:"viewDir,omitempty"`
-	UpDir        mgl64.Vec3              `json:"upDir,omitempty"`
-	RightDir     mgl64.Vec3              `json:"rightDir,omitempty"`
-	Heading      float64                 `json:"heading,omitempty"`
-	Pitch        float64                 `json:"pitch,omitempty"`
-	Roll         float64                 `json:"roll,omitempty"`
-	Track        []*TurtleCommand        `json:"track,omitempty"`
-	PenUp        bool                    `json:"penUp,omitempty"`
-	PenErase     bool                    `json:"penErase,omitempty"`
-	Hide         bool                    `json:"hideTurtle,omitempty"`
-	PenColor     uint32                  `json:"colorPen,omitempty"`
-	FillColor    uint32                  `json:"colorFill,omitempty"`
-	vb           *VectorBuffer           `json:"-"`
-	BoundsMode   TurtleBoundsMode        `json:"boundsMode,omitempty"`
-	bx1          float64                 `json:"boundsX1,omitempty"`
-	by1          float64                 `json:"boundsY1,omitempty"`
-	bx2          float64                 `json:"boundsX2,omitempty"`
-	by2          float64                 `json:"boundsY2,omitempty"`
-	FontSize     float64                 `json:"fontSize,omitempty"`
-	FontDepth    float64                 `json:"fontDepth,omitempty"`
-	FontStretch  float64                 `json:"fontStretch,omitempty"`
-	FontFace     int                     `json:"fontFace,omitempty"`
-	FontFilled   bool                    `json:"fontFill,omitempty"`
-	FontData     map[int]*font.DecalFont `json:"-"`
+	HomePosition mgl64.Vec3       `json:"homePosition,omitempty"`
+	Position     mgl64.Vec3       `json:"position,omitempty"`
+	ViewDir      mgl64.Vec3       `json:"viewDir,omitempty"`
+	UpDir        mgl64.Vec3       `json:"upDir,omitempty"`
+	RightDir     mgl64.Vec3       `json:"rightDir,omitempty"`
+	Heading      float64          `json:"heading,omitempty"`
+	Pitch        float64          `json:"pitch,omitempty"`
+	Roll         float64          `json:"roll,omitempty"`
+	Track        []*TurtleCommand `json:"track,omitempty"`
+	PenUp        bool             `json:"penUp,omitempty"`
+	PenErase     bool             `json:"penErase,omitempty"`
+	Hide         bool             `json:"hideTurtle,omitempty"`
+	PenColor     uint32           `json:"colorPen,omitempty"`
+	FillColor    uint32           `json:"colorFill,omitempty"`
+	vb           *VectorBuffer    `json:"-"`
+	BoundsMode   TurtleBoundsMode `json:"boundsMode,omitempty"`
+	// bx1/by1/bx2/by2 are package-internal — used by Bounds() and the wrap
+	// logic. Originally had json tags but those were no-ops (unexported
+	// fields aren't marshaled). Tags dropped; fields stay unexported.
+	bx1         float64
+	by1         float64
+	bx2         float64
+	by2         float64
+	FontSize    float64                 `json:"fontSize,omitempty"`
+	FontDepth   float64                 `json:"fontDepth,omitempty"`
+	FontStretch float64                 `json:"fontStretch,omitempty"`
+	FontFace    int                     `json:"fontFace,omitempty"`
+	FontFilled  bool                    `json:"fontFill,omitempty"`
+	FontData    map[int]*font.DecalFont `json:"-"`
 
 	TurtleDefinition []*TurtleCommand
 
-	tag string `json:"tag",omitempty`
+	// tag is package-internal; used by SetTag/LoadModelFromTag. Originally
+	// carried a malformed json tag (json:"tag",omitempty — comma outside
+	// the quotes) that broke reflect.StructTag.Get and would have been a
+	// no-op anyway since the field is unexported.
+	tag string
 }
 
 func NewTurtle(vb *VectorBuffer) *Turtle {

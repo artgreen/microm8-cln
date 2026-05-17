@@ -220,7 +220,6 @@ func (client *DuckTapeClient) ClientSender() {
 				log.Println("SENDER EXITING", e.Error())
 				log.Printf("Reconnecting to the server due to %s\n", e.Error())
 				return
-				log.Printf("Reconnecting to the server due to %s\n", e.Error())
 			}
 		case <-client.Quit:
 			client.OK = false

@@ -3041,7 +3041,10 @@ func RealPut(ent interfaces.Interpretable, ch rune) {
 		}
 	case ch == vduconst.INVERSE_ON:
 		{
-			ColorFlip = ColorFlip
+			// TODO(modernize): the original line was `ColorFlip = ColorFlip`
+			// which is a no-op. Likely intended `ColorFlip = !ColorFlip`
+			// to toggle inverse-video state, but preserving original
+			// no-op behavior pending clarification of intent.
 		}
 	default:
 		{

@@ -11,6 +11,9 @@
 ./encoding/ffpak 85.0
 ./encoding/mempak 70.0
 ./filerecord 40.0
+# utils is a grab-bag of helpers; coverage will grow as we add tests for
+# specific helpers we touch in later phases.
+./utils 10.0
 # fmt and log: most code is gated behind compile-time-effective const flags
 # (settings.Verbose, SILENT), so coverage is structurally bounded.
 ./fmt 5.0

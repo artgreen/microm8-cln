@@ -290,8 +290,7 @@ func GetTypeBin() []FileMeta {
 		}
 		out = append(out, v)
 	}
-	sort.Sort(out)
-	sort.Reverse(out)
+	sort.Sort(sort.Reverse(out))
 	return out
 }
 
@@ -303,8 +302,7 @@ func GetTypeAll() []FileMeta {
 		}
 		out = append(out, v)
 	}
-	sort.Sort(out)
-	sort.Reverse(out)
+	sort.Sort(sort.Reverse(out))
 	return out
 }
 

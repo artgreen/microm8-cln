@@ -2,7 +2,6 @@ package common
 
 import (
 	"paleotronic.com/core/interfaces"
-	"paleotronic.com/fmt"
 	"paleotronic.com/log"
 )
 
@@ -321,55 +320,8 @@ func (c *AY38910) SetRate(clock int64, sampleRate int) {
 	c.Reset()
 }
 
+// DumpChip is intentionally disabled — the original implementation was
+// preserved as dead code after a `return` statement. Restore by removing
+// this no-op body if dumping is needed for debugging.
 func (c *AY38910) DumpChip() {
-	return
-	fmt.Printf("+-[ Chip #%d ]----------------------------------------------------+\n", c.index)
-	fmt.Printf(
-		"%5s %5s %5s %5s %5s %5s\n",
-		"Atone", "Anois",
-		"Btone", "Bnois",
-		"Ctone", "Cnois",
-	)
-	value := c.getReg(Enable)
-	fmt.Printf(
-		"%5v %5v %5v %5v %5v %5v\n\n",
-		(value&1) == 0,
-		(value&8) == 0,
-		(value&2) == 0,
-		(value&16) == 0,
-		(value&4) == 0,
-		(value&32) == 0,
-	)
-	fmt.Printf(
-		"%5s %5s %5s\n",
-		"AVol", "BVol", "CVol",
-	)
-	fmt.Printf(
-		"%5d %5d %5d\n\n",
-		c.getReg(AVol),
-		c.getReg(BVol),
-		c.getReg(CVol),
-	)
-	fmt.Printf(
-		"%5s %5s %5s\n",
-		"AEnv", "BEnv", "CEnv",
-	)
-	fmt.Printf(
-		"%5v %5v %5v\n\n",
-		c.getReg(AVol)&16 != 0,
-		c.getReg(BVol)&16 != 0,
-		c.getReg(CVol)&16 != 0,
-	)
-	fmt.Printf(
-		"%5s %5s %5s %5s\n",
-		"APer", "BPer", "CPer", "NPer",
-	)
-	fmt.Printf(
-		"%5d %5d %5d %5d\n",
-		c.getReg(ACoarse)*256+c.getReg(AFine),
-		c.getReg(BCoarse)*256+c.getReg(BFine),
-		c.getReg(CCoarse)*256+c.getReg(CFine),
-		c.getReg(NoisePeriod),
-	)
-	fmt.Printf("+----------------------------------------------------------------+\n\n")
 }

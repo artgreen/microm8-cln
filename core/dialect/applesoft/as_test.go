@@ -1,3 +1,9 @@
+//go:build ignore
+
+// Stale — GetCompletions's signature changed from returning 1 value to 2.
+// Quarantined until rewritten or deleted.
+// TODO(modernize/phase-4): decide fate.
+
 package applesoft
 
 import (

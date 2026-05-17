@@ -317,15 +317,11 @@ func (c *Client) ProcessLogs() {
 }
 
 // LogMessage sends a log event to the server to record in a users log table
+// LogMessage is intentionally disabled — the original implementation
+// queued a LogMessage on c.Messages, but that path was short-circuited
+// (the early return nil was added without removing the dead body).
+// Preserved as a no-op so existing callers compile.
 func (c *Client) LogMessage(req string, message string) error {
-
-	return nil
-
-	c.Messages <- LogMessage{
-		req:     req,
-		message: message,
-	}
-
 	return nil
 }
 

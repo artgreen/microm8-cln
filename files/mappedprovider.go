@@ -110,8 +110,6 @@ func (mfp *MappedFileProvider) ResolveProviderPathFile(p, f string) (FileProvide
 			}
 		}
 	}
-
-	return nil, p, f
 }
 
 func (mfp *MappedFileProvider) Resolve(basepath string) (FileProvider, string) {
