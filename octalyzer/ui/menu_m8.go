@@ -111,17 +111,17 @@ func checkExecDebugger() {
 	}
 }
 
+// SymbolOff, SymbolOn, SymbolSliderHandle, and SymbolSliderMark are
+// referenced from untagged code (ui.go) and live in ui/symbols.go so
+// the nox variant has them too. The constants below are only used by
+// the !nox menu-hint code in this file, so they stay tagged with it.
 const (
-	SymbolCTRL         = string(rune(259))
-	SymbolSHIFT        = string(rune(260))
-	SymbolOption       = string(rune(261))
-	SymbolAlt          = string(rune(262))
-	SymbolENTER        = string(rune(1120))
-	SymbolOff          = string(rune(256))
-	SymbolOn           = string(rune(257))
-	SymbolBackspace    = string(rune(263))
-	SymbolSliderHandle = string(rune(1154))
-	SymbolSliderMark   = string(rune(1105))
+	SymbolCTRL      = string(rune(259))
+	SymbolSHIFT     = string(rune(260))
+	SymbolOption    = string(rune(261))
+	SymbolAlt       = string(rune(262))
+	SymbolENTER     = string(rune(1120))
+	SymbolBackspace = string(rune(263))
 )
 
 func alt() string {
