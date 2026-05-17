@@ -1,0 +1,111 @@
+name: check
+
+# Local `tools/scripts/check.sh` is the source of truth. This workflow runs
+# the same script on a clean Linux runner so we catch:
+#   - changes that only compile on the author's machine
+#   - races that only show up on the GitHub runner's scheduler
+#   - drift between staticcheck.conf and what contributors have installed
+#
+# Design notes:
+#   - `check` job: fast pre-merge gate. fmt + vet + staticcheck + race tests
+#     with -short. Runs on every push + PR. Target wall time ≤90s including
+#     setup; ≤30s on cached runs.
+#   - `race` job: full (non-short) race-tagged test suite. PR-only because
+#     it's redundant with `check` for push-to-branch iteration.
+#   - `build` job: CGO/OpenGL build of the shipping binary. Needs the X11
+#     and GL system headers. Marked continue-on-error initially so a runner
+#     environment hiccup doesn't block a merge while we shake the workflow
+#     down. Flip to required once it's been green for ~10 PRs.
+#
+# All jobs share the Go module cache via actions/setup-go's built-in cache.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# Cancel in-progress runs on the same ref when a new commit lands. Keeps
+# branch iteration fast and avoids burning runner minutes on stale code.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GO_VERSION: "1.24"
+
+jobs:
+  check:
+    name: fmt + vet + staticcheck + test -short
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Install staticcheck
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+
+      - name: Run check.sh quick
+        run: tools/scripts/check.sh quick
+
+  race:
+    name: go test -race (full)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Skip on push-to-branch — the `check` job's -short run is enough signal
+    # mid-iteration. Run the full suite on PRs and on master pushes (merge
+    # commits).
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      - name: Run test.sh race
+        run: tools/scripts/test.sh race
+
+  build:
+    name: build microM8 (CGO + OpenGL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Soft-fail while we confirm the CGO/GL deps install cleanly on the
+    # GitHub runner. Once this has been green for ~10 PRs, remove
+    # `continue-on-error` and make this a required check.
+    continue-on-error: true
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+
+      # GLFW + go-gl bindings need the X11 and GL development headers on
+      # Linux. Without these the build fails at the CGO link step.
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgl1-mesa-dev \
+            libx11-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxinerama-dev \
+            libxrandr-dev \
+            libxxf86vm-dev \
+            xorg-dev
+
+      - name: Build
+        run: tools/scripts/build.sh
