@@ -25,6 +25,21 @@ import (
 const UPDATESERVER = "http://update.paleotronic.com:6522/"
 const DOWNLOAD_TEMPFILE = "download.part"
 
+// Disabled, when true, suppresses every network-touching helper in this
+// package: CheckVersion, GetChecksum, DownloadVersion, CheckAndDownload, and
+// the binary-rename side effect of CheckFilename. Local version-info getters
+// (GetVersion, GetBuildNumber, …) are unaffected.
+//
+// The user-facing -no-update CLI flag (settings.NoUpdates) gates whether the
+// boot-time `update check` runs at all; this var gates the helpers
+// themselves. Belt-and-suspenders: even if a future refactor of the call
+// site forgets the NoUpdates check, the network paths stay off.
+//
+// Defaults to true while the modernization migration is in flight. Flip
+// (e.g. from main, before invoking BootCheck) when the update channel is
+// known to be reachable and you want to re-enable auto-update.
+var Disabled = true
+
 var (
 	CHANNEL                   = "stable"
 	PLATFORM           string = runtime.GOOS + "/" + runtime.GOARCH
@@ -73,6 +88,10 @@ func GetHumanVersion() string {
 
 func CheckVersion() string {
 
+	if Disabled {
+		return GetBuildNumber()
+	}
+
 	if settings.SystemType == "nox" {
 		return GetBuildNumber()
 	}
@@ -99,6 +118,10 @@ func CheckVersion() string {
 
 func GetChecksum() string {
 
+	if Disabled {
+		return ""
+	}
+
 	timeout := time.Duration(10 * time.Second)
 	client := http.Client{
 		Timeout: timeout,
@@ -123,6 +146,10 @@ func GetChecksum() string {
 }
 
 func DownloadVersion(txt *types.TextBuffer) (string, error) {
+
+	if Disabled {
+		return "Ok", nil
+	}
 
 	if settings.SystemType == "nox" {
 		return "Ok", nil
@@ -314,6 +341,10 @@ func DownloadVersion(txt *types.TextBuffer) (string, error) {
 
 func CheckAndDownload(txt *types.TextBuffer) {
 
+	if Disabled {
+		return
+	}
+
 	time.Sleep(500 * time.Millisecond)
 
 	version := CheckVersion()
@@ -342,6 +373,10 @@ func splitPath(filename string) (string, string) {
 }
 
 func CheckFilename() {
+	if Disabled {
+		return
+	}
+
 	full := os.Args[0]
 	p, current := splitPath(full)
 
