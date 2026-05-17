@@ -1,8 +1,10 @@
 package s8webclient
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
+	"sync"
 
 	"paleotronic.com/log"
 
@@ -15,6 +17,7 @@ import (
 	"paleotronic.com/ducktape/client"
 	"paleotronic.com/ducktape/crypt"
 	"paleotronic.com/filerecord"
+	"paleotronic.com/internal/lifecycle"
 	"paleotronic.com/utils"
 )
 
@@ -38,6 +41,35 @@ type Client struct {
 	c             *client.DuckTapeClient
 	MOTD          string
 	Messages      chan LogMessage
+
+	// monitorCtx / monitorCancel manage the lifetime of MonitorNetwork.
+	// They are populated lazily by StartMonitor and torn down by Done().
+	// mu guards the pair (and MonitorPollInterval) so a concurrent
+	// Done()/StartMonitor pair is safe, and so tests can shrink the poll
+	// interval without racing the live monitor goroutine.
+	mu            sync.Mutex
+	monitorCtx    context.Context
+	monitorCancel context.CancelFunc
+
+	// MonitorPollInterval is the time MonitorNetwork waits between
+	// reconnect-probe ticks. Zero means use DefaultMonitorPollInterval.
+	// Reads and writes go through mu.
+	MonitorPollInterval time.Duration
+}
+
+// DefaultMonitorPollInterval is the production poll cadence for
+// MonitorNetwork.
+const DefaultMonitorPollInterval = 10 * time.Second
+
+// pollInterval returns the configured interval (or the default) under mu.
+func (c *Client) pollInterval() time.Duration {
+	c.mu.Lock()
+	d := c.MonitorPollInterval
+	c.mu.Unlock()
+	if d <= 0 {
+		return DefaultMonitorPollInterval
+	}
+	return d
 }
 
 // GetDT returns the current active client
@@ -45,10 +77,24 @@ func (c *Client) GetDT() *client.DuckTapeClient {
 	return c.c
 }
 
+// Done tears the client down: cancels the MonitorNetwork goroutine (if
+// running), sends a BYE to the server, and closes the underlying
+// DuckTape connection. Safe to call multiple times.
 func (c *Client) Done() {
-	c.c.SendMessage("BYE", []byte(nil), false)
-	time.Sleep(500 * time.Millisecond)
-	c.c.Close()
+	c.mu.Lock()
+	cancel := c.monitorCancel
+	c.monitorCancel = nil
+	c.monitorCtx = nil
+	c.mu.Unlock()
+	if cancel != nil {
+		cancel()
+	}
+
+	if c.c != nil {
+		c.c.SendMessage("BYE", []byte(nil), false)
+		time.Sleep(500 * time.Millisecond)
+		c.c.Close()
+	}
 }
 
 // CONN is the global connection object
@@ -59,17 +105,52 @@ const PersistentConnect = false
 
 var RetryCounter = 1
 
-func MonitorNetwork() {
-	for {
-		time.Sleep(10 * time.Second)
-		if !CONN.IsConnectedPoll() {
-			e := CONN.c.ConnectTCP()
-
+// MonitorNetwork is the reconnect supervisor: every c.pollInterval() it
+// checks whether the underlying connection is still alive and, if not,
+// reconnects. The loop exits cleanly when ctx is canceled (typically by
+// Client.Done()).
+//
+// A nil *Client is tolerated: the loop ticks until cancellation without
+// doing anything. This makes the function safe to invoke from tests
+// without a fully constructed Client.
+func MonitorNetwork(ctx context.Context, c *Client) {
+	// Snapshot once: tests that race-update MonitorPollInterval want the
+	// new value to take effect on the *next* StartMonitor, not mid-flight
+	// of an existing supervisor. This avoids a data race on the field.
+	interval := DefaultMonitorPollInterval
+	if c != nil {
+		interval = c.pollInterval()
+	}
+	for lifecycle.SleepOrDone(ctx, interval) {
+		if c == nil {
+			continue
+		}
+		if !c.IsConnectedPoll() {
+			if c.c == nil {
+				continue
+			}
+			e := c.c.ConnectTCP()
 			if e == nil {
-				go CONN.ProcessLogs()
+				go c.ProcessLogs()
 			}
 		}
 	}
+}
+
+// StartMonitor launches MonitorNetwork as a managed goroutine and stores
+// the cancel func on the receiver. Calling StartMonitor twice cancels the
+// first invocation before starting the second so we never leak.
+func (c *Client) StartMonitor() {
+	c.mu.Lock()
+	if c.monitorCancel != nil {
+		c.monitorCancel()
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	c.monitorCtx = ctx
+	c.monitorCancel = cancel
+	c.mu.Unlock()
+
+	go MonitorNetwork(ctx, c)
 }
 
 func NetworkInit(host string) error {
@@ -82,7 +163,7 @@ func NetworkInit(host string) error {
 		go CONN.ProcessLogs()
 	}
 
-	go MonitorNetwork()
+	CONN.StartMonitor()
 
 	return e
 }

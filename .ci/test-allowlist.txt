@@ -18,3 +18,4 @@
 ./octalyzer
 ./update
 ./api
+./internal/lifecycle

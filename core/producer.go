@@ -2,6 +2,7 @@ package core
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io"
 	"os"
@@ -45,6 +46,20 @@ import (
 var interp *Producer
 
 type Producer struct {
+	// services manages the lifetime of the long-lived helper goroutines
+	// (MusicService, RebootService). Use StartServices to launch them and
+	// Shutdown to cancel. Both are nil until StartServices is called the
+	// first time so a zero-valued Producer is still usable in tests.
+	servicesCtx    context.Context
+	servicesCancel context.CancelFunc
+
+	// MusicServiceTick and RebootServiceTick override the default
+	// per-iteration intervals when non-zero. Tests use this to keep the
+	// loops snappy; production callers leave them at zero and inherit
+	// the package defaults.
+	MusicServiceTick  time.Duration
+	RebootServiceTick time.Duration
+
 	Context      int
 	InputContext int
 	//Global  types.VarMap
