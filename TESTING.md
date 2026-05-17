@@ -9,9 +9,11 @@ canonical entry points.
 
 | Command                                 | What it does                                  |
 |-----------------------------------------|-----------------------------------------------|
-| `tools/scripts/check.sh`                | fmt + vet + staticcheck + test + build        |
+| `tools/scripts/check.sh`                | fmt + vet + staticcheck + test + build (full gate, ~12s) |
+| `tools/scripts/check.sh quick`          | fmt + vet + staticcheck + test -short (pre-commit, ~8s)   |
 | `tools/scripts/check.sh staticcheck`    | `staticcheck ./...` honouring `staticcheck.conf` |
 | `tools/scripts/test.sh`                 | `go test -race -shuffle=on` on allowlist      |
+| `tools/scripts/test.sh short`           | `go test -race -shuffle=on -short` on allowlist |
 | `tools/scripts/test.sh cover`           | Coverage report with threshold check          |
 | `tools/scripts/test.sh cover html`      | Coverage report, opens HTML in browser        |
 | `tools/scripts/test.sh bench`           | Benchmarks only                               |
@@ -19,7 +21,33 @@ canonical entry points.
 | `tools/scripts/test.sh flake 10`        | Re-run 10× with `-race` to expose flakes      |
 | `tools/scripts/test.sh ./pkg`           | Forward args to `go test` for one package     |
 | `tools/scripts/watch.sh`                | Re-run tests on save (fswatch/inotify)        |
+| `tools/scripts/cover-gaps.sh`           | Show the biggest uncovered functions per package |
 | `tools/scripts/build.sh`                | Build the `microM8` binary                    |
+
+## Develop without dread
+
+The intended workflow as of Phase 12:
+
+1. **Keep `watch.sh` running in a side terminal.** It re-runs the
+   tests for whatever you save, on save. Install fswatch (macOS) or
+   inotify-tools (Linux) for instant feedback.
+
+2. **Before `git commit`, run `tools/scripts/check.sh quick`.**
+   That's fmt + vet + staticcheck + tests with `-short` (no build).
+   Typical run is ~8s on this tree. The `-short` flag skips a few
+   slow tests (network-loop teardown with `client.Close()`'s 1s
+   sleep, etc.).
+
+3. **Before `gh pr create`, run the full `tools/scripts/check.sh`.**
+   Adds the build and the slow tests. Typical run is ~12s.
+
+4. **Stuck for what to test next?** `tools/scripts/cover-gaps.sh`
+   prints the top-3 uncovered functions per package. Pick the one
+   with the biggest test gap and write a table-driven case for it.
+
+5. **Investigating a flake?** `tools/scripts/test.sh flake 50`
+   re-runs the whole allowlist 50× under `-race`. If a flake survives
+   this, it's serious — start there before assuming the fix.
 
 ## Linters
 
@@ -137,6 +165,24 @@ All test runs use `-race` by default. Don't suppress it. If a test is
 expensive enough that `-race` adds intolerable overhead, that's a code
 smell — the production code is probably doing work the test doesn't
 need to exercise.
+
+### Short mode
+
+Tests that take more than ~500ms wall time should be marked skippable
+in `-short` mode:
+
+```go
+func TestMyExpensiveThing(t *testing.T) {
+    if testing.Short() {
+        t.Skip("slow: spins up a full producer + waits for shutdown")
+    }
+    // ...
+}
+```
+
+The watch loop and `check.sh quick` pass `-short` so they stay
+fast (under ~10s). The pre-PR `check.sh` does NOT pass `-short` and
+exercises everything.
 
 ### Goroutine leaks
 
