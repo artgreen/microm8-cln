@@ -647,6 +647,38 @@ func (m *MOS6551) Recv() (int, error) {
 	return v, nil
 }
 
+// SetIRQFlag asserts srIRQ (status register bit 7) so software reading the
+// status register can identify this chip as the IRQ source. Mirrors the
+// R6551/65C51 behaviour where bit 7 latches when the chip raises IRQ.
+func (m *MOS6551) SetIRQFlag() {
+	m.Status.Set(srIRQ)
+}
+
+// ClearIRQFlag clears srIRQ (status register bit 7). Per the R6551
+// datasheet, bit 7 is cleared by a read of the status register; the
+// slot card calls this from the ACIA_Status read path. Note: this
+// only clears the status latch -- releasing the CPU IRQ line is the
+// slot card's responsibility (see IOCardSSC.HandleIO ACIA_Status).
+func (m *MOS6551) ClearIRQFlag() {
+	m.Status.Clear(srIRQ)
+}
+
+// IsRxIRQEnabled reports whether the command register has RX-IRQ enabled
+// (CMD bit 1 = 0, active-low: rxIRQ is enabled when the bit is cleared).
+// Used by the slot card to gate its outer poll() path so it stays in
+// sync with the chip's own update() path.
+func (m *MOS6551) IsRxIRQEnabled() bool {
+	return m.Command.rxIRQControl == rieOn
+}
+
+// IsTxIRQEnabled reports whether the command register has TX-IRQ enabled
+// (CMD bits 3-2 = %01). tcTxEnabledRTSLow is the only encoding that
+// enables TX-IRQ; the other three (RTSHigh disabled, RTSLow disabled,
+// and BRK) all leave TX-IRQ off.
+func (m *MOS6551) IsTxIRQEnabled() bool {
+	return m.Command.txIRQControl == tcTxEnabledRTSLow
+}
+
 func (m *MOS6551) String() string {
 
 	return fmt.Sprintf(

@@ -35,7 +35,11 @@ type IOCardSSCState struct {
 	SW2CTS            int
 	RecvIRQEnabled    bool
 	TransIRQEnabled   bool
-	IRQTriggered      bool
+	// IRQTriggered is runtime hardware state (whether we've asserted an
+	// IRQ the guest hasn't acknowledged yet). Don't persist it: a saved
+	// state restored mid-IRQ would otherwise be stuck "triggered" forever
+	// since the YAML byte stream can't restore the CPU's IRQ line.
+	IRQTriggered      bool `yaml:"-"`
 	DTR               bool
 	FullEcho          bool
 	TransActive       bool
@@ -141,6 +145,18 @@ func (d *IOCardSSC) configureSerialMode() {
 		}
 	}
 	d.ACIA.Attach(d, d.TriggerIRQ)
+	// Attach() calls Reset() which forces Command back to $02 (RX-IRQ off,
+	// TX-IRQ off). Without this resync the slot-level enable flags would
+	// stay at whatever they last were (Go zero, or a stale save-state value)
+	// until the guest issues a fresh ACIA_Command write. That mismatch can
+	// produce ghost IRQs at boot or after a hot device swap, because the
+	// `rxIRQControl == rieOn` (iota = 0) zero-value happens to mean
+	// "enabled" rather than "disabled".
+	d.RecvIRQEnabled = d.ACIA.IsRxIRQEnabled()
+	d.TransIRQEnabled = d.ACIA.IsTxIRQEnabled()
+	// Likewise reset the runtime IRQ latch so a hot-reset doesn't inherit
+	// a "still triggered" state from before the device swap.
+	d.IRQTriggered = false
 }
 
 func (d *IOCardSSC) HasInput() bool {
@@ -201,7 +217,18 @@ func (d *IOCardSSC) Done(slot int) {
 }
 
 func (d *IOCardSSC) TriggerIRQ() {
-	//fmt.Println("IRQ Triggered")
+	// One-shot per byte: skip if we've already asserted an IRQ that the
+	// guest has not yet acknowledged via an ACIA_Status read. Without this
+	// gate, poll() (every emulator tick) and update() (every baud clock)
+	// would both keep calling PullIRQLine while data is queued, producing
+	// many more interrupt cycles than the real chip does.
+	if d.IRQTriggered {
+		return
+	}
+	// Latch srIRQ (status register bit 7) so the guest's IRQ handler can
+	// identify this chip as the source via the conventional BPL-on-status
+	// test (e.g. `LDA $C0n9 : BPL not_ours` where n = slot number).
+	d.ACIA.SetIRQFlag()
 	cpu := apple2helpers.GetCPU(d.Int)
 	cpu.PullIRQLine()
 	d.IRQTriggered = true
@@ -276,6 +303,15 @@ func (d *IOCardSSC) HandleIO(register int, value *uint64, eventType IOType) {
 
 			d.ACIA.UpdateStatus()
 			*value = uint64(d.ACIA.Status.GetValue())
+			// Per R6551 datasheet: reading the status register clears
+			// the chip's srIRQ latch (status bit 7). The CPU IRQ line
+			// itself is edge-triggered in this emulator (the 6502 core's
+			// RequestInterrupt clears when CheckIRQLine services it), so
+			// no explicit release call is needed -- but we must clear
+			// d.IRQTriggered here so the next byte can fire a fresh
+			// PullIRQLine. RDRF/TDRE are NOT cleared by a status read.
+			d.ACIA.ClearIRQFlag()
+			d.IRQTriggered = false
 			//if !d.ACIA.RTS {
 			//	*value = 0x10
 			//} else {
@@ -356,6 +392,14 @@ func (d *IOCardSSC) HandleIO(register int, value *uint64, eventType IOType) {
 			//d.CommandWrite(value)
 			d.ACIA.Command.SetValue(int(*value))
 			d.ACIA.UpdatePort()
+			// Synchronise the slot-card-level IRQ-enable flags with the
+			// chip's command register. Without this, the slot's outer
+			// poll() path checks RecvIRQEnabled/TransIRQEnabled which
+			// would otherwise stay at their Go zero-value (false) for
+			// the program's entire life, even when the guest enables
+			// IRQs via CMD bit 1 = 0 (rxIRQ on) / bits 3-2 = %01 (txIRQ on).
+			d.RecvIRQEnabled = d.ACIA.IsRxIRQEnabled()
+			d.TransIRQEnabled = d.ACIA.IsTxIRQEnabled()
 			//d.ACIA.Reset()
 			log.Printf("SSC: write of COMMAND byte 0x%.8b", byte(*value))
 		case ACIA_Control:
