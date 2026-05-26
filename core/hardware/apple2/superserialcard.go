@@ -202,6 +202,10 @@ func (d *IOCardSSC) Done(slot int) {
 
 func (d *IOCardSSC) TriggerIRQ() {
 	//fmt.Println("IRQ Triggered")
+	// Latch srIRQ (status register bit 7) so the guest's IRQ handler can
+	// identify this chip as the source via the conventional BPL-on-status
+	// test (e.g. `LDA $C0A9 : BPL not_ours`).
+	d.ACIA.SetIRQFlag()
 	cpu := apple2helpers.GetCPU(d.Int)
 	cpu.PullIRQLine()
 	d.IRQTriggered = true
@@ -276,6 +280,11 @@ func (d *IOCardSSC) HandleIO(register int, value *uint64, eventType IOType) {
 
 			d.ACIA.UpdateStatus()
 			*value = uint64(d.ACIA.Status.GetValue())
+			// Per R6551 datasheet: reading the status register clears
+			// the IRQ status bit (and deasserts the chip's IRQ line).
+			// RDRF/TDRE are NOT cleared here -- only by reading data or
+			// the underlying condition resolving.
+			d.ACIA.ClearIRQFlag()
 			//if !d.ACIA.RTS {
 			//	*value = 0x10
 			//} else {
@@ -356,6 +365,14 @@ func (d *IOCardSSC) HandleIO(register int, value *uint64, eventType IOType) {
 			//d.CommandWrite(value)
 			d.ACIA.Command.SetValue(int(*value))
 			d.ACIA.UpdatePort()
+			// Synchronise the slot-card-level IRQ-enable flags with the
+			// chip's command register. Without this, the slot's outer
+			// poll() path checks RecvIRQEnabled/TransIRQEnabled which
+			// would otherwise stay at their Go zero-value (false) for
+			// the program's entire life, even when the guest enables
+			// IRQs via CMD bit 1 = 0 (rxIRQ on) / bits 3-2 = %01 (txIRQ on).
+			d.RecvIRQEnabled = d.ACIA.IsRxIRQEnabled()
+			d.TransIRQEnabled = d.ACIA.IsTxIRQEnabled()
 			//d.ACIA.Reset()
 			log.Printf("SSC: write of COMMAND byte 0x%.8b", byte(*value))
 		case ACIA_Control:
