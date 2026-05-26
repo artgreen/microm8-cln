@@ -303,6 +303,26 @@ func (this *Core6502) PullIRQLine() {
 	this.SetFlag(F_B, false)
 }
 
+// ReleaseIRQLine drops the pending-IRQ request without servicing it.
+//
+// Models the real-hardware behaviour where a device chip's IRQ output
+// goes to high-Z when its internal IRQ flag clears (e.g. R6551 srIRQ
+// being cleared by a status-register read). On real hardware the CPU's
+// IRQ pin is the wired-OR of all device outputs; when the last source
+// de-asserts, the line drops and any pending IRQ that hasn't been
+// recognized yet evaporates.
+//
+// Our model uses a single `RequestInterrupt` boolean, so callers MUST
+// only call this when their device was in fact the sole asserter (i.e.
+// no other registered interrupt sources are simultaneously pending).
+// In current microM8 usage that's safe -- the SSC card calls this from
+// its ACIA_Status read path only when its own IRQTriggered was set,
+// and the Mouse card uses a different gate. If you add a new IRQ
+// source, audit this assumption.
+func (this *Core6502) ReleaseIRQLine() {
+	this.RequestInterrupt = false
+}
+
 func (this *Core6502) CheckIRQLine() {
 	if !this.RequestInterrupt {
 		return

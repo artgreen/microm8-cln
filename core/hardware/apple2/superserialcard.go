@@ -304,14 +304,28 @@ func (d *IOCardSSC) HandleIO(register int, value *uint64, eventType IOType) {
 			d.ACIA.UpdateStatus()
 			*value = uint64(d.ACIA.Status.GetValue())
 			// Per R6551 datasheet: reading the status register clears
-			// the chip's srIRQ latch (status bit 7). The CPU IRQ line
-			// itself is edge-triggered in this emulator (the 6502 core's
-			// RequestInterrupt clears when CheckIRQLine services it), so
-			// no explicit release call is needed -- but we must clear
-			// d.IRQTriggered here so the next byte can fire a fresh
-			// PullIRQLine. RDRF/TDRE are NOT cleared by a status read.
+			// the chip's srIRQ latch (bit 7). On real hardware, this
+			// also drops the chip's IRQ output line to high-Z (the
+			// CPU's IRQ pin is the wired-OR of all device outputs).
+			//
+			// Our previous version only cleared srIRQ + IRQTriggered.
+			// That was wrong: PIPPIN's TX path polls $C0A9 for TDRE,
+			// and during an IRQ-pending window that poll silently
+			// cleared srIRQ but left the CPU's RequestInterrupt set.
+			// When the CPU finally vectored to the ISR, ssc_irq saw
+			// srIRQ=0 (already cleared), chained (SEC+RTS), no other
+			// driver claimed it, and ProDOS halted with "Unclaimed
+			// IRQ" (RESTART SYSTEM=$01).
+			//
+			// Releasing the CPU IRQ line here matches the chip's
+			// real-world IRQ-pin de-assertion. RDRF/TDRE are NOT
+			// cleared by a status read.
 			d.ACIA.ClearIRQFlag()
-			d.IRQTriggered = false
+			if d.IRQTriggered {
+				cpu := apple2helpers.GetCPU(d.Int)
+				cpu.ReleaseIRQLine()
+				d.IRQTriggered = false
+			}
 			//if !d.ACIA.RTS {
 			//	*value = 0x10
 			//} else {
