@@ -229,6 +229,7 @@ var sscUseHardwarePort = flag.String("ssc-port", "", "Map super serial card to r
 var sscListPorts = flag.Bool("ssc-list-ports", false, "List hardware serial ports on host for -ssc-port")
 var sscEmulatedImageWriter = flag.Bool("ssc-imagewriter-emu", false, "Emulate an imagewriter attached to SSC")
 var sscEmulatedESCP = flag.Bool("ssc-epson-emu", false, "Emulate an epson 9-pin printer attached to SSC")
+var sscTelnetNoEOF = flag.Bool("ssc-telnet-no-eof", false, "Do not send EOF marker to SSC when a TELNET connection closes")
 var mcpMode = flag.Bool("mcp", false, "Run as MCP server")
 var mcpTransport = flag.String("mcp-mode", "stdio", "MCP transport mode: stdio, sse, or streaming")
 var mcpPort = flag.Int("mcp-port", 1983, "Port for MCP HTTP server (SSE or streaming)")
@@ -1038,6 +1039,7 @@ func maininner() {
 		settings.SSCCardMode[0] = settings.SSCModeEmulatedESCP
 		settings.SSCHardwarePort = ""
 	}
+	settings.SSCTelnetSendEOFMarker = !*sscTelnetNoEOF
 	settings.DefModemInitString = *modemInit
 
 	settings.NoUpdates = *noUpdate
