@@ -349,6 +349,7 @@ var SSCHardwarePort = ""
 var SSCDipSwitch1 = 0xe9
 var SSCDipSwitch2 = 0x04
 var DefModemInitString = ""
+var SSCTelnetSendEOFMarker = true
 var SuppressATIResponse [NUMSLOTS]bool
 var DisableOverlays bool
 var SpeakerRedirects [NUMSLOTS]*SpeakerRedirect

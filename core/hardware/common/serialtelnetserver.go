@@ -21,6 +21,7 @@ type SerialTelnetServer struct {
 	r          bool
 	t          *tomb.Tomb
 	slot       int
+	eofMarker  bool
 }
 
 func (d *SerialTelnetServer) IsConnected() bool {
@@ -107,11 +108,7 @@ func (d *SerialTelnetServer) Listen() {
 			for d.r {
 				n, err := r.Read(buff)
 				if err != nil {
-					d.fromConn <- byte('E')
-					d.fromConn <- byte('O')
-					d.fromConn <- byte('F')
-					d.fromConn <- byte('\r')
-					d.fromConn <- byte('\n')
+					sendSerialEOFMarker(d.fromConn, d.eofMarker)
 					//d.r = false
 					return nil
 				}
@@ -142,11 +139,7 @@ func (d *SerialTelnetServer) Listen() {
 				case b := <-d.toConn:
 					_, err := w.Write([]byte{b})
 					if err != nil {
-						d.fromConn <- byte('E')
-						d.fromConn <- byte('O')
-						d.fromConn <- byte('F')
-						d.fromConn <- byte('\r')
-						d.fromConn <- byte('\n')
+						sendSerialEOFMarker(d.fromConn, d.eofMarker)
 						//d.r = false
 						return nil
 					}
@@ -161,20 +154,25 @@ func (d *SerialTelnetServer) Listen() {
 
 var sermutex [settings.NUMSLOTS]sync.Mutex
 
-func NewSerialTelnetServer(slot int, host, port string) *SerialTelnetServer {
+func NewSerialTelnetServer(slot int, host, port string, eofMarker ...bool) *SerialTelnetServer {
 	if port == "" {
 		port = "23"
 	}
 	if host == "" {
 		host = "localhost"
 	}
+	sendEOFMarker := true
+	if len(eofMarker) > 0 {
+		sendEOFMarker = eofMarker[0]
+	}
 	c := &SerialTelnetServer{
-		host:     host,
-		port:     port,
-		fromConn: make(chan byte, 24576),
-		toConn:   make(chan byte, 1024),
-		r:        false,
-		slot:     slot,
+		host:      host,
+		port:      port,
+		fromConn:  make(chan byte, 24576),
+		toConn:    make(chan byte, 1024),
+		r:         false,
+		slot:      slot,
+		eofMarker: sendEOFMarker,
 	}
 	go c.Listen()
 	return c

@@ -12,6 +12,7 @@ type SerialTelnetDevice struct {
 	fromConn   chan byte
 	toConn     chan byte
 	r          bool
+	eofMarker  bool
 }
 
 func (d *SerialTelnetDevice) IsConnected() bool {
@@ -79,11 +80,7 @@ func (d *SerialTelnetDevice) Start() {
 		for d.r {
 			n, err := r.Read(buff)
 			if err != nil {
-				d.fromConn <- byte('E')
-				d.fromConn <- byte('O')
-				d.fromConn <- byte('F')
-				d.fromConn <- byte('\r')
-				d.fromConn <- byte('\n')
+				sendSerialEOFMarker(d.fromConn, d.eofMarker)
 				d.r = false
 				return
 			}
@@ -118,11 +115,7 @@ func (d *SerialTelnetDevice) Start() {
 			case b := <-d.toConn:
 				_, err := w.Write([]byte{b})
 				if err != nil {
-					d.fromConn <- byte('E')
-					d.fromConn <- byte('O')
-					d.fromConn <- byte('F')
-					d.fromConn <- byte('\r')
-					d.fromConn <- byte('\n')
+					sendSerialEOFMarker(d.fromConn, d.eofMarker)
 					d.r = false
 					return
 				}
@@ -133,19 +126,24 @@ func (d *SerialTelnetDevice) Start() {
 
 }
 
-func NewSerialTelnetDevice(host, port string) *SerialTelnetDevice {
+func NewSerialTelnetDevice(host, port string, eofMarker ...bool) *SerialTelnetDevice {
 	if port == "" {
 		port = "23"
 	}
 	if host == "" {
 		host = "localhost"
 	}
+	sendEOFMarker := true
+	if len(eofMarker) > 0 {
+		sendEOFMarker = eofMarker[0]
+	}
 	c := &SerialTelnetDevice{
-		host:     host,
-		port:     port,
-		fromConn: make(chan byte, 24576),
-		toConn:   make(chan byte, 1024),
-		r:        false,
+		host:      host,
+		port:      port,
+		fromConn:  make(chan byte, 24576),
+		toConn:    make(chan byte, 1024),
+		r:         false,
+		eofMarker: sendEOFMarker,
 	}
 	c.Start()
 	return c
