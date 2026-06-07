@@ -1,5 +1,7 @@
 # microM8 - Apple II Emulator
 
+Just giving some spring colored code poop some TLC and attention. I take no credit.
+
 microM8 is a comprehensive Apple II emulator with advanced features for both casual users and developers. It provides accurate emulation of Apple II hardware along with modern integration capabilities including MCP (Model Context Protocol) support for AI assistant interaction.
 
 ## Features
