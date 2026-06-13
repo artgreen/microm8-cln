@@ -24,6 +24,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"paleotronic.com/core/hardware/apple2"
 	"paleotronic.com/core/hardware/apple2helpers"
 	"paleotronic.com/core/hardware/servicebus"
 	"paleotronic.com/core/memory"
@@ -79,6 +80,10 @@ type ScreenshotParams struct {
 }
 
 type GetTextScreenParams struct{}
+
+type GetTextScreenFullParams struct {
+	Attributes bool `json:"attributes,omitempty" jsonschema:"description:Also return a per-cell attribute grid (.=normal i=inverse f=flash m=mousetext)"`
+}
 
 type ReadMemoryParams struct {
 	Address int `json:"address" jsonschema:"description:Memory address,minimum:0,maximum:65535"`
@@ -524,6 +529,114 @@ func handleGetTextScreen(ctx context.Context, cc *mcp.ServerSession, params *mcp
 
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{Text: textScreen}},
+	}, nil
+}
+
+// textScreenRowBase returns the address offset of a 40-column text row
+// within a text page. Rows are interleaved in thirds, not linear.
+func textScreenRowBase(row int) int {
+	return 0x400 + (row%8)*0x80 + (row/8)*0x28
+}
+
+// decodeTextCell turns a raw text-screen byte into its character and an
+// attribute marker, honoring the alternate character set. With the alt
+// charset on, screen codes $40-$5F are MouseText (not flashing uppercase)
+// and $60-$7F are inverse lowercase. The character returned for a
+// MouseText cell is its ASCII mnemonic (the letter you would print after
+// CHR$(27) to produce that glyph); attr 'm' flags it as MouseText.
+func decodeTextCell(b byte, altCharset bool) (ch byte, attr byte) {
+	switch {
+	case b >= 0xA0: // normal video, high-bit ASCII (the usual case)
+		return b & 0x7F, 'n'
+	case b >= 0x80: // $80-$9F normal video: @ A-Z [ \ ] ^ _
+		return (b & 0x1F) | 0x40, 'n'
+	case b >= 0x60: // $60-$7F
+		if altCharset {
+			return b, 'i' // inverse lowercase ` a-z { | } ~
+		}
+		return (b & 0x3F) | 0x20, 'f' // flashing symbols
+	case b >= 0x40: // $40-$5F
+		if altCharset {
+			return (b & 0x3F) | 0x40, 'm' // MouseText (mnemonic @ A-Z ...)
+		}
+		return b, 'f' // flashing uppercase
+	case b >= 0x20: // $20-$3F inverse symbols
+		return b, 'i'
+	default: // $00-$1F inverse uppercase
+		return b | 0x40, 'i'
+	}
+}
+
+// handleGetTextScreenFull reconstructs the text screen directly from the
+// main and (in 80-column mode) auxiliary text-page memory, so it is
+// correct in 80-column mode where the legacy get_text_screen pairs the
+// two banks in the wrong order. In 80-column mode auxiliary memory holds
+// the even display columns and main memory the odd ones. MouseText and
+// inverse cells are decoded per the live ALTCHARSET state.
+func handleGetTextScreenFull(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[GetTextScreenFullParams]) (*mcp.CallToolResultFor[any], error) {
+	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
+	if e == nil {
+		return nil, fmt.Errorf("no interpreter available")
+	}
+
+	mmu, err := currentRAMMMU()
+	if err != nil {
+		return nil, err
+	}
+	mainBlk := mmu.Get("main.all")
+	auxBlk := mmu.Get("aux.all")
+	if mainBlk == nil {
+		return nil, fmt.Errorf("main RAM region unavailable")
+	}
+
+	// Read 80-column and alt-charset state straight from the I/O chip so
+	// the result reflects the hardware, not a possibly-stale text layer.
+	cols := 40
+	altCharset := false
+	if mr, ok := e.GetMemoryMap().InterpreterMappableAtAddress(e.GetMemIndex(), 0xc000); ok {
+		if io, ok := mr.(*apple2.Apple2IOChip); ok {
+			if io.SW_80COL() {
+				cols = 80
+			}
+			altCharset = io.SW_ALTCHAR()
+		}
+	}
+	if cols == 80 && auxBlk == nil {
+		cols = 40 // no aux bank to interleave; fall back to main only
+	}
+
+	const rows = 24
+	var text strings.Builder
+	var attrs strings.Builder
+	for row := 0; row < rows; row++ {
+		base := textScreenRowBase(row)
+		for k := 0; k < 40; k++ {
+			if cols == 80 {
+				ch, at := decodeTextCell(byte(auxBlk.DirectRead(base+k)&0xff), altCharset)
+				text.WriteByte(ch)
+				attrs.WriteByte(at)
+			}
+			ch, at := decodeTextCell(byte(mainBlk.DirectRead(base+k)&0xff), altCharset)
+			text.WriteByte(ch)
+			attrs.WriteByte(at)
+		}
+		text.WriteByte('\n')
+		attrs.WriteByte('\n')
+	}
+
+	altStr := "off"
+	if altCharset {
+		altStr = "on"
+	}
+	out := fmt.Sprintf("[%d columns x %d rows, alt charset: %s]\n%s",
+		cols, rows, altStr, text.String())
+	if params.Arguments.Attributes {
+		out += "\nattributes (.=normal i=inverse f=flash m=mousetext):\n" +
+			strings.ReplaceAll(attrs.String(), "n", ".")
+	}
+
+	return &mcp.CallToolResultFor[any]{
+		Content: []mcp.Content{&mcp.TextContent{Text: out}},
 	}, nil
 }
 
@@ -3217,6 +3330,11 @@ func createMCPServer() *mcp.Server {
 		Name:        "get_text_screen",
 		Description: "Get the current text screen contents",
 	}, handleGetTextScreen)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "get_text_screen_full",
+		Description: "Get the text screen reconstructed directly from main and auxiliary memory: correct in 80-column mode (where get_text_screen mis-orders the two memory banks) and decodes inverse and MouseText cells per the live ALTCHARSET state. Pass attributes=true for a per-cell attribute grid.",
+	}, handleGetTextScreenFull)
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:        "read_memory",
