@@ -532,10 +532,11 @@ func handleGetTextScreen(ctx context.Context, cc *mcp.ServerSession, params *mcp
 	}, nil
 }
 
-// textScreenRowBase returns the address offset of a 40-column text row
-// within a text page. Rows are interleaved in thirds, not linear.
-func textScreenRowBase(row int) int {
-	return 0x400 + (row%8)*0x80 + (row/8)*0x28
+// textScreenRowBase returns the address of a text row within the text
+// page starting at pageBase ($0400 for page 1, $0800 for page 2). Rows
+// are interleaved in thirds, not linear.
+func textScreenRowBase(pageBase, row int) int {
+	return pageBase + (row%8)*0x80 + (row/8)*0x28
 }
 
 // decodeTextCell turns a raw text-screen byte into its character and an
@@ -571,8 +572,10 @@ func decodeTextCell(b byte, altCharset bool) (ch byte, attr byte) {
 // main and (in 80-column mode) auxiliary text-page memory, so it is
 // correct in 80-column mode where the legacy get_text_screen pairs the
 // two banks in the wrong order. In 80-column mode auxiliary memory holds
-// the even display columns and main memory the odd ones. MouseText and
-// inverse cells are decoded per the live ALTCHARSET state.
+// the even display columns and main memory the odd ones. It follows the
+// displayed page (page 2 at $0800 when PAGE2 is active, matching the
+// scanline renderer) and decodes MouseText and inverse cells per the
+// live ALTCHARSET state.
 func handleGetTextScreenFull(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[GetTextScreenFullParams]) (*mcp.CallToolResultFor[any], error) {
 	e := backend.ProducerMain.GetInterpreter(SelectedIndex)
 	if e == nil {
@@ -589,16 +592,25 @@ func handleGetTextScreenFull(ctx context.Context, cc *mcp.ServerSession, params 
 		return nil, fmt.Errorf("main RAM region unavailable")
 	}
 
-	// Read 80-column and alt-charset state straight from the I/O chip so
-	// the result reflects the hardware, not a possibly-stale text layer.
+	// Read column, page, and alt-charset state straight from the I/O chip
+	// so the result reflects the hardware, not a possibly-stale text layer.
 	cols := 40
 	altCharset := false
+	pageBase := 0x400 // page 1; page 2 lives at $0800
+	page := 1
 	if mr, ok := e.GetMemoryMap().InterpreterMappableAtAddress(e.GetMemIndex(), 0xc000); ok {
 		if io, ok := mr.(*apple2.Apple2IOChip); ok {
 			if io.SW_80COL() {
 				cols = 80
 			}
 			altCharset = io.SW_ALTCHAR()
+			// VSW_PAGE2 is the display page-2 flag (already gated by
+			// 80STORE: under 80STORE, PAGE2 banks aux instead of
+			// switching pages). The renderer uses $0800 when it is set.
+			if io.VSW_PAGE2() {
+				pageBase = 0x800
+				page = 2
+			}
 		}
 	}
 	if cols == 80 && auxBlk == nil {
@@ -609,7 +621,7 @@ func handleGetTextScreenFull(ctx context.Context, cc *mcp.ServerSession, params 
 	var text strings.Builder
 	var attrs strings.Builder
 	for row := 0; row < rows; row++ {
-		base := textScreenRowBase(row)
+		base := textScreenRowBase(pageBase, row)
 		for k := 0; k < 40; k++ {
 			if cols == 80 {
 				ch, at := decodeTextCell(byte(auxBlk.DirectRead(base+k)&0xff), altCharset)
@@ -628,8 +640,8 @@ func handleGetTextScreenFull(ctx context.Context, cc *mcp.ServerSession, params 
 	if altCharset {
 		altStr = "on"
 	}
-	out := fmt.Sprintf("[%d columns x %d rows, alt charset: %s]\n%s",
-		cols, rows, altStr, text.String())
+	out := fmt.Sprintf("[%d columns x %d rows, page %d, alt charset: %s]\n%s",
+		cols, rows, page, altStr, text.String())
 	if params.Arguments.Attributes {
 		out += "\nattributes (.=normal i=inverse f=flash m=mousetext):\n" +
 			strings.ReplaceAll(attrs.String(), "n", ".")
