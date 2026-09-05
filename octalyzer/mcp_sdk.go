@@ -389,6 +389,10 @@ func recordInsertedBootVolume(idx int, drive int, volume string, highCapacity bo
 func handleInsertDisk(ctx context.Context, cc *mcp.ServerSession, params *mcp.CallToolParamsFor[InsertDiskParams]) (*mcp.CallToolResultFor[any], error) {
 	args := params.Arguments
 
+	if args.Drive < 0 || args.Drive > 2 {
+		return nil, fmt.Errorf("invalid drive number %d (must be 0-2)", args.Drive)
+	}
+
 	// Read the disk file
 	diskBytes, err := os.ReadFile(args.Filename)
 	if err != nil {
@@ -401,7 +405,15 @@ func handleInsertDisk(ctx context.Context, cc *mcp.ServerSession, params *mcp.Ca
 	// SmartPort.
 	highCapacity := files.Apple2IsHighCapacity(files.GetExt(args.Filename), len(diskBytes))
 
+	// .2mg/.hdv are classified high-capacity by extension alone, but SmartPort
+	// rejects images below one block without attaching. Fail here rather than
+	// reporting success and recording a boot volume the next reboot can't boot.
+	if highCapacity && len(diskBytes) < apple2.SmartPortMinImageBytes {
+		return nil, fmt.Errorf("image too small (%d bytes) to be a valid SmartPort volume: %s", len(diskBytes), args.Filename)
+	}
+
 	var device string
+	bootDrive := args.Drive
 	if highCapacity {
 		servicebus.SendServiceBusMessage(
 			SelectedIndex,
@@ -413,21 +425,26 @@ func handleInsertDisk(ctx context.Context, cc *mcp.ServerSession, params *mcp.Ca
 			},
 		)
 		device = "SmartPort (3.5\"/hard disk)"
+		bootDrive = 0
 	} else {
+		// The Disk II controller has two drives; normalize (e.g. 2 -> 0) so the
+		// insert, the boot slot, eject_disk, and the reported device all agree.
+		diskIIDrive := args.Drive % 2
 		servicebus.SendServiceBusMessage(
 			SelectedIndex,
 			servicebus.DiskIIInsertBytes,
 			servicebus.DiskTargetBytes{
 				Filename: args.Filename,
-				Drive:    args.Drive,
+				Drive:    diskIIDrive,
 				Bytes:    diskBytes,
 			},
 		)
-		device = fmt.Sprintf("Disk II drive %d", args.Drive)
+		device = fmt.Sprintf("Disk II drive %d", diskIIDrive)
+		bootDrive = diskIIDrive
 	}
 
 	// Make the inserted volume the boot volume so a following reboot boots it.
-	recordInsertedBootVolume(SelectedIndex, args.Drive, "local:"+args.Filename, highCapacity)
+	recordInsertedBootVolume(SelectedIndex, bootDrive, "local:"+args.Filename, highCapacity)
 
 	return &mcp.CallToolResultFor[any]{
 		Content: []mcp.Content{&mcp.TextContent{
@@ -1495,6 +1512,13 @@ func handleInsertDiskFile(ctx context.Context, cc *mcp.ServerSession, params *mc
 
 	// Determine if it's a high capacity disk
 	isHighCapacity := files.Apple2IsHighCapacity(fileExt, int(fileSize))
+
+	// .2mg/.hdv are classified high-capacity by extension alone, but SmartPort
+	// rejects images below one block without attaching. Fail here rather than
+	// reporting success and recording a boot volume the next reboot can't boot.
+	if isHighCapacity && fileSize < apple2.SmartPortMinImageBytes {
+		return nil, fmt.Errorf("image too small (%d bytes) to be a valid SmartPort volume: %s", fileSize, filepath)
+	}
 
 	// Send the appropriate service bus message
 	if isHighCapacity {
