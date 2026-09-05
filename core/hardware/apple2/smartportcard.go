@@ -19,11 +19,11 @@ import (
 const LEDOffCycles = 125000
 const WriteOffCycles = 1020484
 
-// smartPortMinImageBytes is the smallest byte count that could be a valid
+// SmartPortMinImageBytes is the smallest byte count that could be a valid
 // SmartPort block image (one 512-byte ProDOS block). Anything smaller cannot
 // be mounted and, if fed to the header decoders below, would slice out of
 // bounds — so reject it up front instead of panicking.
-const smartPortMinImageBytes = 512
+const SmartPortMinImageBytes = 512
 
 // has2IMGMagic reports whether data begins with the "2IMG" container magic,
 // guarding the 4-byte read against short/truncated images.
@@ -586,7 +586,7 @@ func (d *IOCardSmartPort) HandleServiceBusRequest(r *servicebus.ServiceBusReques
 			t.Filename = "/" + strings.Trim(t.Filename, "/")
 		}
 
-		if len(data) < smartPortMinImageBytes {
+		if len(data) < SmartPortMinImageBytes {
 			log.Printf("SmartPort: image too small (%d bytes), not a valid block device: %s", len(data), t.Filename)
 			break
 		}
@@ -613,7 +613,7 @@ func (d *IOCardSmartPort) HandleServiceBusRequest(r *servicebus.ServiceBusReques
 		if strings.HasPrefix(fn, "local:") {
 			fn = fn[6:]
 			data, err := files.ReadBytes(fn)
-			if err == nil && len(data) < smartPortMinImageBytes {
+			if err == nil && len(data) < SmartPortMinImageBytes {
 				log.Printf("SmartPort: image too small (%d bytes), not a valid block device: %s", len(data), fn)
 			} else if err == nil {
 				var s *SmartPortBlockDevice
@@ -633,7 +633,7 @@ func (d *IOCardSmartPort) HandleServiceBusRequest(r *servicebus.ServiceBusReques
 			}
 		} else {
 			data, err := files.ReadBytesViaProvider(files.GetPath(fn), files.GetFilename(fn))
-			if err == nil && len(data.Content) < smartPortMinImageBytes {
+			if err == nil && len(data.Content) < SmartPortMinImageBytes {
 				log.Printf("SmartPort: image too small (%d bytes), not a valid block device: %s", len(data.Content), fn)
 			} else if err == nil {
 				var s *SmartPortBlockDevice
