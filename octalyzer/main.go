@@ -269,11 +269,19 @@ func initBackend(r *memory.MemoryMap) {
 // same detection used by the runtime media-change / drag-and-drop paths.
 func isHighCapacityDisk(path string) bool {
 	ext := files.GetExt(path)
-	var size int64
-	if fi, err := os.Stat(path); err == nil {
-		size = fi.Size()
+	fi, err := os.Stat(path)
+	if err != nil {
+		// Unreadable/missing: don't route to SmartPort. Let the Disk II path
+		// surface the problem (it fails gracefully rather than panicking).
+		return false
 	}
-	return files.Apple2IsHighCapacity(ext, int(size))
+	// .2mg/.hdv are classified high-capacity by extension alone, so a truncated
+	// or empty one would otherwise be sent to SmartPort, whose header decoder
+	// slices the first bytes and panics. Require at least one 512-byte block.
+	if fi.Size() < 512 {
+		return false
+	}
+	return files.Apple2IsHighCapacity(ext, int(fi.Size()))
 }
 
 func round(f float64) float64 {

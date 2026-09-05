@@ -592,26 +592,35 @@ func handleGetTextScreenFull(ctx context.Context, cc *mcp.ServerSession, params 
 		return nil, fmt.Errorf("main RAM region unavailable")
 	}
 
+	// The text-screen decode below is Apple II specific (40/80-column layout,
+	// MouseText/ALTCHARSET, $0400/$0800 pages). Require an Apple II I/O chip;
+	// otherwise a non-Apple machine (e.g. the Spectrum, which also registers a
+	// "main.all" block) would have its RAM at $0400 decoded as fabricated Apple
+	// text. Reject it instead of returning a bogus screen.
+	mr, ok := e.GetMemoryMap().InterpreterMappableAtAddress(e.GetMemIndex(), 0xc000)
+	if !ok {
+		return nil, fmt.Errorf("get_text_screen_full requires an Apple II machine")
+	}
+	io, ok := mr.(*apple2.Apple2IOChip)
+	if !ok {
+		return nil, fmt.Errorf("get_text_screen_full is only supported on Apple II machines")
+	}
+
 	// Read column, page, and alt-charset state straight from the I/O chip
 	// so the result reflects the hardware, not a possibly-stale text layer.
 	cols := 40
-	altCharset := false
+	altCharset := io.SW_ALTCHAR()
 	pageBase := 0x400 // page 1; page 2 lives at $0800
 	page := 1
-	if mr, ok := e.GetMemoryMap().InterpreterMappableAtAddress(e.GetMemIndex(), 0xc000); ok {
-		if io, ok := mr.(*apple2.Apple2IOChip); ok {
-			if io.SW_80COL() {
-				cols = 80
-			}
-			altCharset = io.SW_ALTCHAR()
-			// VSW_PAGE2 is the display page-2 flag (already gated by
-			// 80STORE: under 80STORE, PAGE2 banks aux instead of
-			// switching pages). The renderer uses $0800 when it is set.
-			if io.VSW_PAGE2() {
-				pageBase = 0x800
-				page = 2
-			}
-		}
+	if io.SW_80COL() {
+		cols = 80
+	}
+	// VSW_PAGE2 is the display page-2 flag (already gated by 80STORE: under
+	// 80STORE, PAGE2 banks aux instead of switching pages). The renderer uses
+	// $0800 when it is set.
+	if io.VSW_PAGE2() {
+		pageBase = 0x800
+		page = 2
 	}
 	if cols == 80 && auxBlk == nil {
 		cols = 40 // no aux bank to interleave; fall back to main only
