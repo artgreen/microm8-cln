@@ -170,7 +170,7 @@ var spkmode [memory.OCTALYZER_NUM_INTERPRETERS]uint64
 var testing = flag.Bool("testing", false, "Use testing channel instead of stable")
 var measureRemote = flag.Bool("measure-remote", false, "Trace remote network incoming")
 var arch = flag.Bool("arch", false, "Show architecture and exit")
-var bootdisk = flag.String("drive1", "", "Apple // boot volume")
+var bootdisk = flag.String("drive1", "", "Apple // boot volume (140k -> Disk II; 800k/400k/.2mg/.hdv -> SmartPort)")
 var auxdisk = flag.String("drive2", "", "Apple // second volume")
 var ramtest = flag.Int("goto", -1, "Execute from address")
 var bankenable = flag.String("bankenable", "", "Enable selected banks before goto")
@@ -260,6 +260,19 @@ func SetSlotAspect(index int, aspect float64) {
 
 func initBackend(r *memory.MemoryMap) {
 	go backend.Run(r, nil)
+}
+
+// isHighCapacityDisk reports whether the disk image at path is a high-capacity
+// volume (e.g. 800k/400k ProDOS 3.5" images, .2mg, .hdv) that must be attached
+// to the SmartPort device rather than the 140k Disk II controller. Matches the
+// same detection used by the runtime media-change / drag-and-drop paths.
+func isHighCapacityDisk(path string) bool {
+	ext := files.GetExt(path)
+	var size int64
+	if fi, err := os.Stat(path); err == nil {
+		size = fi.Size()
+	}
+	return files.Apple2IsHighCapacity(ext, int(size))
 }
 
 func round(f float64) float64 {
@@ -1176,7 +1189,14 @@ func maininner() {
 	if *bootdisk != "" {
 		//settings.SplashDisk = "local:" + *bootdisk
 		//settings.PureBoot = true
-		settings.PureBootVolume[0] = "local:" + *bootdisk
+		// High-capacity images (800k/400k ProDOS 3.5", .2mg, .hdv) must be
+		// routed to the SmartPort device; the Disk II controller only handles
+		// 140k 5.25" media. 140k images keep going to Disk II drive 1.
+		if isHighCapacityDisk(*bootdisk) {
+			settings.PureBootSmartVolume[0] = "local:" + *bootdisk
+		} else {
+			settings.PureBootVolume[0] = "local:" + *bootdisk
+		}
 	}
 
 	if *auxdisk != "" {
