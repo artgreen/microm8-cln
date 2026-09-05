@@ -19,6 +19,18 @@ import (
 const LEDOffCycles = 125000
 const WriteOffCycles = 1020484
 
+// smartPortMinImageBytes is the smallest byte count that could be a valid
+// SmartPort block image (one 512-byte ProDOS block). Anything smaller cannot
+// be mounted and, if fed to the header decoders below, would slice out of
+// bounds — so reject it up front instead of panicking.
+const smartPortMinImageBytes = 512
+
+// has2IMGMagic reports whether data begins with the "2IMG" container magic,
+// guarding the 4-byte read against short/truncated images.
+func has2IMGMagic(data []byte) bool {
+	return len(data) >= 4 && string(data[:4]) == "2IMG"
+}
+
 type SmartPortErrorType int
 
 const (
@@ -574,7 +586,11 @@ func (d *IOCardSmartPort) HandleServiceBusRequest(r *servicebus.ServiceBusReques
 			t.Filename = "/" + strings.Trim(t.Filename, "/")
 		}
 
-		if string(data[:4]) == "2IMG" {
+		if len(data) < smartPortMinImageBytes {
+			log.Printf("SmartPort: image too small (%d bytes), not a valid block device: %s", len(data), t.Filename)
+			break
+		}
+		if has2IMGMagic(data) {
 			log.Println("2img")
 			s, err = NewSmartPortBlockDevice(data, t.Filename)
 		} else {
@@ -597,10 +613,12 @@ func (d *IOCardSmartPort) HandleServiceBusRequest(r *servicebus.ServiceBusReques
 		if strings.HasPrefix(fn, "local:") {
 			fn = fn[6:]
 			data, err := files.ReadBytes(fn)
-			if err == nil {
+			if err == nil && len(data) < smartPortMinImageBytes {
+				log.Printf("SmartPort: image too small (%d bytes), not a valid block device: %s", len(data), fn)
+			} else if err == nil {
 				var s *SmartPortBlockDevice
 				var err error
-				if string(data[:4]) == "2IMG" {
+				if has2IMGMagic(data) {
 					log.Println("2img")
 					s, err = NewSmartPortBlockDevice(data, t.Filename)
 				} else {
@@ -615,10 +633,12 @@ func (d *IOCardSmartPort) HandleServiceBusRequest(r *servicebus.ServiceBusReques
 			}
 		} else {
 			data, err := files.ReadBytesViaProvider(files.GetPath(fn), files.GetFilename(fn))
-			if err == nil {
+			if err == nil && len(data.Content) < smartPortMinImageBytes {
+				log.Printf("SmartPort: image too small (%d bytes), not a valid block device: %s", len(data.Content), fn)
+			} else if err == nil {
 				var s *SmartPortBlockDevice
 				var err error
-				if string(data.Content[:4]) == "2IMG" {
+				if has2IMGMagic(data.Content) {
 					s, err = NewSmartPortBlockDevice(data.Content, t.Filename)
 				} else {
 					s, err = NewSmartPortBlockDeviceNoHeader(data.Content, t.Filename)

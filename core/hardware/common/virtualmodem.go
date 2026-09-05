@@ -33,14 +33,15 @@ var execBlacklist = []string{
 }
 
 type SerialVirtualModem struct {
-	Input         []byte
-	OutputChunk   chan byte
-	Output        chan byte
-	lastChars     string
-	commandBuffer string
-	Device        SerialDevice
-	m             sync.Mutex
-	r             bool
+	Input           []byte
+	OutputChunk     chan byte
+	Output          chan byte
+	lastChars       string
+	commandBuffer   string
+	Device          SerialDevice
+	m               sync.Mutex
+	r               bool
+	telnetEOFMarker bool
 }
 
 func (d *SerialVirtualModem) IsConnected() bool {
@@ -166,7 +167,7 @@ func (d *SerialVirtualModem) handleCommand(c string) {
 		if strings.HasPrefix(c, "atw") {
 			host := "telnet.wmflabs.org"
 			port := "23"
-			d.Device = NewSerialTelnetDevice(host, port)
+			d.Device = NewSerialTelnetDevice(host, port, d.telnetEOFMarker)
 			if d.Device.IsConnected() {
 				d.doOutput([]byte("\r\nCONNECT " + c + "\r\n"))
 				return
@@ -215,7 +216,7 @@ func (d *SerialVirtualModem) handleCommand(c string) {
 					parts := strings.SplitN(address, ":", 2)
 					host := parts[0]
 					port := parts[1]
-					d.Device = NewSerialTelnetDevice(host, port)
+					d.Device = NewSerialTelnetDevice(host, port, d.telnetEOFMarker)
 					if d.Device.IsConnected() {
 						d.doOutput([]byte("\r\nCONNECT " + c + "\r\n"))
 						return
@@ -282,7 +283,7 @@ func (d *SerialVirtualModem) handleCommand(c string) {
 				if len(parts) > 2 {
 					port = parts[2]
 				}
-				d.Device = NewSerialTelnetDevice(host, port)
+				d.Device = NewSerialTelnetDevice(host, port, d.telnetEOFMarker)
 				if d.Device.IsConnected() {
 					// d.doOutput([]byte("\r\nCONNECT " + c + "\r\n"))
 				}
@@ -307,15 +308,20 @@ func (d *SerialVirtualModem) Drain() {
 	}
 }
 
-func NewSerialVirtualModem(str string) *SerialVirtualModem {
+func NewSerialVirtualModem(str string, telnetEOFMarker ...bool) *SerialVirtualModem {
+	sendEOFMarker := true
+	if len(telnetEOFMarker) > 0 {
+		sendEOFMarker = telnetEOFMarker[0]
+	}
 	m := &SerialVirtualModem{
-		commandBuffer: "",
-		Device:        nil,
-		Input:         make([]byte, 0),
-		Output:        make(chan byte, 1),
-		OutputChunk:   make(chan byte, 24576),
-		lastChars:     "",
-		r:             true,
+		commandBuffer:   "",
+		Device:          nil,
+		Input:           make([]byte, 0),
+		Output:          make(chan byte, 1),
+		OutputChunk:     make(chan byte, 24576),
+		lastChars:       "",
+		r:               true,
+		telnetEOFMarker: sendEOFMarker,
 	}
 	if str != "-" {
 		m.handleCommand(str)

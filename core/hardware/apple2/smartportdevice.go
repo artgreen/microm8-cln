@@ -139,6 +139,11 @@ func NewSmartPortBlockDeviceNoHeader(data []byte, filename string) (*SmartPortBl
 }
 
 func NewSmartPortBlockDevice(data []byte, filename string) (*SmartPortBlockDevice, error) {
+	// A 2IMG header is 64 bytes; reject anything shorter before the header
+	// accessors (GetMagic/getInt16/getInt32) slice out of bounds.
+	if len(data) < 64 {
+		return nil, errors.New("2MG file too small: truncated header")
+	}
 	d := &SmartPortBlockDevice{
 		Data:     data,
 		Filename: filename,

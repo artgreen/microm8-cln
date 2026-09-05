@@ -29,12 +29,12 @@ const (
 )
 
 type IOCardSSCState struct {
-	lastInputByte     int
-	SW1Setting        int
-	SW2Setting        int
-	SW2CTS            int
-	RecvIRQEnabled    bool
-	TransIRQEnabled   bool
+	lastInputByte   int
+	SW1Setting      int
+	SW2Setting      int
+	SW2CTS          int
+	RecvIRQEnabled  bool
+	TransIRQEnabled bool
 	// IRQTriggered is runtime hardware state (whether we've asserted an
 	// IRQ the guest hasn't acknowledged yet). Don't persist it: a saved
 	// state restored mid-IRQ would otherwise be stuck "triggered" forever
@@ -123,9 +123,9 @@ func (d *IOCardSSC) GetStatusBits() (cts bool, dsr bool, dcd bool, ri bool) {
 func (d *IOCardSSC) configureSerialMode() {
 	log.Printf("SSC: reconfigure mode")
 	if settings.SSCCardMode[d.Int.GetMemIndex()] == settings.SSCModeTelnetServer && !settings.IsSetBoolOverride(d.Int.GetMemIndex(), "ssc.disable.telnetserver") {
-		d.Device = common.NewSerialTelnetServer(d.Int.GetMemIndex(), "localhost", fmt.Sprintf("%d", 1977+d.Int.GetMemIndex()))
+		d.Device = common.NewSerialTelnetServer(d.Int.GetMemIndex(), "localhost", fmt.Sprintf("%d", 1977+d.Int.GetMemIndex()), settings.SSCTelnetSendEOFMarker)
 	} else if settings.SSCCardMode[d.Int.GetMemIndex()] == settings.SSCModeVirtualModem {
-		d.Device = common.NewSerialVirtualModem(settings.GetModemInitString(d.Int.GetMemIndex())) //&SerialDummyDevice{Data: []byte(" Hello world!")}
+		d.Device = common.NewSerialVirtualModem(settings.GetModemInitString(d.Int.GetMemIndex()), settings.SSCTelnetSendEOFMarker) //&SerialDummyDevice{Data: []byte(" Hello world!")}
 	} else if settings.SSCCardMode[d.Int.GetMemIndex()] == settings.SSCModeEmulatedESCP {
 		d.Device = common.NewSerialPrinterEmu(
 			common.NewESCPDevice(&common.PDFOutput{}, d.Int),
@@ -139,7 +139,7 @@ func (d *IOCardSSC) configureSerialMode() {
 	} else if settings.SSCCardMode[d.Int.GetMemIndex()] == settings.SSCModeSerialRaw {
 		port, err := common.NewSerialPortDevice(settings.SSCHardwarePort, 9600, "N", 8, "1", false)
 		if err != nil {
-			d.Device = common.NewSerialVirtualModem(settings.GetModemInitString(d.Int.GetMemIndex())) //&SerialDummyDevice{Data: []byte(" Hello world!")}
+			d.Device = common.NewSerialVirtualModem(settings.GetModemInitString(d.Int.GetMemIndex()), settings.SSCTelnetSendEOFMarker) //&SerialDummyDevice{Data: []byte(" Hello world!")}
 		} else {
 			d.Device = port
 		}

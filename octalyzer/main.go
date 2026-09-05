@@ -170,7 +170,7 @@ var spkmode [memory.OCTALYZER_NUM_INTERPRETERS]uint64
 var testing = flag.Bool("testing", false, "Use testing channel instead of stable")
 var measureRemote = flag.Bool("measure-remote", false, "Trace remote network incoming")
 var arch = flag.Bool("arch", false, "Show architecture and exit")
-var bootdisk = flag.String("drive1", "", "Apple // boot volume")
+var bootdisk = flag.String("drive1", "", "Apple // boot volume (140k -> Disk II; 800k/400k/.2mg/.hdv -> SmartPort)")
 var auxdisk = flag.String("drive2", "", "Apple // second volume")
 var ramtest = flag.Int("goto", -1, "Execute from address")
 var bankenable = flag.String("bankenable", "", "Enable selected banks before goto")
@@ -229,6 +229,7 @@ var sscUseHardwarePort = flag.String("ssc-port", "", "Map super serial card to r
 var sscListPorts = flag.Bool("ssc-list-ports", false, "List hardware serial ports on host for -ssc-port")
 var sscEmulatedImageWriter = flag.Bool("ssc-imagewriter-emu", false, "Emulate an imagewriter attached to SSC")
 var sscEmulatedESCP = flag.Bool("ssc-epson-emu", false, "Emulate an epson 9-pin printer attached to SSC")
+var sscTelnetNoEOF = flag.Bool("ssc-telnet-no-eof", false, "Do not send EOF marker to SSC when a TELNET connection closes")
 var mcpMode = flag.Bool("mcp", false, "Run as MCP server")
 var mcpTransport = flag.String("mcp-mode", "stdio", "MCP transport mode: stdio, sse, or streaming")
 var mcpPort = flag.Int("mcp-port", 1983, "Port for MCP HTTP server (SSE or streaming)")
@@ -260,6 +261,27 @@ func SetSlotAspect(index int, aspect float64) {
 
 func initBackend(r *memory.MemoryMap) {
 	go backend.Run(r, nil)
+}
+
+// isHighCapacityDisk reports whether the disk image at path is a high-capacity
+// volume (e.g. 800k/400k ProDOS 3.5" images, .2mg, .hdv) that must be attached
+// to the SmartPort device rather than the 140k Disk II controller. Matches the
+// same detection used by the runtime media-change / drag-and-drop paths.
+func isHighCapacityDisk(path string) bool {
+	ext := files.GetExt(path)
+	fi, err := os.Stat(path)
+	if err != nil {
+		// Unreadable/missing: don't route to SmartPort. Let the Disk II path
+		// surface the problem (it fails gracefully rather than panicking).
+		return false
+	}
+	// .2mg/.hdv are classified high-capacity by extension alone, so a truncated
+	// or empty one would otherwise be sent to SmartPort, whose header decoder
+	// slices the first bytes and panics. Require at least one 512-byte block.
+	if fi.Size() < 512 {
+		return false
+	}
+	return files.Apple2IsHighCapacity(ext, int(fi.Size()))
 }
 
 func round(f float64) float64 {
@@ -1038,6 +1060,7 @@ func maininner() {
 		settings.SSCCardMode[0] = settings.SSCModeEmulatedESCP
 		settings.SSCHardwarePort = ""
 	}
+	settings.SSCTelnetSendEOFMarker = !*sscTelnetNoEOF
 	settings.DefModemInitString = *modemInit
 
 	settings.NoUpdates = *noUpdate
@@ -1176,7 +1199,14 @@ func maininner() {
 	if *bootdisk != "" {
 		//settings.SplashDisk = "local:" + *bootdisk
 		//settings.PureBoot = true
-		settings.PureBootVolume[0] = "local:" + *bootdisk
+		// High-capacity images (800k/400k ProDOS 3.5", .2mg, .hdv) must be
+		// routed to the SmartPort device; the Disk II controller only handles
+		// 140k 5.25" media. 140k images keep going to Disk II drive 1.
+		if isHighCapacityDisk(*bootdisk) {
+			settings.PureBootSmartVolume[0] = "local:" + *bootdisk
+		} else {
+			settings.PureBootVolume[0] = "local:" + *bootdisk
+		}
 	}
 
 	if *auxdisk != "" {
